@@ -4,7 +4,7 @@ A nightly pipeline that pulls my Garmin Connect data, computes the training and
 recovery signals the watch doesn't give me, and renders a single self-contained
 dashboard for an 8-week marathon block.
 
-**[Live demo](#demo)** (synthetic data) · Python 3.12 · no framework, no build step
+**[Live demo](https://claude.ai/artifact/Xa3zgqJ46qni6dcmnp593b)** (synthetic data) · Python 3.12 · no framework, no build step
 
 ---
 
