@@ -3,6 +3,7 @@ The full daily pipeline. This is what the 6:30am schedule calls.
 
   sync_garmin.py   Garmin Connect  ->  garmin/store/  (additive)
   signals.py       store + plan    ->  web/data.json  (the output contract)
+  adapt.py         web/data.json   ->  + plan matching and today's adjustments
   coach.py         web/data.json   ->  + the coach's read
   build_dashboard.py  data + template -> dashboard.html
 
@@ -54,6 +55,7 @@ def main() -> None:
         step("Sync Garmin", ["sync_garmin.py", "--days", str(args.days)], required=False)
 
     step("Compute signals", ["signals.py", "--print"])
+    step("Match and adapt the plan", ["adapt.py"])
     step("Coach", ["coach.py"] + (["--live"] if args.live_coach else []))
     step("Build dashboard", ["build_dashboard.py"])
 

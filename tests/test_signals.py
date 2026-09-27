@@ -279,7 +279,8 @@ def test_readiness_renormalises_instead_of_penalising_missing_inputs():
         day={}, load={}, weights=WEIGHTS)
     assert partial["score"] == pytest.approx(full["score"], abs=2)
     assert partial["inputs_used"] == ["resting_hr", "sleep"]
-    assert set(partial["inputs_missing"]) == {"body_battery", "stress", "training_load"}
+    assert set(partial["inputs_missing"]) == {"nocturnal_drop", "body_battery",
+                                              "stress", "training_load"}
 
 
 def test_readiness_is_none_when_nothing_is_available():

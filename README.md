@@ -20,10 +20,12 @@ Every night it:
 
 1. pulls wellness and activity data from Garmin Connect into an append-only store
 2. computes the derived signals — training load, acute:chronic workload ratio,
-   resting-HR baseline deviation, sleep debt, a readiness composite, a race
-   projection, and adherence against the plan
-3. writes a coach's read of those signals
-4. renders `dashboard.html`, which opens with a double-click and needs no server
+   fitness/fatigue/form, resting-HR and nocturnal-drop baselines, sleep debt, a
+   readiness composite, a race projection, and adherence against the plan
+3. matches what actually happened against the plan, and adjusts today and
+   tomorrow to the recovery signals — without ever rewriting the base plan
+4. writes a coach's read of those signals
+5. renders `dashboard.html`, which opens with a double-click and needs no server
 
 ## Architecture
 
@@ -34,6 +36,8 @@ flowchart LR
   S --> SIG[signals.py]
   PJ --> SIG
   SIG --> D[(web/data.json<br/>the output contract)]
+  D --> A[adapt.py<br/>match + adjust today]
+  A --> D
   D --> C[coach.py<br/>rules engine · optional Claude]
   C --> D
   D --> B[build_dashboard.py]
@@ -51,12 +55,14 @@ stage can be run or debugged on its own.
 | `sync_garmin.py` | Garmin API → `garmin/store/` plus readable markdown notes |
 | `store.py` | the append-only store: one JSON file per day, one per activity |
 | `signals.py` | **the analytical core.** Store + plan → `web/data.json` |
+| `adapt.py` | matches activities to the plan, and adjusts today and tomorrow |
 | `coach.py` | reads the signals, writes the coach's note |
 | `build_dashboard.py` | inlines `web/data.json` into `web/template.html` |
 | `plan/build_plan.py` | generates the 8-week plan from a single goal time |
 | `make_demo_data.py` | synthetic dataset so the project can be shown publicly |
 | `run_daily.py` | runs the whole pipeline; called by a launchd job at 06:30 |
-| `tests/test_signals.py` | 33 tests over the signal layer |
+| `tests/test_signals.py` | tests over the signal layer |
+| `tests/test_adapt.py` | tests over matching and adaptation |
 
 ## The decisions worth explaining
 
@@ -77,22 +83,94 @@ replaces only the days it actually fetched. `migrate_store.py` recovered the los
 history by parsing the human-readable markdown notes the old pipeline had written
 alongside the snapshot and never deleted.
 
-**Readiness is built from what this device actually reports.** Garmin returns no
-HRV data and no Training Readiness score for my watch — both come back empty
-rather than errored, which is the kind of thing that turns into a chart of zeros
-if you don't check. So readiness is a weighted composite of resting-HR deviation,
-sleep duration and stage composition, body battery at wake, stress, and computed
-training load. Missing inputs are dropped and the remaining weights renormalised,
-so a partially synced day scores on its available signals instead of being
-punished for the gaps — and every score carries the list of inputs behind it,
-because a score built from two signals deserves less trust than one built from
-five. The dashboard names the unavailable signals rather than hiding them.
+**There is no HRV on this watch, so the nocturnal heart-rate drop stands in for
+it.** Probed directly: `get_hrv_data` and `get_hrv_data_range` both return `{}`,
+and `get_training_readiness`, `get_morning_training_readiness` and
+`get_endurance_score` are empty too. There is no sleep score either. All of them
+come back *empty rather than errored*, which is exactly how they become a chart of
+zeros if nobody checks.
+
+What the sleep response does carry — and the first version of this pipeline was
+throwing away — is a full overnight series: heart rate roughly every two minutes,
+plus overnight stress and body battery. From that comes the **nocturnal drop**:
+heart rate at sleep onset minus the night's minimum. A deep drop is
+parasympathetic rebound; a shallow one is a body still working. It is not HRV and
+is never labelled as HRV, but it moves for the same reasons, and on real data it
+is more sensitive than resting HR alone — the night resting HR was 3 bpm high, the
+drop had collapsed from a usual 8 bpm to 0.8 and bottomed out immediately.
+
+Readiness is therefore a weighted composite of resting-HR deviation, the nocturnal
+drop against its own baseline, sleep duration and stage composition, body battery
+at wake, stress, and computed training load. Missing inputs are dropped and the
+remaining weights renormalised, so a partially synced day scores on its available
+signals instead of being punished for the gaps — and every score carries the list
+of inputs behind it, because a score built from two signals deserves less trust
+than one built from five. The dashboard names both what is in use and what is
+unavailable.
+
+**Two load models, because they answer different questions.** The acute:chronic
+workload ratio asks "am I ramping faster than I can absorb" — an injury-risk
+question. Fitness/fatigue/form (42-day and 7-day exponentially weighted load, and
+their difference) asks "am I fit, and am I fresh enough to express it" — a peaking
+question. A marathon block needs both: the ratio keeps you healthy through the
+build, form tells you whether the taper is working.
+
+**Form is judged as a share of fitness, not as an absolute number.** The published
+form thresholds (+5 to +15 "fresh", −10 to −30 "building") come from TSS, where
+fitness typically lands between 50 and 100. This pipeline measures load in TRIMP,
+which has a different scale, so borrowing those cutoffs unchanged mislabelled a
+normal training week as a crisis. As a percentage of fitness the bands hold
+whatever the unit is.
+
+**The plan adapts, but never rewrites itself.** `plan/plan.json` is generated once
+from the goal time and then left alone. Each build adjusts only today and
+tomorrow, and the dashboard shows the suggestion *next to* the original session so
+I pick which one to do. A plan that quietly rewrites itself every morning is a
+plan you stop trusting. Triggers: readiness ≥ 70 takes it as written; 45–69 turns
+quality into easy running at the same distance and trims the long run 10%; below
+45 is rest or 30 minutes very easy, with any key session moved to a later easy day
+— never the day before another key session; three of the last four days below 55
+cuts the rest of the week 20%; a fatigue/fitness ratio above 1.4 eases the next
+workout; two or more key sessions missed last week holds this week at last week's
+volume. Lifting scales down with recovery rather than being dropped.
+
+**Completion is measured, not ticked.** A run on the planned day covering at least
+60% of the planned distance counts as done; less is cut short; a run on another
+day fills the nearest unmatched run that week, because shifting a session by a day
+is normal life and shouldn't read as a failure. A session planned for today is
+neither done nor missed — a dashboard that scolds you at breakfast for a run
+you're about to do gets ignored within a week.
+
+**Garmin's own numbers are kept alongside mine, precisely because they disagree.**
+`get_race_predictions` and `get_max_metrics` both work on this account even though
+the readiness endpoints don't. Garmin models a marathon time from every run on the
+watch and reads optimistic; Riegel extrapolates one training run and reads
+pessimistic. On the same day they said 3:50:15 and 4:02:45. Showing the bracket is
+more honest than picking whichever number flatters the goal. These endpoints return
+only the current value with no history, so each observation is stored and the trend
+is the store's.
 
 **Training load is TRIMP, not duration.** Banister's formula
 (`minutes × HRr × 0.64 × e^(1.92 × HRr)`) weights hard minutes far more heavily
 than easy ones, so an hour of intervals and an hour of jogging don't score alike.
-Sessions without average HR fall back to a per-sport rate and are flagged as
-estimated.
+Sessions without average HR fall back to a load-per-minute rate *measured from my
+own sessions in that sport* where there are at least three to measure from, and a
+generic prior otherwise — either way flagged as estimated.
+
+**The load window starts where the data starts.** It used to extend a fixed 120
+days back, which padded the months before the watch existed with zeros. Since the
+fitness curve is seeded from the earliest weeks, it seeded from nothing and spent
+months climbing to a fitness I already had — understating fitness and so
+overstating fatigue across the whole series. Fitness read 51 with that bug and 79
+without it, which is the difference between "building" and "fresh" two weeks after
+a race.
+
+**The sync is incremental and stops on a 429.** Calls are spaced 0.4s apart. Days
+already held are skipped except the most recent three, because Garmin keeps
+revising a day's sleep and stress for a day or two after it ends and everything
+older is settled. A rate-limit response aborts the run rather than retrying in a
+loop, and an old day Garmin has nothing for is cached as failed so it isn't
+retried forever.
 
 **The race projection reports three numbers, not one.** Riegel's formula assumes
 a maximal effort, and a training run never quite is. So the projection gives the
@@ -117,6 +195,11 @@ inventing calorie tracking here would be fiction. What can be derived honestly i
 the carbohydrate target implied by the day's planned session, which is the number
 that actually matters in a marathon block.
 
+**Everything is on one page.** No tabs, no accordions, no drawers. This week's
+plan is the first thing on screen because it is the thing I actually open the page
+to see; everything else is a scroll away rather than a click away. A dashboard you
+have to navigate is a dashboard you check less often.
+
 **The coach's read is a rules engine by default.** It's deterministic, free,
 works offline, and can be unit-tested. `coach.py --live` instead hands the
 *computed signals* — never raw payloads — to Claude and asks for the read in
@@ -137,10 +220,11 @@ open dashboard.html
 Individual stages:
 
 ```bash
-.venv/bin/python sync_garmin.py --days 10
+.venv/bin/python sync_garmin.py --days 10       # incremental; --force to re-pull
 .venv/bin/python signals.py --print
-.venv/bin/python coach.py --live          # needs ANTHROPIC_API_KEY
-.venv/bin/python run_daily.py --skip-sync # rebuild without hitting Garmin
+.venv/bin/python adapt.py                       # matching + today's adjustments
+.venv/bin/python coach.py --live                # needs ANTHROPIC_API_KEY
+.venv/bin/python run_daily.py --skip-sync       # rebuild without hitting Garmin
 .venv/bin/pytest tests/ -q
 ```
 
@@ -165,8 +249,8 @@ ships rather than an idealised one. Seeded, so it's byte-identical on every run.
 
 ## Tests
 
-33 tests over `signals.py`, covering the edge cases that would otherwise fail
-quietly rather than loudly:
+57 tests over `signals.py` and `adapt.py`, covering the edge cases that would
+otherwise fail quietly rather than loudly:
 
 - a workload ratio computed from 5 days of history would look plausible and mean
   nothing, so it refuses to produce one under 21 days
@@ -175,6 +259,12 @@ quietly rather than loudly:
 - an HR reading below resting must not produce negative training load
 - rest days are real data, so the daily-load series is dense rather than sparse
 - an empty store has to render, not crash
+- a session planned for today is neither done nor missed
+- a run on the wrong day fills the nearest miss, but a run that already satisfied
+  its own session is not reused for another
+- a rescheduled key session never lands the day before another key session
+- adaptation never mutates the base plan, and always keeps the original beside
+  the suggestion
 
 ```bash
 .venv/bin/pytest tests/ -q
@@ -184,6 +274,12 @@ quietly rather than loudly:
 
 - **Strava.** Garmin is the source of truth for this data; adding Strava would
   mean a second OAuth flow and a deduplication problem for no new signal.
+- **Body composition.** `get_body_composition` and `get_weigh_ins` return empty
+  lists on this account — there's no connected scale — so bodyweight stays a
+  config value and the fuel panel says so rather than inventing a number.
+- **Disposable data.** Tempting to treat the raw pull as a rebuildable cache, but
+  Garmin's history only goes back to when the watch does, and this project already
+  lost a month of history to exactly that assumption. The store is durable.
 - **A database.** 45 days of JSON files is a few hundred kilobytes. SQLite would
   be ceremony.
 - **A frontend framework.** The page renders a fixed set of charts from one JSON

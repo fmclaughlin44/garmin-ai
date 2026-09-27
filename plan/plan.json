@@ -42,7 +42,7 @@
     {
       "week": 3,
       "phase": "Week 3 \u2014 Build 2",
-      "headline": "Threshold block. This is where the 8:35 starts feeling cheap.",
+      "headline": "Threshold block. This is where goal pace starts feeling cheap.",
       "miles_target": 35,
       "start": "2026-10-05",
       "end": "2026-10-11"
@@ -50,8 +50,8 @@
     {
       "week": 4,
       "phase": "Week 4 \u2014 Build 3",
-      "headline": "Marathon pace goes into the long run. Fueling rehearsal starts.",
-      "miles_target": 37,
+      "headline": "Marathon pace goes into the long run. Fuelling rehearsal starts.",
+      "miles_target": 39,
       "start": "2026-10-12",
       "end": "2026-10-18"
     },
@@ -59,7 +59,7 @@
       "week": 5,
       "phase": "Week 5 \u2014 Peak 1",
       "headline": "Biggest aerobic week. Bank the volume, stay off the red line.",
-      "miles_target": 41,
+      "miles_target": 44,
       "start": "2026-10-19",
       "end": "2026-10-25"
     },
@@ -67,23 +67,23 @@
       "week": 6,
       "phase": "Week 6 \u2014 Peak 2",
       "headline": "Race simulation week. The 20-miler is the whole block in one session.",
-      "miles_target": 43,
+      "miles_target": 46,
       "start": "2026-10-26",
       "end": "2026-11-01"
     },
     {
       "week": 7,
       "phase": "Week 7 \u2014 Taper 1",
-      "headline": "Volume drops ~30%, intensity stays. You should start feeling springy.",
-      "miles_target": 30,
+      "headline": "Volume drops ~25%, intensity stays. You should start feeling springy.",
+      "miles_target": 34,
       "start": "2026-11-02",
       "end": "2026-11-08"
     },
     {
       "week": 8,
       "phase": "Week 8 \u2014 Race Week",
-      "headline": "Deep taper. Nothing you do this week makes you fitter \u2014 only fresher.",
-      "miles_target": 18,
+      "headline": "Deep taper. Nothing this week makes you fitter \u2014 only fresher.",
+      "miles_target": 45.2,
       "start": "2026-11-09",
       "end": "2026-11-15"
     }
@@ -120,6 +120,10 @@
     "2026-09-21": {
       "session": "Rest or 30min easy spin. Nothing hard.",
       "target": "Full recovery",
+      "kind": "rest",
+      "miles": 0,
+      "key": false,
+      "lift": null,
       "phase": "Week 1 \u2014 Re-entry",
       "week": 1,
       "week_miles_target": 24
@@ -127,6 +131,10 @@
     "2026-09-22": {
       "session": "Easy 5mi + 4\u00d720s strides",
       "target": "9:50\u201310:20/mi \u00b7 strides relaxed",
+      "kind": "easy",
+      "miles": 5,
+      "key": false,
+      "lift": null,
       "phase": "Week 1 \u2014 Re-entry",
       "week": 1,
       "week_miles_target": 24
@@ -134,6 +142,10 @@
     "2026-09-23": {
       "session": "Swim 1500m easy + Upper Pull lift",
       "target": "Easy \u00b7 flush the legs",
+      "kind": "cross",
+      "miles": 0,
+      "key": false,
+      "lift": "upper_pull",
       "phase": "Week 1 \u2014 Re-entry",
       "week": 1,
       "week_miles_target": 24
@@ -141,6 +153,10 @@
     "2026-09-24": {
       "session": "Easy 6mi steady",
       "target": "9:50\u201310:20/mi \u00b7 HR <150",
+      "kind": "easy",
+      "miles": 6,
+      "key": false,
+      "lift": null,
       "phase": "Week 1 \u2014 Re-entry",
       "week": 1,
       "week_miles_target": 24
@@ -148,6 +164,10 @@
     "2026-09-25": {
       "session": "Rest or 40min easy spin",
       "target": "Recovery",
+      "kind": "rest",
+      "miles": 0,
+      "key": false,
+      "lift": null,
       "phase": "Week 1 \u2014 Re-entry",
       "week": 1,
       "week_miles_target": 24
@@ -155,6 +175,10 @@
     "2026-09-26": {
       "session": "Easy 4mi + 6\u00d720s strides",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 4,
+      "key": false,
+      "lift": "upper_push",
       "phase": "Week 1 \u2014 Re-entry",
       "week": 1,
       "week_miles_target": 24
@@ -162,6 +186,10 @@
     "2026-09-27": {
       "session": "Long run 9mi easy \u2014 first real long run back",
       "target": "9:20\u20139:50/mi \u00b7 HR <155",
+      "kind": "long",
+      "miles": 9,
+      "key": true,
+      "lift": null,
       "phase": "Week 1 \u2014 Re-entry",
       "week": 1,
       "week_miles_target": 24
@@ -169,6 +197,10 @@
     "2026-09-28": {
       "session": "Recovery: 30min easy spin or swim 1500m + Upper Push lift",
       "target": "Easy",
+      "kind": "cross",
+      "miles": 0,
+      "key": false,
+      "lift": "upper_push",
       "phase": "Week 2 \u2014 Build 1",
       "week": 2,
       "week_miles_target": 31
@@ -176,20 +208,32 @@
     "2026-09-29": {
       "session": "Quality \u2014 Intervals: 1.5 WU / 5\u00d71000m @ 7:30\u20137:45 (2min jog) / 1 CD",
       "target": "7:30\u20137:45/mi reps \u00b7 Z4",
+      "kind": "quality",
+      "miles": 6,
+      "key": true,
+      "lift": null,
       "phase": "Week 2 \u2014 Build 1",
       "week": 2,
       "week_miles_target": 31
     },
     "2026-09-30": {
-      "session": "Easy 5mi + Legs (moderate)",
+      "session": "Easy 4mi + Legs (moderate)",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 4,
+      "key": false,
+      "lift": "legs",
       "phase": "Week 2 \u2014 Build 1",
       "week": 2,
       "week_miles_target": 31
     },
     "2026-10-01": {
-      "session": "Medium-long 8mi, last 2mi @ 8:35",
+      "session": "Medium-long 7mi, last 2mi @ 8:35",
       "target": "Finish at MP 8:35/mi",
+      "kind": "medium_long",
+      "miles": 7,
+      "key": true,
+      "lift": null,
       "phase": "Week 2 \u2014 Build 1",
       "week": 2,
       "week_miles_target": 31
@@ -197,20 +241,32 @@
     "2026-10-02": {
       "session": "Rest or swim 1800m easy",
       "target": "Recovery",
+      "kind": "rest",
+      "miles": 0,
+      "key": false,
+      "lift": null,
       "phase": "Week 2 \u2014 Build 1",
       "week": 2,
       "week_miles_target": 31
     },
     "2026-10-03": {
-      "session": "Easy 4mi + 6\u00d720s strides",
+      "session": "Easy 3mi + 6\u00d720s strides",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 3,
+      "key": false,
+      "lift": "upper_pull",
       "phase": "Week 2 \u2014 Build 1",
       "week": 2,
       "week_miles_target": 31
     },
     "2026-10-04": {
-      "session": "Long run 12mi easy",
+      "session": "Long run 11mi easy",
       "target": "9:20\u20139:50/mi \u00b7 HR <155",
+      "kind": "long",
+      "miles": 11,
+      "key": true,
+      "lift": null,
       "phase": "Week 2 \u2014 Build 1",
       "week": 2,
       "week_miles_target": 31
@@ -218,6 +274,10 @@
     "2026-10-05": {
       "session": "Recovery: 30min spin + Upper Pull lift",
       "target": "Easy",
+      "kind": "cross",
+      "miles": 0,
+      "key": false,
+      "lift": "upper_pull",
       "phase": "Week 3 \u2014 Build 2",
       "week": 3,
       "week_miles_target": 35
@@ -225,20 +285,32 @@
     "2026-10-06": {
       "session": "Quality \u2014 Tempo: 1.5 WU / 5mi @ 8:00\u20138:10 / 1 CD",
       "target": "8:00\u20138:10/mi \u00b7 Z3\u2013low Z4",
+      "kind": "quality",
+      "miles": 7,
+      "key": true,
+      "lift": null,
       "phase": "Week 3 \u2014 Build 2",
       "week": 3,
       "week_miles_target": 35
     },
     "2026-10-07": {
-      "session": "Easy 6mi + Legs (moderate)",
+      "session": "Easy 4mi + Legs (moderate)",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 4,
+      "key": false,
+      "lift": "legs",
       "phase": "Week 3 \u2014 Build 2",
       "week": 3,
       "week_miles_target": 35
     },
     "2026-10-08": {
-      "session": "Medium-long 9mi, middle 3mi @ 8:35",
+      "session": "Medium-long 8mi, middle 3mi @ 8:35",
       "target": "MP 8:35/mi",
+      "kind": "medium_long",
+      "miles": 8,
+      "key": true,
+      "lift": null,
       "phase": "Week 3 \u2014 Build 2",
       "week": 3,
       "week_miles_target": 35
@@ -246,20 +318,32 @@
     "2026-10-09": {
       "session": "Rest or swim 1800m",
       "target": "Recovery",
+      "kind": "rest",
+      "miles": 0,
+      "key": false,
+      "lift": null,
       "phase": "Week 3 \u2014 Build 2",
       "week": 3,
       "week_miles_target": 35
     },
     "2026-10-10": {
-      "session": "Easy 4mi + strides",
+      "session": "Easy 3mi + strides",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 3,
+      "key": false,
+      "lift": "upper_push",
       "phase": "Week 3 \u2014 Build 2",
       "week": 3,
       "week_miles_target": 35
     },
     "2026-10-11": {
-      "session": "Long run 14mi easy",
+      "session": "Long run 13mi easy",
       "target": "9:20\u20139:50/mi \u00b7 HR <155",
+      "kind": "long",
+      "miles": 13,
+      "key": true,
+      "lift": null,
       "phase": "Week 3 \u2014 Build 2",
       "week": 3,
       "week_miles_target": 35
@@ -267,249 +351,389 @@
     "2026-10-12": {
       "session": "Recovery: swim 1500m + Upper Push lift",
       "target": "Easy",
+      "kind": "cross",
+      "miles": 0,
+      "key": false,
+      "lift": "upper_push",
       "phase": "Week 4 \u2014 Build 3",
       "week": 4,
-      "week_miles_target": 37
+      "week_miles_target": 39
     },
     "2026-10-13": {
       "session": "Quality \u2014 Intervals: 1.5 WU / 6\u00d71mi @ 8:00\u20138:10 (90s jog) / 1 CD",
       "target": "8:00\u20138:10/mi \u00b7 controlled",
+      "kind": "quality",
+      "miles": 8,
+      "key": true,
+      "lift": null,
       "phase": "Week 4 \u2014 Build 3",
       "week": 4,
-      "week_miles_target": 37
+      "week_miles_target": 39
     },
     "2026-10-14": {
-      "session": "Easy 6mi + Legs",
+      "session": "Easy 4mi + Legs",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 4,
+      "key": false,
+      "lift": "legs",
       "phase": "Week 4 \u2014 Build 3",
       "week": 4,
-      "week_miles_target": 37
+      "week_miles_target": 39
     },
     "2026-10-15": {
-      "session": "Medium-long 10mi, 2\u00d72mi @ 8:35 (1mi easy between)",
+      "session": "Medium-long 9mi, 2\u00d72mi @ 8:35 (1mi easy between)",
       "target": "MP 8:35/mi",
+      "kind": "medium_long",
+      "miles": 9,
+      "key": true,
+      "lift": null,
       "phase": "Week 4 \u2014 Build 3",
       "week": 4,
-      "week_miles_target": 37
+      "week_miles_target": 39
     },
     "2026-10-16": {
       "session": "Rest or 45min easy spin",
       "target": "Recovery",
+      "kind": "rest",
+      "miles": 0,
+      "key": false,
+      "lift": null,
       "phase": "Week 4 \u2014 Build 3",
       "week": 4,
-      "week_miles_target": 37
+      "week_miles_target": 39
     },
     "2026-10-17": {
-      "session": "Easy 4mi + strides",
+      "session": "Easy 3mi + strides",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 3,
+      "key": false,
+      "lift": "upper_pull",
       "phase": "Week 4 \u2014 Build 3",
       "week": 4,
-      "week_miles_target": 37
+      "week_miles_target": 39
     },
     "2026-10-18": {
-      "session": "LONG RUN 16mi \u2014 last 4mi @ 8:35. Practice race fueling: 60g carbs/hr from mile 4.",
+      "session": "LONG RUN 15mi \u2014 last 4mi @ 8:35. Practice race fuelling: 60g carbs/hr from mile 4.",
       "target": "Easy \u2192 MP 8:35/mi",
+      "kind": "long",
+      "miles": 15,
+      "key": true,
+      "lift": null,
       "phase": "Week 4 \u2014 Build 3",
       "week": 4,
-      "week_miles_target": 37
+      "week_miles_target": 39
     },
     "2026-10-19": {
       "session": "Recovery: 30min spin + Upper Pull lift",
       "target": "Easy",
+      "kind": "cross",
+      "miles": 0,
+      "key": false,
+      "lift": "upper_pull",
       "phase": "Week 5 \u2014 Peak 1",
       "week": 5,
-      "week_miles_target": 41
+      "week_miles_target": 44
     },
     "2026-10-20": {
       "session": "Quality \u2014 Tempo: 1.5 WU / 6mi @ 8:00\u20138:10 / 1 CD",
       "target": "8:00\u20138:10/mi",
+      "kind": "quality",
+      "miles": 8,
+      "key": true,
+      "lift": null,
       "phase": "Week 5 \u2014 Peak 1",
       "week": 5,
-      "week_miles_target": 41
+      "week_miles_target": 44
     },
     "2026-10-21": {
-      "session": "Easy 7mi + Legs (lighter)",
+      "session": "Easy 5mi + Legs (lighter)",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 5,
+      "key": false,
+      "lift": "legs",
       "phase": "Week 5 \u2014 Peak 1",
       "week": 5,
-      "week_miles_target": 41
+      "week_miles_target": 44
     },
     "2026-10-22": {
-      "session": "Medium-long 11mi, middle 5mi @ 8:35",
+      "session": "Medium-long 10mi, middle 5mi @ 8:35",
       "target": "MP 8:35/mi",
+      "kind": "medium_long",
+      "miles": 10,
+      "key": true,
+      "lift": null,
       "phase": "Week 5 \u2014 Peak 1",
       "week": 5,
-      "week_miles_target": 41
+      "week_miles_target": 44
     },
     "2026-10-23": {
       "session": "Rest or swim 2000m easy",
       "target": "Recovery",
+      "kind": "rest",
+      "miles": 0,
+      "key": false,
+      "lift": null,
       "phase": "Week 5 \u2014 Peak 1",
       "week": 5,
-      "week_miles_target": 41
+      "week_miles_target": 44
     },
     "2026-10-24": {
-      "session": "Easy 4mi + strides",
+      "session": "Easy 3mi + strides",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 3,
+      "key": false,
+      "lift": "upper_push",
       "phase": "Week 5 \u2014 Peak 1",
       "week": 5,
-      "week_miles_target": 41
+      "week_miles_target": 44
     },
     "2026-10-25": {
-      "session": "LONG RUN 18mi steady. Full fueling rehearsal: 60\u201375g carbs/hr, drink every 20min.",
+      "session": "LONG RUN 18mi steady. Full fuelling rehearsal: 60\u201375g carbs/hr, drink every 20min.",
       "target": "9:20\u20139:50/mi \u00b7 HR <155",
+      "kind": "long",
+      "miles": 18,
+      "key": true,
+      "lift": null,
       "phase": "Week 5 \u2014 Peak 1",
       "week": 5,
-      "week_miles_target": 41
+      "week_miles_target": 44
     },
     "2026-10-26": {
       "session": "Recovery: swim 1500m + Upper Push lift",
       "target": "Easy",
+      "kind": "cross",
+      "miles": 0,
+      "key": false,
+      "lift": "upper_push",
       "phase": "Week 6 \u2014 Peak 2",
       "week": 6,
-      "week_miles_target": 43
+      "week_miles_target": 46
     },
     "2026-10-27": {
       "session": "Quality \u2014 Intervals: 1.5 WU / 3\u00d72mi @ 8:00\u20138:10 (2min jog) / 1 CD",
       "target": "8:00\u20138:10/mi",
+      "kind": "quality",
+      "miles": 8,
+      "key": true,
+      "lift": null,
       "phase": "Week 6 \u2014 Peak 2",
       "week": 6,
-      "week_miles_target": 43
+      "week_miles_target": 46
     },
     "2026-10-28": {
-      "session": "Easy 6mi + Legs (light)",
+      "session": "Easy 5mi + Legs (light)",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 5,
+      "key": false,
+      "lift": "legs",
       "phase": "Week 6 \u2014 Peak 2",
       "week": 6,
-      "week_miles_target": 43
+      "week_miles_target": 46
     },
     "2026-10-29": {
       "session": "Medium-long 10mi, 6mi @ 8:35 \u2014 dress rehearsal pace feel",
       "target": "MP 8:35/mi \u00b7 should feel repeatable",
+      "kind": "medium_long",
+      "miles": 10,
+      "key": true,
+      "lift": null,
       "phase": "Week 6 \u2014 Peak 2",
       "week": 6,
-      "week_miles_target": 43
+      "week_miles_target": 46
     },
     "2026-10-30": {
       "session": "Rest \u2014 full day off legs",
       "target": "Rest",
+      "kind": "rest",
+      "miles": 0,
+      "key": false,
+      "lift": null,
       "phase": "Week 6 \u2014 Peak 2",
       "week": 6,
-      "week_miles_target": 43
+      "week_miles_target": 46
     },
     "2026-10-31": {
-      "session": "Easy 4mi + strides",
+      "session": "Easy 3mi + strides",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 3,
+      "key": false,
+      "lift": null,
       "phase": "Week 6 \u2014 Peak 2",
       "week": 6,
-      "week_miles_target": 43
+      "week_miles_target": 46
     },
     "2026-11-01": {
-      "session": "LONG RUN 20mi \u2014 race kit, race shoes, race breakfast, race fueling. Last 5mi @ 8:35.",
+      "session": "LONG RUN 20mi \u2014 race kit, race shoes, race breakfast, race fuelling. Last 5mi @ 8:35.",
       "target": "Easy \u2192 MP 8:35/mi \u00b7 the key session",
+      "kind": "long",
+      "miles": 20,
+      "key": true,
+      "lift": null,
       "phase": "Week 6 \u2014 Peak 2",
       "week": 6,
-      "week_miles_target": 43
+      "week_miles_target": 46
     },
     "2026-11-02": {
       "session": "Recovery: 30min spin + Upper Pull (70% load)",
       "target": "Easy",
+      "kind": "cross",
+      "miles": 0,
+      "key": false,
+      "lift": "upper_pull",
       "phase": "Week 7 \u2014 Taper 1",
       "week": 7,
-      "week_miles_target": 30
+      "week_miles_target": 34
     },
     "2026-11-03": {
       "session": "Quality \u2014 1.5 WU / 4mi @ 8:00\u20138:10 / 1 CD",
       "target": "8:00\u20138:10/mi \u00b7 sharp not deep",
+      "kind": "quality",
+      "miles": 6,
+      "key": true,
+      "lift": null,
       "phase": "Week 7 \u2014 Taper 1",
       "week": 7,
-      "week_miles_target": 30
+      "week_miles_target": 34
     },
     "2026-11-04": {
-      "session": "Easy 5mi (skip heavy legs from here)",
+      "session": "Easy 4mi (no heavy legs from here)",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 4,
+      "key": false,
+      "lift": "mobility",
       "phase": "Week 7 \u2014 Taper 1",
       "week": 7,
-      "week_miles_target": 30
+      "week_miles_target": 34
     },
     "2026-11-05": {
       "session": "Medium-long 8mi, 4mi @ 8:35",
       "target": "MP 8:35/mi",
+      "kind": "medium_long",
+      "miles": 8,
+      "key": true,
+      "lift": null,
       "phase": "Week 7 \u2014 Taper 1",
       "week": 7,
-      "week_miles_target": 30
+      "week_miles_target": 34
     },
     "2026-11-06": {
       "session": "Rest or swim 1500m easy",
       "target": "Recovery",
+      "kind": "rest",
+      "miles": 0,
+      "key": false,
+      "lift": null,
       "phase": "Week 7 \u2014 Taper 1",
       "week": 7,
-      "week_miles_target": 30
+      "week_miles_target": 34
     },
     "2026-11-07": {
-      "session": "Easy 4mi + 6\u00d720s strides",
+      "session": "Easy 3mi + 6\u00d720s strides",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 3,
+      "key": false,
+      "lift": null,
       "phase": "Week 7 \u2014 Taper 1",
       "week": 7,
-      "week_miles_target": 30
+      "week_miles_target": 34
     },
     "2026-11-08": {
       "session": "Long run 13mi, last 3mi @ 8:35",
       "target": "9:20\u20139:50 \u2192 MP 8:35/mi",
+      "kind": "long",
+      "miles": 13,
+      "key": true,
+      "lift": null,
       "phase": "Week 7 \u2014 Taper 1",
       "week": 7,
-      "week_miles_target": 30
+      "week_miles_target": 34
     },
     "2026-11-09": {
       "session": "Easy 5mi relaxed + 4\u00d720s strides",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 5,
+      "key": false,
+      "lift": "mobility",
       "phase": "Week 8 \u2014 Race Week",
       "week": 8,
-      "week_miles_target": 18
+      "week_miles_target": 45.2
     },
     "2026-11-10": {
       "session": "Sharpener: 1 WU / 3\u00d71mi @ 8:35 (2min jog) / 1 CD",
       "target": "MP 8:35/mi \u00b7 locks in rhythm",
+      "kind": "quality",
+      "miles": 5,
+      "key": true,
+      "lift": null,
       "phase": "Week 8 \u2014 Race Week",
       "week": 8,
-      "week_miles_target": 18
+      "week_miles_target": 45.2
     },
     "2026-11-11": {
       "session": "Easy 4mi. Carb-load begins \u2014 ramp to 8\u201310g/kg/day.",
       "target": "9:50\u201310:20/mi \u00b7 hydrate",
+      "kind": "easy",
+      "miles": 4,
+      "key": false,
+      "lift": null,
       "phase": "Week 8 \u2014 Race Week",
       "week": 8,
-      "week_miles_target": 18
+      "week_miles_target": 45.2
     },
     "2026-11-12": {
       "session": "Easy 3mi + 4 strides. Lay out race kit.",
       "target": "Very easy",
+      "kind": "easy",
+      "miles": 3,
+      "key": false,
+      "lift": null,
       "phase": "Week 8 \u2014 Race Week",
       "week": 8,
-      "week_miles_target": 18
+      "week_miles_target": 45.2
     },
     "2026-11-13": {
       "session": "Rest or 20min shakeout jog. Travel / packet pickup. Off legs by evening.",
       "target": "Rest",
+      "kind": "rest",
+      "miles": 0,
+      "key": false,
+      "lift": null,
       "phase": "Week 8 \u2014 Race Week",
       "week": 8,
-      "week_miles_target": 18
+      "week_miles_target": 45.2
     },
     "2026-11-14": {
       "session": "20min easy jog + 3 strides. Final carb-load day. Early night.",
       "target": "Prime \u00b7 rest",
+      "kind": "easy",
+      "miles": 2,
+      "key": false,
+      "lift": null,
       "phase": "Week 8 \u2014 Race Week",
       "week": 8,
-      "week_miles_target": 18
+      "week_miles_target": 45.2
     },
     "2026-11-15": {
       "session": "RACE DAY \u00b7 MARATHON \u00b7 goal 3:45:00 (8:35/mi). Fuel 60\u201375g carbs/hr from mile 4.",
       "target": "EXECUTE THE PLAN",
+      "kind": "race",
+      "miles": 26.2,
+      "key": true,
+      "lift": null,
       "phase": "Week 8 \u2014 Race Week",
       "week": 8,
-      "week_miles_target": 18
+      "week_miles_target": 45.2
     }
   },
-  "generated_at": "2026-09-27T14:01:54",
+  "generated_at": "2026-09-27T14:38:04",
   "generated_by": "plan/build_plan.py"
 }

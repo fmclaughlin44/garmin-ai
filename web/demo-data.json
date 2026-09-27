@@ -1,13 +1,13 @@
 {
   "meta": {
-    "generated_at": "2026-09-27T14:18:03",
+    "generated_at": "2026-09-27T15:08:33",
     "as_of": "2026-10-21",
     "data_through": "2026-10-21",
     "store_coverage": {
       "day_count": 70,
       "first_day": "2026-08-13",
       "last_day": "2026-10-21",
-      "activity_count": 65
+      "activity_count": 59
     },
     "hr_max": {
       "value": 187,
@@ -16,7 +16,7 @@
     "unavailable_signals": [
       {
         "signal": "HRV",
-        "reason": "Garmin returns no HRV data for this device \u2014 readiness is composed without it."
+        "reason": "Both get_hrv_data and get_hrv_data_range return empty for this account \u2014 this watch does not record it. The nocturnal heart-rate drop, derived from the overnight series, stands in for it."
       },
       {
         "signal": "Garmin Training Readiness",
@@ -25,6 +25,16 @@
       {
         "signal": "Garmin sleep score",
         "reason": "Not reported \u2014 sleep is scored here from duration and stage composition."
+      }
+    ],
+    "available_signals": [
+      {
+        "signal": "Overnight heart-rate series",
+        "reason": "In use on 14 of the last 14 nights \u2014 roughly one sample every two minutes. This is where the nocturnal-drop signal comes from, standing in for HRV."
+      },
+      {
+        "signal": "Sleep stages",
+        "reason": "Deep, light, REM and awake durations are all reported, so sleep is scored here from duration and composition rather than from Garmin's missing sleep score."
       }
     ],
     "schema_version": 2,
@@ -57,11 +67,15 @@
   "today": {
     "date": "2026-10-21",
     "plan": {
-      "session": "Easy 7mi + Legs (lighter)",
+      "session": "Easy 5mi + Legs (lighter)",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 5,
+      "key": false,
+      "lift": "legs",
       "phase": "Week 5 \u2014 Peak 1",
       "week": 5,
-      "week_miles_target": 41
+      "week_miles_target": 44
     },
     "week": {
       "week": 5,
@@ -70,25 +84,28 @@
       "start": "2026-10-19",
       "end": "2026-10-25",
       "status": "current",
-      "miles_target": 41,
-      "miles_actual": 15.2,
-      "key_sessions_due": 1,
-      "key_sessions_done": 1
+      "miles_target": 44,
+      "miles_actual": 16.2,
+      "key_sessions_due": 3,
+      "key_sessions_done": 1,
+      "key_sessions_missed": 0
     }
   },
   "readiness": {
-    "score": 87,
+    "score": 77,
     "band": "good",
     "label": "Recovery signals are strong \u2014 take the session as planned.",
     "components": {
-      "resting_hr": 0.571,
-      "sleep": 0.987,
-      "body_battery": 1.0,
-      "stress": 1.0,
+      "resting_hr": 0.714,
+      "nocturnal_drop": 0.236,
+      "sleep": 1.0,
+      "body_battery": 0.94,
+      "stress": 0.971,
       "training_load": 1.0
     },
     "inputs_used": [
       "body_battery",
+      "nocturnal_drop",
       "resting_hr",
       "sleep",
       "stress",
@@ -97,52 +114,69 @@
     "inputs_missing": [],
     "weights_applied": {
       "body_battery": 15,
-      "resting_hr": 30,
-      "sleep": 30,
-      "stress": 10,
-      "training_load": 15
+      "nocturnal_drop": 20,
+      "resting_hr": 25,
+      "sleep": 25,
+      "stress": 5,
+      "training_load": 10
     }
   },
   "recovery": {
     "latest": {
       "date": "2026-10-21",
       "source": "api",
-      "rhr": 50,
+      "rhr": 49,
       "rhr_7day_avg": null,
-      "sleep_seconds": 26839,
-      "sleep_hours": 7.46,
+      "sleep_seconds": 27196,
+      "sleep_hours": 7.55,
       "sleep_score": null,
-      "deep_seconds": 5304,
-      "rem_seconds": 5283,
-      "light_seconds": 13956,
-      "awake_seconds": 1610,
-      "deep_pct": 19.8,
-      "rem_pct": 19.7,
-      "bb_wake": 70,
-      "bb_high": 74,
-      "bb_low": 15,
-      "stress_avg": 25,
-      "respiration_avg": 13.6,
-      "steps": 10389,
+      "deep_seconds": 4697,
+      "rem_seconds": 5683,
+      "light_seconds": 14141,
+      "awake_seconds": 1631,
+      "deep_pct": 17.3,
+      "rem_pct": 20.9,
+      "bb_wake": 67,
+      "bb_high": 71,
+      "bb_low": 12,
+      "stress_avg": 26,
+      "respiration_avg": 13.2,
+      "steps": 11640,
       "hrv_last_night": null,
       "hrv_status": null,
-      "garmin_readiness": null
+      "garmin_readiness": null,
+      "overnight_hr_min": 47,
+      "overnight_hr_mean": 51.6,
+      "nocturnal_drop": 8.9,
+      "nocturnal_drop_timing": 0.62,
+      "overnight_samples": 226,
+      "readiness_score": 77,
+      "readiness_band": "good"
     },
     "resting_hr": {
-      "today": 50,
+      "today": 49,
       "baseline": 49.0,
-      "delta": 1.0,
-      "z": 0.49,
-      "stdev": 2.04,
+      "delta": 0.0,
+      "z": 0.0,
+      "stdev": 1.79,
       "n": 28
     },
+    "nocturnal": {
+      "today": 8.9,
+      "baseline": 12.1,
+      "delta": -3.2,
+      "stdev": 1.58,
+      "n": 28,
+      "timing": 0.62,
+      "note": null
+    },
     "sleep": {
-      "last_night_hours": 7.46,
+      "last_night_hours": 7.55,
       "last_night_score": null,
-      "deep_pct": 19.8,
-      "rem_pct": 19.7,
-      "avg_7day_hours": 7.6,
-      "debt_7day_hours": -0.7,
+      "deep_pct": 17.3,
+      "rem_pct": 20.9,
+      "avg_7day_hours": 7.56,
+      "debt_7day_hours": -0.4,
       "nights_recorded": 7,
       "target_hours": 7.5
     },
@@ -150,739 +184,1441 @@
       {
         "date": "2026-09-24",
         "source": "api",
-        "rhr": 47,
+        "rhr": 49,
         "rhr_7day_avg": null,
-        "sleep_seconds": 29432,
-        "sleep_hours": 8.18,
+        "sleep_seconds": 27541,
+        "sleep_hours": 7.65,
         "sleep_score": null,
-        "deep_seconds": 6098,
-        "rem_seconds": 6173,
-        "light_seconds": 15304,
-        "awake_seconds": 1765,
-        "deep_pct": 20.7,
-        "rem_pct": 21.0,
-        "bb_wake": 80,
-        "bb_high": 84,
-        "bb_low": 25,
-        "stress_avg": 26,
-        "respiration_avg": 14.4,
-        "steps": 11729,
+        "deep_seconds": 5433,
+        "rem_seconds": 6042,
+        "light_seconds": 14321,
+        "awake_seconds": 1652,
+        "deep_pct": 19.7,
+        "rem_pct": 21.9,
+        "bb_wake": 82,
+        "bb_high": 86,
+        "bb_low": 27,
+        "stress_avg": 25,
+        "respiration_avg": 14.0,
+        "steps": 11112,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 48,
+        "overnight_hr_mean": 52.0,
+        "nocturnal_drop": 10.5,
+        "nocturnal_drop_timing": 0.38,
+        "overnight_samples": 229,
+        "readiness_score": 81,
+        "readiness_band": "good"
       },
       {
         "date": "2026-09-25",
         "source": "api",
-        "rhr": 53,
+        "rhr": 52,
         "rhr_7day_avg": null,
-        "sleep_seconds": 28952,
-        "sleep_hours": 8.04,
+        "sleep_seconds": 29386,
+        "sleep_hours": 8.16,
         "sleep_score": null,
-        "deep_seconds": 6003,
-        "rem_seconds": 5623,
-        "light_seconds": 15055,
-        "awake_seconds": 1737,
-        "deep_pct": 20.7,
-        "rem_pct": 19.4,
-        "bb_wake": 80,
-        "bb_high": 84,
-        "bb_low": 25,
-        "stress_avg": 21,
-        "respiration_avg": 13.3,
-        "steps": 12110,
+        "deep_seconds": 5775,
+        "rem_seconds": 6256,
+        "light_seconds": 15280,
+        "awake_seconds": 1763,
+        "deep_pct": 19.7,
+        "rem_pct": 21.3,
+        "bb_wake": 85,
+        "bb_high": 89,
+        "bb_low": 30,
+        "stress_avg": 22,
+        "respiration_avg": 13.4,
+        "steps": 10155,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 50,
+        "overnight_hr_mean": 55.9,
+        "nocturnal_drop": 12.8,
+        "nocturnal_drop_timing": 0.47,
+        "overnight_samples": 244,
+        "readiness_score": 75,
+        "readiness_band": "moderate"
       },
       {
         "date": "2026-09-26",
         "source": "api",
-        "rhr": 53,
+        "rhr": 54,
         "rhr_7day_avg": null,
-        "sleep_seconds": 28059,
-        "sleep_hours": 7.79,
+        "sleep_seconds": 28881,
+        "sleep_hours": 8.02,
         "sleep_score": null,
-        "deep_seconds": 5114,
-        "rem_seconds": 5884,
-        "light_seconds": 14590,
-        "awake_seconds": 1683,
-        "deep_pct": 18.2,
-        "rem_pct": 21.0,
-        "bb_wake": 88,
-        "bb_high": 92,
-        "bb_low": 33,
-        "stress_avg": 20,
-        "respiration_avg": 12.8,
-        "steps": 14010,
+        "deep_seconds": 5526,
+        "rem_seconds": 5858,
+        "light_seconds": 15018,
+        "awake_seconds": 1732,
+        "deep_pct": 19.1,
+        "rem_pct": 20.3,
+        "bb_wake": 80,
+        "bb_high": 84,
+        "bb_low": 25,
+        "stress_avg": 22,
+        "respiration_avg": 14.1,
+        "steps": 14648,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 52,
+        "overnight_hr_mean": 57.8,
+        "nocturnal_drop": 12.1,
+        "nocturnal_drop_timing": 0.46,
+        "overnight_samples": 240,
+        "readiness_score": 66,
+        "readiness_band": "moderate"
       },
       {
         "date": "2026-09-27",
         "source": "api",
-        "rhr": 55,
+        "rhr": 53,
         "rhr_7day_avg": null,
-        "sleep_seconds": 28941,
+        "sleep_seconds": 28958,
         "sleep_hours": 8.04,
         "sleep_score": null,
-        "deep_seconds": 4999,
-        "rem_seconds": 6083,
-        "light_seconds": 15049,
-        "awake_seconds": 1736,
-        "deep_pct": 17.3,
-        "rem_pct": 21.0,
-        "bb_wake": 88,
-        "bb_high": 92,
-        "bb_low": 33,
-        "stress_avg": 27,
-        "respiration_avg": 12.9,
-        "steps": 11603,
+        "deep_seconds": 6031,
+        "rem_seconds": 6633,
+        "light_seconds": 15058,
+        "awake_seconds": 1737,
+        "deep_pct": 20.8,
+        "rem_pct": 22.9,
+        "bb_wake": 86,
+        "bb_high": 90,
+        "bb_low": 31,
+        "stress_avg": 26,
+        "respiration_avg": 13.2,
+        "steps": 13090,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 50,
+        "overnight_hr_mean": 55.3,
+        "nocturnal_drop": 12.5,
+        "nocturnal_drop_timing": 0.39,
+        "overnight_samples": 241,
+        "readiness_score": 70,
+        "readiness_band": "moderate"
       },
       {
         "date": "2026-09-28",
         "source": "api",
-        "rhr": 47,
+        "rhr": 49,
         "rhr_7day_avg": null,
-        "sleep_seconds": 28232,
-        "sleep_hours": 7.84,
+        "sleep_seconds": 28710,
+        "sleep_hours": 7.97,
         "sleep_score": null,
-        "deep_seconds": 5438,
-        "rem_seconds": 6353,
-        "light_seconds": 14680,
-        "awake_seconds": 1693,
-        "deep_pct": 19.3,
-        "rem_pct": 22.5,
-        "bb_wake": 80,
-        "bb_high": 84,
-        "bb_low": 25,
+        "deep_seconds": 5465,
+        "rem_seconds": 5774,
+        "light_seconds": 14929,
+        "awake_seconds": 1722,
+        "deep_pct": 19.0,
+        "rem_pct": 20.1,
+        "bb_wake": 87,
+        "bb_high": 91,
+        "bb_low": 32,
         "stress_avg": 23,
-        "respiration_avg": 13.9,
-        "steps": 14336,
+        "respiration_avg": 14.4,
+        "steps": 7842,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 48,
+        "overnight_hr_mean": 52.4,
+        "nocturnal_drop": 10.7,
+        "nocturnal_drop_timing": 0.37,
+        "overnight_samples": 239,
+        "readiness_score": 81,
+        "readiness_band": "good"
       },
       {
         "date": "2026-09-29",
         "source": "api",
         "rhr": 48,
         "rhr_7day_avg": null,
-        "sleep_seconds": 24730,
-        "sleep_hours": 6.87,
+        "sleep_seconds": 27659,
+        "sleep_hours": 7.68,
         "sleep_score": null,
-        "deep_seconds": 4791,
-        "rem_seconds": 4887,
-        "light_seconds": 12859,
-        "awake_seconds": 1483,
-        "deep_pct": 19.4,
-        "rem_pct": 19.8,
-        "bb_wake": 83,
-        "bb_high": 87,
-        "bb_low": 28,
-        "stress_avg": 22,
-        "respiration_avg": 14.1,
-        "steps": 10027,
+        "deep_seconds": 5068,
+        "rem_seconds": 5877,
+        "light_seconds": 14382,
+        "awake_seconds": 1659,
+        "deep_pct": 18.3,
+        "rem_pct": 21.2,
+        "bb_wake": 86,
+        "bb_high": 90,
+        "bb_low": 31,
+        "stress_avg": 28,
+        "respiration_avg": 13.0,
+        "steps": 13431,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 46,
+        "overnight_hr_mean": 52.1,
+        "nocturnal_drop": 13.1,
+        "nocturnal_drop_timing": 0.45,
+        "overnight_samples": 230,
+        "readiness_score": 89,
+        "readiness_band": "good"
       },
       {
         "date": "2026-09-30",
         "source": "api",
-        "rhr": 50,
+        "rhr": 51,
         "rhr_7day_avg": null,
-        "sleep_seconds": 28046,
-        "sleep_hours": 7.79,
+        "sleep_seconds": 25968,
+        "sleep_hours": 7.21,
         "sleep_score": null,
-        "deep_seconds": 5299,
-        "rem_seconds": 5407,
-        "light_seconds": 14583,
-        "awake_seconds": 1682,
-        "deep_pct": 18.9,
-        "rem_pct": 19.3,
-        "bb_wake": 68,
-        "bb_high": 72,
-        "bb_low": 13,
-        "stress_avg": 26,
-        "respiration_avg": 14.4,
-        "steps": 14640,
+        "deep_seconds": 4861,
+        "rem_seconds": 5884,
+        "light_seconds": 13503,
+        "awake_seconds": 1558,
+        "deep_pct": 18.7,
+        "rem_pct": 22.7,
+        "bb_wake": 69,
+        "bb_high": 73,
+        "bb_low": 14,
+        "stress_avg": 25,
+        "respiration_avg": 12.7,
+        "steps": 10151,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 48,
+        "overnight_hr_mean": 52.4,
+        "nocturnal_drop": 8.1,
+        "nocturnal_drop_timing": 0.75,
+        "overnight_samples": 216,
+        "readiness_score": 67,
+        "readiness_band": "moderate"
       },
       {
         "date": "2026-10-01",
         "source": "api",
         "rhr": 49,
         "rhr_7day_avg": null,
-        "sleep_seconds": 29491,
-        "sleep_hours": 8.19,
+        "sleep_seconds": 29140,
+        "sleep_hours": 8.09,
         "sleep_score": null,
-        "deep_seconds": 5827,
-        "rem_seconds": 5967,
-        "light_seconds": 15335,
-        "awake_seconds": 1769,
-        "deep_pct": 19.8,
-        "rem_pct": 20.2,
+        "deep_seconds": 5100,
+        "rem_seconds": 6400,
+        "light_seconds": 15152,
+        "awake_seconds": 1748,
+        "deep_pct": 17.5,
+        "rem_pct": 22.0,
         "bb_wake": 79,
         "bb_high": 83,
         "bb_low": 24,
-        "stress_avg": 24,
-        "respiration_avg": 13.7,
-        "steps": 10172,
+        "stress_avg": 21,
+        "respiration_avg": 13.0,
+        "steps": 13060,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 48,
+        "overnight_hr_mean": 52.8,
+        "nocturnal_drop": 12.1,
+        "nocturnal_drop_timing": 0.41,
+        "overnight_samples": 242,
+        "readiness_score": 84,
+        "readiness_band": "good"
       },
       {
         "date": "2026-10-02",
         "source": "api",
-        "rhr": 47,
+        "rhr": 48,
         "rhr_7day_avg": null,
-        "sleep_seconds": 26593,
-        "sleep_hours": 7.39,
+        "sleep_seconds": 26086,
+        "sleep_hours": 7.25,
         "sleep_score": null,
-        "deep_seconds": 5370,
-        "rem_seconds": 5107,
-        "light_seconds": 13828,
-        "awake_seconds": 1595,
-        "deep_pct": 20.2,
-        "rem_pct": 19.2,
-        "bb_wake": 84,
-        "bb_high": 88,
-        "bb_low": 29,
-        "stress_avg": 23,
-        "respiration_avg": 13.9,
-        "steps": 12924,
+        "deep_seconds": 4969,
+        "rem_seconds": 5583,
+        "light_seconds": 13564,
+        "awake_seconds": 1565,
+        "deep_pct": 19.0,
+        "rem_pct": 21.4,
+        "bb_wake": 79,
+        "bb_high": 83,
+        "bb_low": 24,
+        "stress_avg": 28,
+        "respiration_avg": 13.8,
+        "steps": 8949,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 45,
+        "overnight_hr_mean": 50.6,
+        "nocturnal_drop": 13.3,
+        "nocturnal_drop_timing": 0.36,
+        "overnight_samples": 217,
+        "readiness_score": 87,
+        "readiness_band": "good"
       },
       {
         "date": "2026-10-03",
         "source": "api",
-        "rhr": 48,
+        "rhr": 47,
         "rhr_7day_avg": null,
-        "sleep_seconds": 28678,
-        "sleep_hours": 7.97,
+        "sleep_seconds": 28777,
+        "sleep_hours": 7.99,
         "sleep_score": null,
-        "deep_seconds": 5716,
-        "rem_seconds": 6501,
-        "light_seconds": 14912,
-        "awake_seconds": 1720,
-        "deep_pct": 19.9,
-        "rem_pct": 22.7,
-        "bb_wake": 85,
-        "bb_high": 89,
-        "bb_low": 30,
-        "stress_avg": 22,
-        "respiration_avg": 14.0,
-        "steps": 9893,
+        "deep_seconds": 5914,
+        "rem_seconds": 5653,
+        "light_seconds": 14964,
+        "awake_seconds": 1726,
+        "deep_pct": 20.6,
+        "rem_pct": 19.6,
+        "bb_wake": 86,
+        "bb_high": 90,
+        "bb_low": 31,
+        "stress_avg": 24,
+        "respiration_avg": 13.0,
+        "steps": 11374,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 45,
+        "overnight_hr_mean": 50.5,
+        "nocturnal_drop": 12.0,
+        "nocturnal_drop_timing": 0.45,
+        "overnight_samples": 239,
+        "readiness_score": 91,
+        "readiness_band": "good"
       },
       {
         "date": "2026-10-04",
         "source": "api",
         "rhr": 48,
         "rhr_7day_avg": null,
-        "sleep_seconds": 29027,
-        "sleep_hours": 8.06,
+        "sleep_seconds": 29437,
+        "sleep_hours": 8.18,
         "sleep_score": null,
-        "deep_seconds": 5670,
-        "rem_seconds": 5876,
-        "light_seconds": 15094,
-        "awake_seconds": 1741,
-        "deep_pct": 19.5,
-        "rem_pct": 20.2,
-        "bb_wake": 79,
-        "bb_high": 83,
-        "bb_low": 24,
-        "stress_avg": 28,
-        "respiration_avg": 14.5,
-        "steps": 10505,
+        "deep_seconds": 5902,
+        "rem_seconds": 6336,
+        "light_seconds": 15307,
+        "awake_seconds": 1766,
+        "deep_pct": 20.0,
+        "rem_pct": 21.5,
+        "bb_wake": 76,
+        "bb_high": 80,
+        "bb_low": 21,
+        "stress_avg": 26,
+        "respiration_avg": 13.3,
+        "steps": 14341,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 46,
+        "overnight_hr_mean": 51.7,
+        "nocturnal_drop": 12.2,
+        "nocturnal_drop_timing": 0.49,
+        "overnight_samples": 245,
+        "readiness_score": 88,
+        "readiness_band": "good"
       },
       {
         "date": "2026-10-05",
         "source": "api",
-        "rhr": 48,
+        "rhr": 49,
         "rhr_7day_avg": null,
-        "sleep_seconds": 27455,
-        "sleep_hours": 7.63,
+        "sleep_seconds": 28073,
+        "sleep_hours": 7.8,
         "sleep_score": null,
-        "deep_seconds": 5069,
-        "rem_seconds": 5433,
-        "light_seconds": 14276,
-        "awake_seconds": 1647,
-        "deep_pct": 18.5,
+        "deep_seconds": 5630,
+        "rem_seconds": 5548,
+        "light_seconds": 14597,
+        "awake_seconds": 1684,
+        "deep_pct": 20.1,
         "rem_pct": 19.8,
-        "bb_wake": 83,
-        "bb_high": 87,
-        "bb_low": 28,
-        "stress_avg": 26,
-        "respiration_avg": 13.4,
-        "steps": 10196,
+        "bb_wake": 79,
+        "bb_high": 83,
+        "bb_low": 24,
+        "stress_avg": 19,
+        "respiration_avg": 13.6,
+        "steps": 6928,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 48,
+        "overnight_hr_mean": 52.7,
+        "nocturnal_drop": 10.5,
+        "nocturnal_drop_timing": 0.4,
+        "overnight_samples": 233,
+        "readiness_score": 81,
+        "readiness_band": "good"
       },
       {
         "date": "2026-10-06",
         "source": "api",
-        "rhr": 50,
+        "rhr": 49,
         "rhr_7day_avg": null,
-        "sleep_seconds": 24748,
-        "sleep_hours": 6.87,
+        "sleep_seconds": 25798,
+        "sleep_hours": 7.17,
         "sleep_score": null,
-        "deep_seconds": 4268,
-        "rem_seconds": 4750,
-        "light_seconds": 12868,
-        "awake_seconds": 1484,
-        "deep_pct": 17.2,
-        "rem_pct": 19.2,
-        "bb_wake": 77,
-        "bb_high": 81,
-        "bb_low": 22,
-        "stress_avg": 21,
-        "respiration_avg": 13.4,
-        "steps": 11684,
+        "deep_seconds": 5121,
+        "rem_seconds": 5498,
+        "light_seconds": 13414,
+        "awake_seconds": 1547,
+        "deep_pct": 19.9,
+        "rem_pct": 21.3,
+        "bb_wake": 87,
+        "bb_high": 91,
+        "bb_low": 32,
+        "stress_avg": 19,
+        "respiration_avg": 14.2,
+        "steps": 11531,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 48,
+        "overnight_hr_mean": 52.1,
+        "nocturnal_drop": 10.3,
+        "nocturnal_drop_timing": 0.34,
+        "overnight_samples": 214,
+        "readiness_score": 78,
+        "readiness_band": "good"
       },
       {
         "date": "2026-10-07",
         "source": "api",
         "rhr": 50,
         "rhr_7day_avg": null,
-        "sleep_seconds": 28992,
-        "sleep_hours": 8.05,
+        "sleep_seconds": 27557,
+        "sleep_hours": 7.65,
         "sleep_score": null,
-        "deep_seconds": 5134,
-        "rem_seconds": 6504,
-        "light_seconds": 15075,
-        "awake_seconds": 1739,
+        "deep_seconds": 4874,
+        "rem_seconds": 6306,
+        "light_seconds": 14329,
+        "awake_seconds": 1653,
         "deep_pct": 17.7,
-        "rem_pct": 22.4,
-        "bb_wake": 76,
-        "bb_high": 80,
-        "bb_low": 21,
-        "stress_avg": 31,
-        "respiration_avg": 14.5,
-        "steps": 12558,
+        "rem_pct": 22.9,
+        "bb_wake": 73,
+        "bb_high": 77,
+        "bb_low": 18,
+        "stress_avg": 26,
+        "respiration_avg": 13.5,
+        "steps": 12090,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 48,
+        "overnight_hr_mean": 51.4,
+        "nocturnal_drop": 7.3,
+        "nocturnal_drop_timing": 0.58,
+        "overnight_samples": 229,
+        "readiness_score": 72,
+        "readiness_band": "moderate"
       },
       {
         "date": "2026-10-08",
         "source": "api",
-        "rhr": 49,
+        "rhr": 48,
         "rhr_7day_avg": null,
-        "sleep_seconds": 27120,
-        "sleep_hours": 7.53,
+        "sleep_seconds": 26028,
+        "sleep_hours": 7.23,
         "sleep_score": null,
-        "deep_seconds": 5579,
-        "rem_seconds": 5830,
-        "light_seconds": 14102,
-        "awake_seconds": 1627,
-        "deep_pct": 20.6,
+        "deep_seconds": 5331,
+        "rem_seconds": 5590,
+        "light_seconds": 13534,
+        "awake_seconds": 1561,
+        "deep_pct": 20.5,
         "rem_pct": 21.5,
-        "bb_wake": 81,
-        "bb_high": 85,
-        "bb_low": 26,
-        "stress_avg": 26,
-        "respiration_avg": 14.0,
-        "steps": 11582,
+        "bb_wake": 80,
+        "bb_high": 84,
+        "bb_low": 25,
+        "stress_avg": 28,
+        "respiration_avg": 14.1,
+        "steps": 10740,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 47,
+        "overnight_hr_mean": 51.8,
+        "nocturnal_drop": 11.2,
+        "nocturnal_drop_timing": 0.45,
+        "overnight_samples": 216,
+        "readiness_score": 83,
+        "readiness_band": "good"
       },
       {
         "date": "2026-10-09",
         "source": "api",
-        "rhr": 49,
+        "rhr": 47,
         "rhr_7day_avg": null,
-        "sleep_seconds": 26642,
-        "sleep_hours": 7.4,
+        "sleep_seconds": 26572,
+        "sleep_hours": 7.38,
         "sleep_score": null,
-        "deep_seconds": 4627,
-        "rem_seconds": 5838,
-        "light_seconds": 13853,
-        "awake_seconds": 1598,
-        "deep_pct": 17.4,
-        "rem_pct": 21.9,
-        "bb_wake": 87,
-        "bb_high": 91,
-        "bb_low": 32,
-        "stress_avg": 19,
+        "deep_seconds": 4927,
+        "rem_seconds": 6020,
+        "light_seconds": 13817,
+        "awake_seconds": 1594,
+        "deep_pct": 18.5,
+        "rem_pct": 22.7,
+        "bb_wake": 85,
+        "bb_high": 89,
+        "bb_low": 30,
+        "stress_avg": 20,
         "respiration_avg": 14.0,
-        "steps": 6431,
+        "steps": 8995,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 45,
+        "overnight_hr_mean": 50.8,
+        "nocturnal_drop": 12.9,
+        "nocturnal_drop_timing": 0.38,
+        "overnight_samples": 221,
+        "readiness_score": 92,
+        "readiness_band": "good"
       },
       {
         "date": "2026-10-10",
         "source": "api",
-        "rhr": 49,
+        "rhr": 50,
         "rhr_7day_avg": null,
-        "sleep_seconds": 26682,
-        "sleep_hours": 7.41,
+        "sleep_seconds": 29183,
+        "sleep_hours": 8.11,
         "sleep_score": null,
-        "deep_seconds": 5350,
-        "rem_seconds": 5864,
-        "light_seconds": 13874,
-        "awake_seconds": 1600,
-        "deep_pct": 20.1,
+        "deep_seconds": 5977,
+        "rem_seconds": 6428,
+        "light_seconds": 15175,
+        "awake_seconds": 1750,
+        "deep_pct": 20.5,
         "rem_pct": 22.0,
-        "bb_wake": 80,
-        "bb_high": 84,
-        "bb_low": 25,
-        "stress_avg": 26,
-        "respiration_avg": 13.1,
-        "steps": 13187,
+        "bb_wake": 85,
+        "bb_high": 89,
+        "bb_low": 30,
+        "stress_avg": 24,
+        "respiration_avg": 12.8,
+        "steps": 12777,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 47,
+        "overnight_hr_mean": 52.3,
+        "nocturnal_drop": 12.5,
+        "nocturnal_drop_timing": 0.42,
+        "overnight_samples": 243,
+        "readiness_score": 81,
+        "readiness_band": "good"
       },
       {
         "date": "2026-10-11",
         "source": "api",
-        "rhr": 47,
+        "rhr": 46,
         "rhr_7day_avg": null,
-        "sleep_seconds": 25793,
-        "sleep_hours": 7.16,
+        "sleep_seconds": 29044,
+        "sleep_hours": 8.07,
         "sleep_score": null,
-        "deep_seconds": 5240,
-        "rem_seconds": 5463,
-        "light_seconds": 13412,
-        "awake_seconds": 1547,
-        "deep_pct": 20.3,
+        "deep_seconds": 5265,
+        "rem_seconds": 6166,
+        "light_seconds": 15102,
+        "awake_seconds": 1742,
+        "deep_pct": 18.1,
         "rem_pct": 21.2,
-        "bb_wake": 83,
-        "bb_high": 87,
-        "bb_low": 28,
-        "stress_avg": 24,
-        "respiration_avg": 13.1,
-        "steps": 11830,
+        "bb_wake": 81,
+        "bb_high": 85,
+        "bb_low": 26,
+        "stress_avg": 20,
+        "respiration_avg": 14.4,
+        "steps": 13540,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 45,
+        "overnight_hr_mean": 50.2,
+        "nocturnal_drop": 12.2,
+        "nocturnal_drop_timing": 0.34,
+        "overnight_samples": 242,
+        "readiness_score": 91,
+        "readiness_band": "good"
       },
       {
         "date": "2026-10-12",
         "source": "api",
-        "rhr": 47,
+        "rhr": 48,
         "rhr_7day_avg": null,
-        "sleep_seconds": 28172,
-        "sleep_hours": 7.83,
+        "sleep_seconds": 27423,
+        "sleep_hours": 7.62,
         "sleep_score": null,
-        "deep_seconds": 5196,
-        "rem_seconds": 5782,
-        "light_seconds": 14649,
-        "awake_seconds": 1690,
-        "deep_pct": 18.4,
-        "rem_pct": 20.5,
-        "bb_wake": 81,
-        "bb_high": 85,
-        "bb_low": 26,
-        "stress_avg": 27,
-        "respiration_avg": 13.4,
-        "steps": 14715,
+        "deep_seconds": 5718,
+        "rem_seconds": 5382,
+        "light_seconds": 14259,
+        "awake_seconds": 1645,
+        "deep_pct": 20.9,
+        "rem_pct": 19.6,
+        "bb_wake": 83,
+        "bb_high": 87,
+        "bb_low": 28,
+        "stress_avg": 25,
+        "respiration_avg": 13.0,
+        "steps": 9755,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 45,
+        "overnight_hr_mean": 50.9,
+        "nocturnal_drop": 13.8,
+        "nocturnal_drop_timing": 0.38,
+        "overnight_samples": 228,
+        "readiness_score": 90,
+        "readiness_band": "good"
       },
       {
         "date": "2026-10-13",
         "source": "api",
         "rhr": 47,
         "rhr_7day_avg": null,
-        "sleep_seconds": 27034,
-        "sleep_hours": 7.51,
+        "sleep_seconds": 24647,
+        "sleep_hours": 6.85,
         "sleep_score": null,
-        "deep_seconds": 5149,
-        "rem_seconds": 5532,
-        "light_seconds": 14057,
-        "awake_seconds": 1622,
-        "deep_pct": 19.0,
+        "deep_seconds": 4766,
+        "rem_seconds": 5048,
+        "light_seconds": 12816,
+        "awake_seconds": 1478,
+        "deep_pct": 19.3,
         "rem_pct": 20.5,
-        "bb_wake": 80,
-        "bb_high": 84,
-        "bb_low": 25,
-        "stress_avg": 27,
-        "respiration_avg": 13.1,
-        "steps": 13628,
+        "bb_wake": 82,
+        "bb_high": 86,
+        "bb_low": 27,
+        "stress_avg": 26,
+        "respiration_avg": 14.1,
+        "steps": 10963,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 44,
+        "overnight_hr_mean": 48.9,
+        "nocturnal_drop": 11.5,
+        "nocturnal_drop_timing": 0.39,
+        "overnight_samples": 205,
+        "readiness_score": 83,
+        "readiness_band": "good"
       },
       {
         "date": "2026-10-14",
         "source": "api",
-        "rhr": 49,
+        "rhr": 51,
         "rhr_7day_avg": null,
-        "sleep_seconds": 27170,
-        "sleep_hours": 7.55,
+        "sleep_seconds": 28802,
+        "sleep_hours": 8.0,
         "sleep_score": null,
-        "deep_seconds": 5249,
-        "rem_seconds": 5897,
-        "light_seconds": 14128,
-        "awake_seconds": 1630,
-        "deep_pct": 19.3,
-        "rem_pct": 21.7,
-        "bb_wake": 71,
-        "bb_high": 75,
-        "bb_low": 16,
-        "stress_avg": 27,
-        "respiration_avg": 14.0,
-        "steps": 9880,
+        "deep_seconds": 5991,
+        "rem_seconds": 6042,
+        "light_seconds": 14977,
+        "awake_seconds": 1728,
+        "deep_pct": 20.8,
+        "rem_pct": 21.0,
+        "bb_wake": 73,
+        "bb_high": 77,
+        "bb_low": 18,
+        "stress_avg": 31,
+        "respiration_avg": 13.2,
+        "steps": 13621,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 48,
+        "overnight_hr_mean": 53.8,
+        "nocturnal_drop": 11.6,
+        "nocturnal_drop_timing": 0.68,
+        "overnight_samples": 240,
+        "readiness_score": 74,
+        "readiness_band": "moderate"
       },
       {
         "date": "2026-10-15",
         "source": "api",
         "rhr": 49,
         "rhr_7day_avg": null,
-        "sleep_seconds": 25602,
-        "sleep_hours": 7.11,
+        "sleep_seconds": 26259,
+        "sleep_hours": 7.29,
         "sleep_score": null,
-        "deep_seconds": 4867,
-        "rem_seconds": 5329,
-        "light_seconds": 13313,
-        "awake_seconds": 1536,
-        "deep_pct": 19.0,
-        "rem_pct": 20.8,
-        "bb_wake": 86,
-        "bb_high": 90,
-        "bb_low": 31,
-        "stress_avg": 23,
-        "respiration_avg": 12.9,
-        "steps": 14727,
+        "deep_seconds": 5493,
+        "rem_seconds": 5551,
+        "light_seconds": 13654,
+        "awake_seconds": 1575,
+        "deep_pct": 20.9,
+        "rem_pct": 21.1,
+        "bb_wake": 76,
+        "bb_high": 80,
+        "bb_low": 21,
+        "stress_avg": 24,
+        "respiration_avg": 13.9,
+        "steps": 12374,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 47,
+        "overnight_hr_mean": 51.6,
+        "nocturnal_drop": 11.4,
+        "nocturnal_drop_timing": 0.32,
+        "overnight_samples": 218,
+        "readiness_score": 80,
+        "readiness_band": "good"
       },
       {
         "date": "2026-10-16",
         "source": "api",
-        "rhr": 51,
+        "rhr": 48,
         "rhr_7day_avg": null,
-        "sleep_seconds": 28108,
-        "sleep_hours": 7.81,
+        "sleep_seconds": 25870,
+        "sleep_hours": 7.19,
         "sleep_score": null,
-        "deep_seconds": 5504,
-        "rem_seconds": 6436,
-        "light_seconds": 14616,
-        "awake_seconds": 1686,
-        "deep_pct": 19.6,
-        "rem_pct": 22.9,
-        "bb_wake": 68,
-        "bb_high": 72,
-        "bb_low": 13,
-        "stress_avg": 34,
-        "respiration_avg": 13.9,
-        "steps": 12972,
+        "deep_seconds": 5243,
+        "rem_seconds": 4979,
+        "light_seconds": 13452,
+        "awake_seconds": 1552,
+        "deep_pct": 20.3,
+        "rem_pct": 19.2,
+        "bb_wake": 84,
+        "bb_high": 88,
+        "bb_low": 29,
+        "stress_avg": 24,
+        "respiration_avg": 12.9,
+        "steps": 8362,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 47,
+        "overnight_hr_mean": 52.7,
+        "nocturnal_drop": 13.2,
+        "nocturnal_drop_timing": 0.44,
+        "overnight_samples": 215,
+        "readiness_score": 86,
+        "readiness_band": "good"
       },
       {
         "date": "2026-10-17",
         "source": "api",
-        "rhr": 48,
+        "rhr": 50,
         "rhr_7day_avg": null,
-        "sleep_seconds": 28319,
-        "sleep_hours": 7.87,
+        "sleep_seconds": 26970,
+        "sleep_hours": 7.49,
         "sleep_score": null,
-        "deep_seconds": 5293,
-        "rem_seconds": 6377,
-        "light_seconds": 14725,
-        "awake_seconds": 1699,
-        "deep_pct": 18.7,
-        "rem_pct": 22.5,
-        "bb_wake": 81,
-        "bb_high": 85,
-        "bb_low": 26,
-        "stress_avg": 26,
-        "respiration_avg": 12.8,
-        "steps": 10793,
+        "deep_seconds": 5414,
+        "rem_seconds": 5869,
+        "light_seconds": 14024,
+        "awake_seconds": 1618,
+        "deep_pct": 20.1,
+        "rem_pct": 21.8,
+        "bb_wake": 77,
+        "bb_high": 81,
+        "bb_low": 22,
+        "stress_avg": 19,
+        "respiration_avg": 13.8,
+        "steps": 10821,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 47,
+        "overnight_hr_mean": 53.0,
+        "nocturnal_drop": 14.1,
+        "nocturnal_drop_timing": 0.4,
+        "overnight_samples": 224,
+        "readiness_score": 83,
+        "readiness_band": "good"
       },
       {
         "date": "2026-10-18",
         "source": "api",
-        "rhr": 49,
+        "rhr": 48,
         "rhr_7day_avg": null,
-        "sleep_seconds": 29338,
-        "sleep_hours": 8.15,
+        "sleep_seconds": 28724,
+        "sleep_hours": 7.98,
         "sleep_score": null,
-        "deep_seconds": 5051,
-        "rem_seconds": 6018,
-        "light_seconds": 15255,
-        "awake_seconds": 1760,
-        "deep_pct": 17.2,
-        "rem_pct": 20.5,
-        "bb_wake": 84,
-        "bb_high": 88,
-        "bb_low": 29,
-        "stress_avg": 26,
-        "respiration_avg": 14.4,
-        "steps": 12995,
+        "deep_seconds": 5097,
+        "rem_seconds": 5804,
+        "light_seconds": 14936,
+        "awake_seconds": 1723,
+        "deep_pct": 17.7,
+        "rem_pct": 20.2,
+        "bb_wake": 79,
+        "bb_high": 83,
+        "bb_low": 24,
+        "stress_avg": 27,
+        "respiration_avg": 13.5,
+        "steps": 14340,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 46,
+        "overnight_hr_mean": 51.0,
+        "nocturnal_drop": 12.0,
+        "nocturnal_drop_timing": 0.34,
+        "overnight_samples": 239,
+        "readiness_score": 86,
+        "readiness_band": "good"
       },
       {
         "date": "2026-10-19",
         "source": "api",
-        "rhr": 47,
+        "rhr": 49,
         "rhr_7day_avg": null,
-        "sleep_seconds": 27414,
-        "sleep_hours": 7.62,
+        "sleep_seconds": 27337,
+        "sleep_hours": 7.59,
         "sleep_score": null,
-        "deep_seconds": 5213,
-        "rem_seconds": 5593,
-        "light_seconds": 14255,
-        "awake_seconds": 1644,
-        "deep_pct": 19.0,
-        "rem_pct": 20.4,
-        "bb_wake": 78,
-        "bb_high": 82,
-        "bb_low": 23,
-        "stress_avg": 27,
-        "respiration_avg": 14.3,
-        "steps": 12624,
+        "deep_seconds": 5716,
+        "rem_seconds": 5519,
+        "light_seconds": 14215,
+        "awake_seconds": 1640,
+        "deep_pct": 20.9,
+        "rem_pct": 20.2,
+        "bb_wake": 84,
+        "bb_high": 88,
+        "bb_low": 29,
+        "stress_avg": 19,
+        "respiration_avg": 13.3,
+        "steps": 13420,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 48,
+        "overnight_hr_mean": 53.2,
+        "nocturnal_drop": 12.5,
+        "nocturnal_drop_timing": 0.38,
+        "overnight_samples": 227,
+        "readiness_score": 84,
+        "readiness_band": "good"
       },
       {
         "date": "2026-10-20",
         "source": "api",
-        "rhr": 47,
+        "rhr": 48,
         "rhr_7day_avg": null,
-        "sleep_seconds": 25846,
-        "sleep_hours": 7.18,
+        "sleep_seconds": 28075,
+        "sleep_hours": 7.8,
         "sleep_score": null,
-        "deep_seconds": 4588,
-        "rem_seconds": 5860,
-        "light_seconds": 13439,
-        "awake_seconds": 1550,
-        "deep_pct": 17.8,
-        "rem_pct": 22.7,
-        "bb_wake": 77,
-        "bb_high": 81,
-        "bb_low": 22,
-        "stress_avg": 21,
-        "respiration_avg": 13.7,
-        "steps": 14628,
+        "deep_seconds": 5806,
+        "rem_seconds": 5460,
+        "light_seconds": 14599,
+        "awake_seconds": 1684,
+        "deep_pct": 20.7,
+        "rem_pct": 19.4,
+        "bb_wake": 83,
+        "bb_high": 87,
+        "bb_low": 28,
+        "stress_avg": 25,
+        "respiration_avg": 14.4,
+        "steps": 12366,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 46,
+        "overnight_hr_mean": 51.0,
+        "nocturnal_drop": 12.0,
+        "nocturnal_drop_timing": 0.34,
+        "overnight_samples": 233,
+        "readiness_score": 86,
+        "readiness_band": "good"
       },
       {
         "date": "2026-10-21",
         "source": "api",
-        "rhr": 50,
+        "rhr": 49,
         "rhr_7day_avg": null,
-        "sleep_seconds": 26839,
-        "sleep_hours": 7.46,
+        "sleep_seconds": 27196,
+        "sleep_hours": 7.55,
         "sleep_score": null,
-        "deep_seconds": 5304,
-        "rem_seconds": 5283,
-        "light_seconds": 13956,
-        "awake_seconds": 1610,
-        "deep_pct": 19.8,
-        "rem_pct": 19.7,
-        "bb_wake": 70,
-        "bb_high": 74,
-        "bb_low": 15,
-        "stress_avg": 25,
-        "respiration_avg": 13.6,
-        "steps": 10389,
+        "deep_seconds": 4697,
+        "rem_seconds": 5683,
+        "light_seconds": 14141,
+        "awake_seconds": 1631,
+        "deep_pct": 17.3,
+        "rem_pct": 20.9,
+        "bb_wake": 67,
+        "bb_high": 71,
+        "bb_low": 12,
+        "stress_avg": 26,
+        "respiration_avg": 13.2,
+        "steps": 11640,
         "hrv_last_night": null,
         "hrv_status": null,
-        "garmin_readiness": null
+        "garmin_readiness": null,
+        "overnight_hr_min": 47,
+        "overnight_hr_mean": 51.6,
+        "nocturnal_drop": 8.9,
+        "nocturnal_drop_timing": 0.62,
+        "overnight_samples": 226,
+        "readiness_score": 77,
+        "readiness_band": "good"
       }
-    ]
+    ],
+    "readiness_series": {
+      "2026-09-10": {
+        "score": 79,
+        "band": "good"
+      },
+      "2026-09-11": {
+        "score": 65,
+        "band": "moderate"
+      },
+      "2026-09-12": {
+        "score": 82,
+        "band": "good"
+      },
+      "2026-09-13": {
+        "score": 82,
+        "band": "good"
+      },
+      "2026-09-14": {
+        "score": 80,
+        "band": "good"
+      },
+      "2026-09-15": {
+        "score": 85,
+        "band": "good"
+      },
+      "2026-09-16": {
+        "score": 75,
+        "band": "moderate"
+      },
+      "2026-09-17": {
+        "score": 85,
+        "band": "good"
+      },
+      "2026-09-18": {
+        "score": 90,
+        "band": "good"
+      },
+      "2026-09-19": {
+        "score": 83,
+        "band": "good"
+      },
+      "2026-09-20": {
+        "score": 82,
+        "band": "good"
+      },
+      "2026-09-21": {
+        "score": 82,
+        "band": "good"
+      },
+      "2026-09-22": {
+        "score": 85,
+        "band": "good"
+      },
+      "2026-09-23": {
+        "score": 77,
+        "band": "good"
+      },
+      "2026-09-24": {
+        "score": 81,
+        "band": "good"
+      },
+      "2026-09-25": {
+        "score": 75,
+        "band": "moderate"
+      },
+      "2026-09-26": {
+        "score": 66,
+        "band": "moderate"
+      },
+      "2026-09-27": {
+        "score": 70,
+        "band": "moderate"
+      },
+      "2026-09-28": {
+        "score": 81,
+        "band": "good"
+      },
+      "2026-09-29": {
+        "score": 89,
+        "band": "good"
+      },
+      "2026-09-30": {
+        "score": 67,
+        "band": "moderate"
+      },
+      "2026-10-01": {
+        "score": 84,
+        "band": "good"
+      },
+      "2026-10-02": {
+        "score": 87,
+        "band": "good"
+      },
+      "2026-10-03": {
+        "score": 91,
+        "band": "good"
+      },
+      "2026-10-04": {
+        "score": 88,
+        "band": "good"
+      },
+      "2026-10-05": {
+        "score": 81,
+        "band": "good"
+      },
+      "2026-10-06": {
+        "score": 78,
+        "band": "good"
+      },
+      "2026-10-07": {
+        "score": 72,
+        "band": "moderate"
+      },
+      "2026-10-08": {
+        "score": 83,
+        "band": "good"
+      },
+      "2026-10-09": {
+        "score": 92,
+        "band": "good"
+      },
+      "2026-10-10": {
+        "score": 81,
+        "band": "good"
+      },
+      "2026-10-11": {
+        "score": 91,
+        "band": "good"
+      },
+      "2026-10-12": {
+        "score": 90,
+        "band": "good"
+      },
+      "2026-10-13": {
+        "score": 83,
+        "band": "good"
+      },
+      "2026-10-14": {
+        "score": 74,
+        "band": "moderate"
+      },
+      "2026-10-15": {
+        "score": 80,
+        "band": "good"
+      },
+      "2026-10-16": {
+        "score": 86,
+        "band": "good"
+      },
+      "2026-10-17": {
+        "score": 83,
+        "band": "good"
+      },
+      "2026-10-18": {
+        "score": 86,
+        "band": "good"
+      },
+      "2026-10-19": {
+        "score": 84,
+        "band": "good"
+      },
+      "2026-10-20": {
+        "score": 86,
+        "band": "good"
+      },
+      "2026-10-21": {
+        "score": 77,
+        "band": "good"
+      }
+    }
   },
   "load": {
-    "acute_7day": 889.9,
-    "chronic_28day_weekly": 784.3,
-    "ratio": 1.13,
+    "acute_7day": 884.5,
+    "chronic_28day_weekly": 732.2,
+    "ratio": 1.21,
     "zone": "optimal",
     "label": "Load is in the productive range against your 4-week baseline.",
-    "monotony": 1.48,
-    "strain": 1316.0,
+    "monotony": 1.35,
+    "strain": 1196.0,
     "days_of_history": 28,
     "daily": {
-      "2026-09-10": 139.1,
+      "2026-09-10": 181.5,
       "2026-09-11": 0.0,
-      "2026-09-12": 38.0,
-      "2026-09-13": 192.0,
-      "2026-09-14": 39.1,
-      "2026-09-15": 124.3,
-      "2026-09-16": 64.5,
-      "2026-09-17": 126.8,
-      "2026-09-18": 37.6,
-      "2026-09-19": 40.9,
-      "2026-09-20": 192.0,
-      "2026-09-21": 41.2,
-      "2026-09-22": 106.0,
-      "2026-09-23": 56.8,
+      "2026-09-12": 54.8,
+      "2026-09-13": 262.1,
+      "2026-09-14": 0.0,
+      "2026-09-15": 145.6,
+      "2026-09-16": 83.8,
+      "2026-09-17": 169.3,
+      "2026-09-18": 36.6,
+      "2026-09-19": 49.6,
+      "2026-09-20": 250.1,
+      "2026-09-21": 38.1,
+      "2026-09-22": 116.1,
+      "2026-09-23": 65.7,
       "2026-09-24": 118.7,
-      "2026-09-25": 42.1,
-      "2026-09-26": 38.7,
-      "2026-09-27": 194.7,
-      "2026-09-28": 38.1,
-      "2026-09-29": 139.5,
-      "2026-09-30": 81.0,
+      "2026-09-25": 40.9,
+      "2026-09-26": 33.3,
+      "2026-09-27": 184.8,
+      "2026-09-28": 0.0,
+      "2026-09-29": 145.9,
+      "2026-09-30": 77.1,
       "2026-10-01": 153.9,
-      "2026-10-02": 44.4,
+      "2026-10-02": 0.0,
       "2026-10-03": 48.8,
-      "2026-10-04": 258.1,
-      "2026-10-05": 36.1,
+      "2026-10-04": 203.9,
+      "2026-10-05": 0.0,
       "2026-10-06": 164.8,
-      "2026-10-07": 93.7,
-      "2026-10-08": 167.9,
+      "2026-10-07": 96.0,
+      "2026-10-08": 160.2,
       "2026-10-09": 0.0,
-      "2026-10-10": 49.8,
-      "2026-10-11": 271.8,
+      "2026-10-10": 48.6,
+      "2026-10-11": 258.3,
       "2026-10-12": 36.1,
-      "2026-10-13": 167.9,
-      "2026-10-14": 101.3,
-      "2026-10-15": 195.6,
-      "2026-10-16": 40.9,
-      "2026-10-17": 59.7,
-      "2026-10-18": 280.7,
-      "2026-10-19": 37.1,
-      "2026-10-20": 177.7,
-      "2026-10-21": 98.2
+      "2026-10-13": 164.0,
+      "2026-10-14": 109.2,
+      "2026-10-15": 191.2,
+      "2026-10-16": 0.0,
+      "2026-10-17": 56.9,
+      "2026-10-18": 280.3,
+      "2026-10-19": 42.2,
+      "2026-10-20": 198.8,
+      "2026-10-21": 115.1
     },
-    "method": "Banister TRIMP from average HR where available, per-sport rate otherwise."
+    "method": "Banister TRIMP from average HR where available, per-sport rate otherwise.",
+    "measured_sport_rates": {
+      "running": {
+        "rate": 2.026,
+        "sessions": 50
+      },
+      "lap_swimming": {
+        "rate": 1.222,
+        "sessions": 6
+      },
+      "cycling": {
+        "rate": 0.86,
+        "sessions": 3
+      }
+    }
+  },
+  "form": {
+    "fitness": 106.2,
+    "fatigue": 122.4,
+    "form": -16.2,
+    "form_pct": -15.3,
+    "zone": "loaded",
+    "label": "Deep in the work. Right for a peak week, not for a month.",
+    "seeded_from": 104.8,
+    "series": {
+      "2026-08-27": {
+        "fitness": 106.9,
+        "fatigue": 117.2,
+        "form": -10.3
+      },
+      "2026-08-28": {
+        "fitness": 105.3,
+        "fatigue": 106.0,
+        "form": -0.7
+      },
+      "2026-08-29": {
+        "fitness": 103.9,
+        "fatigue": 97.9,
+        "form": 6.0
+      },
+      "2026-08-30": {
+        "fitness": 107.4,
+        "fatigue": 119.7,
+        "form": -12.3
+      },
+      "2026-08-31": {
+        "fitness": 104.9,
+        "fatigue": 102.6,
+        "form": 2.3
+      },
+      "2026-09-01": {
+        "fitness": 105.7,
+        "fatigue": 107.8,
+        "form": -2.1
+      },
+      "2026-09-02": {
+        "fitness": 105.1,
+        "fatigue": 103.8,
+        "form": 1.3
+      },
+      "2026-09-03": {
+        "fitness": 106.8,
+        "fatigue": 114.3,
+        "form": -7.5
+      },
+      "2026-09-04": {
+        "fitness": 104.2,
+        "fatigue": 98.0,
+        "form": 6.3
+      },
+      "2026-09-05": {
+        "fitness": 103.0,
+        "fatigue": 91.6,
+        "form": 11.4
+      },
+      "2026-09-06": {
+        "fitness": 106.1,
+        "fatigue": 111.8,
+        "form": -5.7
+      },
+      "2026-09-07": {
+        "fitness": 104.5,
+        "fatigue": 101.6,
+        "form": 3.0
+      },
+      "2026-09-08": {
+        "fitness": 105.4,
+        "fatigue": 107.4,
+        "form": -1.9
+      },
+      "2026-09-09": {
+        "fitness": 104.9,
+        "fatigue": 104.0,
+        "form": 0.9
+      },
+      "2026-09-10": {
+        "fitness": 106.8,
+        "fatigue": 115.1,
+        "form": -8.3
+      },
+      "2026-09-11": {
+        "fitness": 104.2,
+        "fatigue": 98.6,
+        "form": 5.6
+      },
+      "2026-09-12": {
+        "fitness": 103.0,
+        "fatigue": 92.4,
+        "form": 10.7
+      },
+      "2026-09-13": {
+        "fitness": 106.8,
+        "fatigue": 116.6,
+        "form": -9.8
+      },
+      "2026-09-14": {
+        "fitness": 104.3,
+        "fatigue": 100.0,
+        "form": 4.3
+      },
+      "2026-09-15": {
+        "fitness": 105.3,
+        "fatigue": 106.5,
+        "form": -1.2
+      },
+      "2026-09-16": {
+        "fitness": 104.7,
+        "fatigue": 103.2,
+        "form": 1.5
+      },
+      "2026-09-17": {
+        "fitness": 106.3,
+        "fatigue": 112.7,
+        "form": -6.4
+      },
+      "2026-09-18": {
+        "fitness": 104.6,
+        "fatigue": 101.8,
+        "form": 2.8
+      },
+      "2026-09-19": {
+        "fitness": 103.3,
+        "fatigue": 94.4,
+        "form": 9.0
+      },
+      "2026-09-20": {
+        "fitness": 106.8,
+        "fatigue": 116.6,
+        "form": -9.8
+      },
+      "2026-09-21": {
+        "fitness": 105.2,
+        "fatigue": 105.4,
+        "form": -0.2
+      },
+      "2026-09-22": {
+        "fitness": 105.4,
+        "fatigue": 106.9,
+        "form": -1.5
+      },
+      "2026-09-23": {
+        "fitness": 104.5,
+        "fatigue": 101.0,
+        "form": 3.5
+      },
+      "2026-09-24": {
+        "fitness": 104.8,
+        "fatigue": 103.6,
+        "form": 1.3
+      },
+      "2026-09-25": {
+        "fitness": 103.3,
+        "fatigue": 94.6,
+        "form": 8.7
+      },
+      "2026-09-26": {
+        "fitness": 101.6,
+        "fatigue": 85.8,
+        "form": 15.8
+      },
+      "2026-09-27": {
+        "fitness": 103.6,
+        "fatigue": 100.0,
+        "form": 3.6
+      },
+      "2026-09-28": {
+        "fitness": 101.2,
+        "fatigue": 85.7,
+        "form": 15.5
+      },
+      "2026-09-29": {
+        "fitness": 102.2,
+        "fatigue": 94.3,
+        "form": 7.9
+      },
+      "2026-09-30": {
+        "fitness": 101.6,
+        "fatigue": 91.8,
+        "form": 9.8
+      },
+      "2026-10-01": {
+        "fitness": 102.9,
+        "fatigue": 100.7,
+        "form": 2.2
+      },
+      "2026-10-02": {
+        "fitness": 100.4,
+        "fatigue": 86.3,
+        "form": 14.1
+      },
+      "2026-10-03": {
+        "fitness": 99.2,
+        "fatigue": 81.0,
+        "form": 18.2
+      },
+      "2026-10-04": {
+        "fitness": 101.7,
+        "fatigue": 98.5,
+        "form": 3.2
+      },
+      "2026-10-05": {
+        "fitness": 99.3,
+        "fatigue": 84.4,
+        "form": 14.8
+      },
+      "2026-10-06": {
+        "fitness": 100.8,
+        "fatigue": 95.9,
+        "form": 4.9
+      },
+      "2026-10-07": {
+        "fitness": 100.7,
+        "fatigue": 95.9,
+        "form": 4.8
+      },
+      "2026-10-08": {
+        "fitness": 102.1,
+        "fatigue": 105.1,
+        "form": -3.0
+      },
+      "2026-10-09": {
+        "fitness": 99.7,
+        "fatigue": 90.1,
+        "form": 9.6
+      },
+      "2026-10-10": {
+        "fitness": 98.5,
+        "fatigue": 84.2,
+        "form": 14.3
+      },
+      "2026-10-11": {
+        "fitness": 102.3,
+        "fatigue": 109.0,
+        "form": -6.8
+      },
+      "2026-10-12": {
+        "fitness": 100.7,
+        "fatigue": 98.6,
+        "form": 2.1
+      },
+      "2026-10-13": {
+        "fitness": 102.2,
+        "fatigue": 108.0,
+        "form": -5.8
+      },
+      "2026-10-14": {
+        "fitness": 102.4,
+        "fatigue": 108.1,
+        "form": -5.8
+      },
+      "2026-10-15": {
+        "fitness": 104.5,
+        "fatigue": 120.0,
+        "form": -15.5
+      },
+      "2026-10-16": {
+        "fitness": 102.0,
+        "fatigue": 102.9,
+        "form": -0.9
+      },
+      "2026-10-17": {
+        "fitness": 100.9,
+        "fatigue": 96.3,
+        "form": 4.6
+      },
+      "2026-10-18": {
+        "fitness": 105.2,
+        "fatigue": 122.6,
+        "form": -17.4
+      },
+      "2026-10-19": {
+        "fitness": 103.7,
+        "fatigue": 111.1,
+        "form": -7.4
+      },
+      "2026-10-20": {
+        "fitness": 106.0,
+        "fatigue": 123.6,
+        "form": -17.7
+      },
+      "2026-10-21": {
+        "fitness": 106.2,
+        "fatigue": 122.4,
+        "form": -16.2
+      }
+    },
+    "method": "EWMA, 42-day fitness / 7-day fatigue, seeded from the first 6 weeks of available load. Form is judged as a share of fitness so the bands don't depend on the load unit."
+  },
+  "garmin": {
+    "vo2_max": 53.8,
+    "vo2_observed": "2026-10-21",
+    "vo2_trend": 1.0,
+    "vo2_series": {
+      "2026-08-26": 52.0,
+      "2026-09-02": 52.2,
+      "2026-09-09": 52.4,
+      "2026-09-16": 52.7,
+      "2026-09-23": 52.9,
+      "2026-09-30": 53.1,
+      "2026-10-07": 53.3,
+      "2026-10-14": 53.5,
+      "2026-10-21": 53.8
+    },
+    "race_prediction": {
+      "observed": "2026-10-21",
+      "5k": "0:20:05",
+      "10k": "0:42:10",
+      "half": "1:37:00",
+      "marathon": "3:47:00",
+      "marathon_seconds": 13620,
+      "marathon_pace": "8:39"
+    },
+    "fitness_age": {
+      "fitness_age": 26.0,
+      "chronological_age": 32
+    },
+    "note": "VO2 max and race predictions are Garmin's own models, stored each sync so they build a trend the API won't give you."
   },
   "fitness": {
     "runs_28day": 20,
-    "miles_28day": 151.1,
-    "longest_run_28day": 15.5,
+    "miles_28day": 149.3,
+    "longest_run_28day": 14.8,
     "avg_pace_28day": "9:18",
-    "efficiency_index_latest": 43.9,
-    "efficiency_trend_pct": -0.2,
+    "efficiency_index_latest": 42.6,
+    "efficiency_trend_pct": 0.6,
     "recent_runs": [
       {
         "date": "2026-10-08",
@@ -891,9 +1627,9 @@
         "duration_seconds": 4800,
         "pace_seconds_per_mile": 545.0,
         "pace": "9:05",
-        "avg_hr": 154,
-        "max_hr": 167,
-        "efficiency_index": 42.9,
+        "avg_hr": 152,
+        "max_hr": 174,
+        "efficiency_index": 43.4,
         "source": "api"
       },
       {
@@ -903,129 +1639,431 @@
         "duration_seconds": 2100,
         "pace_seconds_per_mile": 600.0,
         "pace": "10:00",
-        "avg_hr": 138,
-        "max_hr": 160,
-        "efficiency_index": 43.5,
+        "avg_hr": 137,
+        "max_hr": 154,
+        "efficiency_index": 43.8,
         "source": "api"
       },
       {
         "date": "2026-10-11",
         "name": "Morning Run",
-        "miles": 14.7,
-        "duration_seconds": 8340,
-        "pace_seconds_per_mile": 567.0,
-        "pace": "9:27",
-        "avg_hr": 151,
+        "miles": 13.3,
+        "duration_seconds": 7560,
+        "pace_seconds_per_mile": 568.0,
+        "pace": "9:28",
+        "avg_hr": 153,
         "max_hr": 168,
-        "efficiency_index": 42.0,
+        "efficiency_index": 41.4,
         "source": "api"
       },
       {
         "date": "2026-10-13",
         "name": "Morning Run",
-        "miles": 7.8,
-        "duration_seconds": 3900,
-        "pace_seconds_per_mile": 500.0,
-        "pace": "8:20",
-        "avg_hr": 163,
-        "max_hr": 180,
-        "efficiency_index": 44.2,
+        "miles": 8.2,
+        "duration_seconds": 4080,
+        "pace_seconds_per_mile": 498.0,
+        "pace": "8:18",
+        "avg_hr": 160,
+        "max_hr": 181,
+        "efficiency_index": 45.2,
         "source": "api"
       },
       {
         "date": "2026-10-14",
         "name": "Morning Run",
-        "miles": 5.9,
-        "duration_seconds": 3420,
-        "pace_seconds_per_mile": 580.0,
-        "pace": "9:40",
-        "avg_hr": 147,
-        "max_hr": 168,
-        "efficiency_index": 42.2,
+        "miles": 6.2,
+        "duration_seconds": 3600,
+        "pace_seconds_per_mile": 581.0,
+        "pace": "9:41",
+        "avg_hr": 148,
+        "max_hr": 171,
+        "efficiency_index": 41.9,
         "source": "api"
       },
       {
         "date": "2026-10-15",
         "name": "Morning Run",
-        "miles": 9.2,
-        "duration_seconds": 4980,
-        "pace_seconds_per_mile": 541.0,
-        "pace": "9:01",
-        "avg_hr": 159,
-        "max_hr": 182,
-        "efficiency_index": 41.8,
+        "miles": 9.8,
+        "duration_seconds": 5340,
+        "pace_seconds_per_mile": 545.0,
+        "pace": "9:05",
+        "avg_hr": 155,
+        "max_hr": 176,
+        "efficiency_index": 42.6,
         "source": "api"
       },
       {
         "date": "2026-10-17",
         "name": "Morning Run",
-        "miles": 3.7,
-        "duration_seconds": 2220,
+        "miles": 3.9,
+        "duration_seconds": 2340,
         "pace_seconds_per_mile": 600.0,
         "pace": "10:00",
-        "avg_hr": 143,
-        "max_hr": 162,
-        "efficiency_index": 42.0,
+        "avg_hr": 139,
+        "max_hr": 160,
+        "efficiency_index": 43.2,
         "source": "api"
       },
       {
         "date": "2026-10-18",
         "name": "Morning Run",
-        "miles": 15.5,
-        "duration_seconds": 8820,
-        "pace_seconds_per_mile": 569.0,
-        "pace": "9:29",
-        "avg_hr": 150,
+        "miles": 14.8,
+        "duration_seconds": 8400,
+        "pace_seconds_per_mile": 568.0,
+        "pace": "9:28",
+        "avg_hr": 152,
         "max_hr": 171,
-        "efficiency_index": 42.2,
+        "efficiency_index": 41.7,
         "source": "api"
       },
       {
         "date": "2026-10-20",
         "name": "Morning Run",
-        "miles": 8.6,
-        "duration_seconds": 4320,
+        "miles": 9.2,
+        "duration_seconds": 4620,
         "pace_seconds_per_mile": 502.0,
         "pace": "8:22",
-        "avg_hr": 161,
-        "max_hr": 182,
-        "efficiency_index": 44.5,
+        "avg_hr": 163,
+        "max_hr": 175,
+        "efficiency_index": 44.0,
         "source": "api"
       },
       {
         "date": "2026-10-21",
         "name": "Morning Run",
-        "miles": 6.6,
-        "duration_seconds": 3840,
-        "pace_seconds_per_mile": 582.0,
-        "pace": "9:42",
-        "avg_hr": 141,
-        "max_hr": 154,
-        "efficiency_index": 43.9,
+        "miles": 7.0,
+        "duration_seconds": 4080,
+        "pace_seconds_per_mile": 583.0,
+        "pace": "9:43",
+        "avg_hr": 145,
+        "max_hr": 164,
+        "efficiency_index": 42.6,
         "source": "api"
       }
     ],
-    "projection": {
-      "predicted_seconds": 14081,
-      "predicted": "3:54:41",
-      "predicted_pace": "8:57",
-      "basis": {
-        "date": "2026-10-20",
-        "name": "Morning Run",
-        "miles": 8.6,
-        "pace": "8:22",
+    "all_runs": [
+      {
+        "date": "2026-08-13",
+        "miles": 8.5,
+        "pace": "9:04",
+        "avg_hr": 154
+      },
+      {
+        "date": "2026-08-15",
+        "miles": 3.4,
+        "pace": "10:00",
+        "avg_hr": 144
+      },
+      {
+        "date": "2026-08-16",
+        "miles": 12.9,
+        "pace": "9:27",
+        "avg_hr": 150
+      },
+      {
+        "date": "2026-08-18",
+        "miles": 7.1,
+        "pace": "8:19",
+        "avg_hr": 163
+      },
+      {
+        "date": "2026-08-19",
+        "miles": 5.4,
+        "pace": "9:38",
+        "avg_hr": 146
+      },
+      {
+        "date": "2026-08-20",
+        "miles": 8.5,
+        "pace": "9:04",
+        "avg_hr": 155
+      },
+      {
+        "date": "2026-08-22",
+        "miles": 3.4,
+        "pace": "10:00",
+        "avg_hr": 138
+      },
+      {
+        "date": "2026-08-23",
+        "miles": 12.9,
+        "pace": "9:27",
+        "avg_hr": 154
+      },
+      {
+        "date": "2026-08-25",
+        "miles": 7.1,
+        "pace": "8:19",
+        "avg_hr": 164
+      },
+      {
+        "date": "2026-08-26",
+        "miles": 5.4,
+        "pace": "9:38",
+        "avg_hr": 148
+      },
+      {
+        "date": "2026-08-27",
+        "miles": 8.5,
+        "pace": "9:04",
+        "avg_hr": 156
+      },
+      {
+        "date": "2026-08-29",
+        "miles": 3.4,
+        "pace": "10:00",
+        "avg_hr": 139
+      },
+      {
+        "date": "2026-08-30",
+        "miles": 12.9,
+        "pace": "9:27",
+        "avg_hr": 153
+      },
+      {
+        "date": "2026-09-01",
+        "miles": 7.1,
+        "pace": "8:19",
+        "avg_hr": 159
+      },
+      {
+        "date": "2026-09-02",
+        "miles": 5.4,
+        "pace": "9:38",
+        "avg_hr": 141
+      },
+      {
+        "date": "2026-09-03",
+        "miles": 8.5,
+        "pace": "9:04",
+        "avg_hr": 158
+      },
+      {
+        "date": "2026-09-05",
+        "miles": 3.4,
+        "pace": "10:00",
+        "avg_hr": 142
+      },
+      {
+        "date": "2026-09-06",
+        "miles": 12.9,
+        "pace": "9:27",
+        "avg_hr": 150
+      },
+      {
+        "date": "2026-09-08",
+        "miles": 7.1,
+        "pace": "8:19",
+        "avg_hr": 160
+      },
+      {
+        "date": "2026-09-09",
+        "miles": 5.4,
+        "pace": "9:38",
+        "avg_hr": 143
+      },
+      {
+        "date": "2026-09-10",
+        "miles": 8.5,
+        "pace": "9:04",
+        "avg_hr": 159
+      },
+      {
+        "date": "2026-09-12",
+        "miles": 3.4,
+        "pace": "10:00",
+        "avg_hr": 143
+      },
+      {
+        "date": "2026-09-13",
+        "miles": 12.9,
+        "pace": "9:27",
+        "avg_hr": 155
+      },
+      {
+        "date": "2026-09-15",
+        "miles": 7.1,
+        "pace": "8:19",
         "avg_hr": 161
       },
+      {
+        "date": "2026-09-16",
+        "miles": 5.4,
+        "pace": "9:38",
+        "avg_hr": 143
+      },
+      {
+        "date": "2026-09-17",
+        "miles": 8.5,
+        "pace": "9:04",
+        "avg_hr": 156
+      },
+      {
+        "date": "2026-09-19",
+        "miles": 3.4,
+        "pace": "10:00",
+        "avg_hr": 139
+      },
+      {
+        "date": "2026-09-20",
+        "miles": 12.9,
+        "pace": "9:27",
+        "avg_hr": 153
+      },
+      {
+        "date": "2026-09-22",
+        "miles": 5.0,
+        "pace": "8:24",
+        "avg_hr": 166
+      },
+      {
+        "date": "2026-09-23",
+        "miles": 3.8,
+        "pace": "9:44",
+        "avg_hr": 147
+      },
+      {
+        "date": "2026-09-24",
+        "miles": 6.0,
+        "pace": "9:00",
+        "avg_hr": 156
+      },
+      {
+        "date": "2026-09-26",
+        "miles": 2.4,
+        "pace": "10:00",
+        "avg_hr": 137
+      },
+      {
+        "date": "2026-09-27",
+        "miles": 9.1,
+        "pace": "9:27",
+        "avg_hr": 155
+      },
+      {
+        "date": "2026-09-29",
+        "miles": 6.5,
+        "pace": "8:18",
+        "avg_hr": 165
+      },
+      {
+        "date": "2026-09-30",
+        "miles": 5.0,
+        "pace": "9:48",
+        "avg_hr": 142
+      },
+      {
+        "date": "2026-10-01",
+        "miles": 7.8,
+        "pace": "8:58",
+        "avg_hr": 156
+      },
+      {
+        "date": "2026-10-03",
+        "miles": 3.1,
+        "pace": "10:00",
+        "avg_hr": 142
+      },
+      {
+        "date": "2026-10-04",
+        "miles": 11.8,
+        "pace": "9:29",
+        "avg_hr": 148
+      },
+      {
+        "date": "2026-10-06",
+        "miles": 7.3,
+        "pace": "8:21",
+        "avg_hr": 165
+      },
+      {
+        "date": "2026-10-07",
+        "miles": 5.6,
+        "pace": "9:39",
+        "avg_hr": 147
+      },
+      {
+        "date": "2026-10-08",
+        "miles": 8.8,
+        "pace": "9:05",
+        "avg_hr": 152
+      },
+      {
+        "date": "2026-10-10",
+        "miles": 3.5,
+        "pace": "10:00",
+        "avg_hr": 137
+      },
+      {
+        "date": "2026-10-11",
+        "miles": 13.3,
+        "pace": "9:28",
+        "avg_hr": 153
+      },
+      {
+        "date": "2026-10-13",
+        "miles": 8.2,
+        "pace": "8:18",
+        "avg_hr": 160
+      },
+      {
+        "date": "2026-10-14",
+        "miles": 6.2,
+        "pace": "9:41",
+        "avg_hr": 148
+      },
+      {
+        "date": "2026-10-15",
+        "miles": 9.8,
+        "pace": "9:05",
+        "avg_hr": 155
+      },
+      {
+        "date": "2026-10-17",
+        "miles": 3.9,
+        "pace": "10:00",
+        "avg_hr": 139
+      },
+      {
+        "date": "2026-10-18",
+        "miles": 14.8,
+        "pace": "9:28",
+        "avg_hr": 152
+      },
+      {
+        "date": "2026-10-20",
+        "miles": 9.2,
+        "pace": "8:22",
+        "avg_hr": 163
+      },
+      {
+        "date": "2026-10-21",
+        "miles": 7.0,
+        "pace": "9:43",
+        "avg_hr": 145
+      }
+    ],
+    "projection": {
+      "predicted_seconds": 13988,
+      "predicted": "3:53:08",
+      "predicted_pace": "8:53",
+      "basis": {
+        "date": "2026-10-13",
+        "name": "Morning Run",
+        "miles": 8.2,
+        "pace": "8:18",
+        "avg_hr": 160
+      },
       "from_longest": {
-        "seconds": 15397,
-        "time": "4:16:37",
+        "seconds": 15400,
+        "time": "4:16:40",
         "pace": "9:47",
         "basis": {
           "date": "2026-10-18",
           "name": "Morning Run",
-          "miles": 15.5,
-          "pace": "9:29",
-          "avg_hr": 150
+          "miles": 14.8,
+          "pace": "9:28",
+          "avg_hr": 152
         }
       },
       "conservative": {
@@ -1037,38 +2075,38 @@
           "name": "Morning Run",
           "miles": 5.0,
           "pace": "9:48",
-          "avg_hr": 144
+          "avg_hr": 142
         }
       },
       "spread": [
-        "3:54:41",
+        "3:53:08",
         "4:43:48"
       ],
-      "candidates_considered": 22,
+      "candidates_considered": 23,
       "note": "Riegel extrapolation (exponent 1.06) from training runs of 5+ miles in the last 6 weeks. Riegel assumes a maximal effort, so a projection off training runs reads pessimistic \u2014 treat it as a floor, not a forecast."
     }
   },
   "projection": {
-    "predicted_seconds": 14081,
-    "predicted": "3:54:41",
-    "predicted_pace": "8:57",
+    "predicted_seconds": 13988,
+    "predicted": "3:53:08",
+    "predicted_pace": "8:53",
     "basis": {
-      "date": "2026-10-20",
+      "date": "2026-10-13",
       "name": "Morning Run",
-      "miles": 8.6,
-      "pace": "8:22",
-      "avg_hr": 161
+      "miles": 8.2,
+      "pace": "8:18",
+      "avg_hr": 160
     },
     "from_longest": {
-      "seconds": 15397,
-      "time": "4:16:37",
+      "seconds": 15400,
+      "time": "4:16:40",
       "pace": "9:47",
       "basis": {
         "date": "2026-10-18",
         "name": "Morning Run",
-        "miles": 15.5,
-        "pace": "9:29",
-        "avg_hr": 150
+        "miles": 14.8,
+        "pace": "9:28",
+        "avg_hr": 152
       }
     },
     "conservative": {
@@ -1080,20 +2118,36 @@
         "name": "Morning Run",
         "miles": 5.0,
         "pace": "9:48",
-        "avg_hr": 144
+        "avg_hr": 142
       }
     },
     "spread": [
-      "3:54:41",
+      "3:53:08",
       "4:43:48"
     ],
-    "candidates_considered": 22,
+    "candidates_considered": 23,
     "note": "Riegel extrapolation (exponent 1.06) from training runs of 5+ miles in the last 6 weeks. Riegel assumes a maximal effort, so a projection off training runs reads pessimistic \u2014 treat it as a floor, not a forecast.",
     "goal_seconds": 13500,
     "goal": "Sub-3:45:00 (8:35/mi)",
-    "gap_seconds": 581,
-    "gap": "+0:09:41",
-    "on_track": false
+    "garmin": {
+      "observed": "2026-10-21",
+      "5k": "0:20:05",
+      "10k": "0:42:10",
+      "half": "1:37:00",
+      "marathon": "3:47:00",
+      "marathon_seconds": 13620,
+      "marathon_pace": "8:39"
+    },
+    "best_seconds": 13620,
+    "best": "3:47:00",
+    "gap_seconds": 120,
+    "gap": "+0:02:00",
+    "on_track": false,
+    "bracket": [
+      "3:47:00",
+      "3:53:08"
+    ],
+    "bracket_note": "Garmin's model says 3:47:00; extrapolating your training runs says 3:53:08. Garmin models every run and reads optimistic; Riegel assumes a maximal effort it never got and reads pessimistic. The real number is somewhere in between."
   },
   "adherence": {
     "weeks": [
@@ -1105,9 +2159,10 @@
         "end": "2026-09-27",
         "status": "done",
         "miles_target": 24,
-        "miles_actual": 27.3,
+        "miles_actual": 26.3,
         "key_sessions_due": 1,
-        "key_sessions_done": 1
+        "key_sessions_done": 1,
+        "key_sessions_missed": 0
       },
       {
         "week": 2,
@@ -1117,33 +2172,36 @@
         "end": "2026-10-04",
         "status": "done",
         "miles_target": 31,
-        "miles_actual": 35.4,
-        "key_sessions_due": 2,
-        "key_sessions_done": 2
+        "miles_actual": 34.2,
+        "key_sessions_due": 3,
+        "key_sessions_done": 3,
+        "key_sessions_missed": 0
       },
       {
         "week": 3,
         "phase": "Week 3 \u2014 Build 2",
-        "headline": "Threshold block. This is where the 8:35 starts feeling cheap.",
+        "headline": "Threshold block. This is where goal pace starts feeling cheap.",
         "start": "2026-10-05",
         "end": "2026-10-11",
         "status": "done",
         "miles_target": 35,
-        "miles_actual": 39.9,
-        "key_sessions_due": 2,
-        "key_sessions_done": 2
+        "miles_actual": 38.5,
+        "key_sessions_due": 3,
+        "key_sessions_done": 3,
+        "key_sessions_missed": 0
       },
       {
         "week": 4,
         "phase": "Week 4 \u2014 Build 3",
-        "headline": "Marathon pace goes into the long run. Fueling rehearsal starts.",
+        "headline": "Marathon pace goes into the long run. Fuelling rehearsal starts.",
         "start": "2026-10-12",
         "end": "2026-10-18",
         "status": "done",
-        "miles_target": 37,
-        "miles_actual": 42.1,
-        "key_sessions_due": 2,
-        "key_sessions_done": 2
+        "miles_target": 39,
+        "miles_actual": 42.9,
+        "key_sessions_due": 3,
+        "key_sessions_done": 3,
+        "key_sessions_missed": 0
       },
       {
         "week": 5,
@@ -1152,10 +2210,11 @@
         "start": "2026-10-19",
         "end": "2026-10-25",
         "status": "current",
-        "miles_target": 41,
-        "miles_actual": 15.2,
-        "key_sessions_due": 1,
-        "key_sessions_done": 1
+        "miles_target": 44,
+        "miles_actual": 16.2,
+        "key_sessions_due": 3,
+        "key_sessions_done": 1,
+        "key_sessions_missed": 0
       },
       {
         "week": 6,
@@ -1164,39 +2223,42 @@
         "start": "2026-10-26",
         "end": "2026-11-01",
         "status": "upcoming",
-        "miles_target": 43,
-        "miles_actual": 0.0,
-        "key_sessions_due": 0,
-        "key_sessions_done": 0
+        "miles_target": 46,
+        "miles_actual": 0,
+        "key_sessions_due": 3,
+        "key_sessions_done": 0,
+        "key_sessions_missed": 0
       },
       {
         "week": 7,
         "phase": "Week 7 \u2014 Taper 1",
-        "headline": "Volume drops ~30%, intensity stays. You should start feeling springy.",
+        "headline": "Volume drops ~25%, intensity stays. You should start feeling springy.",
         "start": "2026-11-02",
         "end": "2026-11-08",
         "status": "upcoming",
-        "miles_target": 30,
-        "miles_actual": 0.0,
-        "key_sessions_due": 0,
-        "key_sessions_done": 0
+        "miles_target": 34,
+        "miles_actual": 0,
+        "key_sessions_due": 3,
+        "key_sessions_done": 0,
+        "key_sessions_missed": 0
       },
       {
         "week": 8,
         "phase": "Week 8 \u2014 Race Week",
-        "headline": "Deep taper. Nothing you do this week makes you fitter \u2014 only fresher.",
+        "headline": "Deep taper. Nothing this week makes you fitter \u2014 only fresher.",
         "start": "2026-11-09",
         "end": "2026-11-15",
         "status": "upcoming",
-        "miles_target": 18,
-        "miles_actual": 0.0,
-        "key_sessions_due": 0,
-        "key_sessions_done": 0
+        "miles_target": 45.2,
+        "miles_actual": 0,
+        "key_sessions_due": 2,
+        "key_sessions_done": 0,
+        "key_sessions_missed": 0
       }
     ],
-    "key_sessions_due_to_date": 8,
-    "key_sessions_done_to_date": 8,
-    "completion_pct": 100
+    "key_sessions_due_to_date": 13,
+    "key_sessions_done_to_date": 11,
+    "completion_pct": 85
   },
   "completed_days": [
     "2026-08-13",
@@ -1206,16 +2268,15 @@
     "2026-08-18",
     "2026-08-19",
     "2026-08-20",
-    "2026-08-21",
     "2026-08-22",
     "2026-08-23",
     "2026-08-24",
     "2026-08-25",
     "2026-08-26",
     "2026-08-27",
+    "2026-08-28",
     "2026-08-29",
     "2026-08-30",
-    "2026-08-31",
     "2026-09-01",
     "2026-09-02",
     "2026-09-03",
@@ -1227,7 +2288,6 @@
     "2026-09-10",
     "2026-09-12",
     "2026-09-13",
-    "2026-09-14",
     "2026-09-15",
     "2026-09-16",
     "2026-09-17",
@@ -1241,14 +2301,11 @@
     "2026-09-25",
     "2026-09-26",
     "2026-09-27",
-    "2026-09-28",
     "2026-09-29",
     "2026-09-30",
     "2026-10-01",
-    "2026-10-02",
     "2026-10-03",
     "2026-10-04",
-    "2026-10-05",
     "2026-10-06",
     "2026-10-07",
     "2026-10-08",
@@ -1258,7 +2315,6 @@
     "2026-10-13",
     "2026-10-14",
     "2026-10-15",
-    "2026-10-16",
     "2026-10-17",
     "2026-10-18",
     "2026-10-19",
@@ -1290,6 +2346,10 @@
     "2026-09-21": {
       "session": "Rest or 30min easy spin. Nothing hard.",
       "target": "Full recovery",
+      "kind": "rest",
+      "miles": 0,
+      "key": false,
+      "lift": null,
       "phase": "Week 1 \u2014 Re-entry",
       "week": 1,
       "week_miles_target": 24
@@ -1297,6 +2357,10 @@
     "2026-09-22": {
       "session": "Easy 5mi + 4\u00d720s strides",
       "target": "9:50\u201310:20/mi \u00b7 strides relaxed",
+      "kind": "easy",
+      "miles": 5,
+      "key": false,
+      "lift": null,
       "phase": "Week 1 \u2014 Re-entry",
       "week": 1,
       "week_miles_target": 24
@@ -1304,6 +2368,10 @@
     "2026-09-23": {
       "session": "Swim 1500m easy + Upper Pull lift",
       "target": "Easy \u00b7 flush the legs",
+      "kind": "cross",
+      "miles": 0,
+      "key": false,
+      "lift": "upper_pull",
       "phase": "Week 1 \u2014 Re-entry",
       "week": 1,
       "week_miles_target": 24
@@ -1311,6 +2379,10 @@
     "2026-09-24": {
       "session": "Easy 6mi steady",
       "target": "9:50\u201310:20/mi \u00b7 HR <150",
+      "kind": "easy",
+      "miles": 6,
+      "key": false,
+      "lift": null,
       "phase": "Week 1 \u2014 Re-entry",
       "week": 1,
       "week_miles_target": 24
@@ -1318,6 +2390,10 @@
     "2026-09-25": {
       "session": "Rest or 40min easy spin",
       "target": "Recovery",
+      "kind": "rest",
+      "miles": 0,
+      "key": false,
+      "lift": null,
       "phase": "Week 1 \u2014 Re-entry",
       "week": 1,
       "week_miles_target": 24
@@ -1325,6 +2401,10 @@
     "2026-09-26": {
       "session": "Easy 4mi + 6\u00d720s strides",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 4,
+      "key": false,
+      "lift": "upper_push",
       "phase": "Week 1 \u2014 Re-entry",
       "week": 1,
       "week_miles_target": 24
@@ -1332,6 +2412,10 @@
     "2026-09-27": {
       "session": "Long run 9mi easy \u2014 first real long run back",
       "target": "9:20\u20139:50/mi \u00b7 HR <155",
+      "kind": "long",
+      "miles": 9,
+      "key": true,
+      "lift": null,
       "phase": "Week 1 \u2014 Re-entry",
       "week": 1,
       "week_miles_target": 24
@@ -1339,6 +2423,10 @@
     "2026-09-28": {
       "session": "Recovery: 30min easy spin or swim 1500m + Upper Push lift",
       "target": "Easy",
+      "kind": "cross",
+      "miles": 0,
+      "key": false,
+      "lift": "upper_push",
       "phase": "Week 2 \u2014 Build 1",
       "week": 2,
       "week_miles_target": 31
@@ -1346,20 +2434,32 @@
     "2026-09-29": {
       "session": "Quality \u2014 Intervals: 1.5 WU / 5\u00d71000m @ 7:30\u20137:45 (2min jog) / 1 CD",
       "target": "7:30\u20137:45/mi reps \u00b7 Z4",
+      "kind": "quality",
+      "miles": 6,
+      "key": true,
+      "lift": null,
       "phase": "Week 2 \u2014 Build 1",
       "week": 2,
       "week_miles_target": 31
     },
     "2026-09-30": {
-      "session": "Easy 5mi + Legs (moderate)",
+      "session": "Easy 4mi + Legs (moderate)",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 4,
+      "key": false,
+      "lift": "legs",
       "phase": "Week 2 \u2014 Build 1",
       "week": 2,
       "week_miles_target": 31
     },
     "2026-10-01": {
-      "session": "Medium-long 8mi, last 2mi @ 8:35",
+      "session": "Medium-long 7mi, last 2mi @ 8:35",
       "target": "Finish at MP 8:35/mi",
+      "kind": "medium_long",
+      "miles": 7,
+      "key": true,
+      "lift": null,
       "phase": "Week 2 \u2014 Build 1",
       "week": 2,
       "week_miles_target": 31
@@ -1367,20 +2467,32 @@
     "2026-10-02": {
       "session": "Rest or swim 1800m easy",
       "target": "Recovery",
+      "kind": "rest",
+      "miles": 0,
+      "key": false,
+      "lift": null,
       "phase": "Week 2 \u2014 Build 1",
       "week": 2,
       "week_miles_target": 31
     },
     "2026-10-03": {
-      "session": "Easy 4mi + 6\u00d720s strides",
+      "session": "Easy 3mi + 6\u00d720s strides",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 3,
+      "key": false,
+      "lift": "upper_pull",
       "phase": "Week 2 \u2014 Build 1",
       "week": 2,
       "week_miles_target": 31
     },
     "2026-10-04": {
-      "session": "Long run 12mi easy",
+      "session": "Long run 11mi easy",
       "target": "9:20\u20139:50/mi \u00b7 HR <155",
+      "kind": "long",
+      "miles": 11,
+      "key": true,
+      "lift": null,
       "phase": "Week 2 \u2014 Build 1",
       "week": 2,
       "week_miles_target": 31
@@ -1388,6 +2500,10 @@
     "2026-10-05": {
       "session": "Recovery: 30min spin + Upper Pull lift",
       "target": "Easy",
+      "kind": "cross",
+      "miles": 0,
+      "key": false,
+      "lift": "upper_pull",
       "phase": "Week 3 \u2014 Build 2",
       "week": 3,
       "week_miles_target": 35
@@ -1395,20 +2511,32 @@
     "2026-10-06": {
       "session": "Quality \u2014 Tempo: 1.5 WU / 5mi @ 8:00\u20138:10 / 1 CD",
       "target": "8:00\u20138:10/mi \u00b7 Z3\u2013low Z4",
+      "kind": "quality",
+      "miles": 7,
+      "key": true,
+      "lift": null,
       "phase": "Week 3 \u2014 Build 2",
       "week": 3,
       "week_miles_target": 35
     },
     "2026-10-07": {
-      "session": "Easy 6mi + Legs (moderate)",
+      "session": "Easy 4mi + Legs (moderate)",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 4,
+      "key": false,
+      "lift": "legs",
       "phase": "Week 3 \u2014 Build 2",
       "week": 3,
       "week_miles_target": 35
     },
     "2026-10-08": {
-      "session": "Medium-long 9mi, middle 3mi @ 8:35",
+      "session": "Medium-long 8mi, middle 3mi @ 8:35",
       "target": "MP 8:35/mi",
+      "kind": "medium_long",
+      "miles": 8,
+      "key": true,
+      "lift": null,
       "phase": "Week 3 \u2014 Build 2",
       "week": 3,
       "week_miles_target": 35
@@ -1416,20 +2544,32 @@
     "2026-10-09": {
       "session": "Rest or swim 1800m",
       "target": "Recovery",
+      "kind": "rest",
+      "miles": 0,
+      "key": false,
+      "lift": null,
       "phase": "Week 3 \u2014 Build 2",
       "week": 3,
       "week_miles_target": 35
     },
     "2026-10-10": {
-      "session": "Easy 4mi + strides",
+      "session": "Easy 3mi + strides",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 3,
+      "key": false,
+      "lift": "upper_push",
       "phase": "Week 3 \u2014 Build 2",
       "week": 3,
       "week_miles_target": 35
     },
     "2026-10-11": {
-      "session": "Long run 14mi easy",
+      "session": "Long run 13mi easy",
       "target": "9:20\u20139:50/mi \u00b7 HR <155",
+      "kind": "long",
+      "miles": 13,
+      "key": true,
+      "lift": null,
       "phase": "Week 3 \u2014 Build 2",
       "week": 3,
       "week_miles_target": 35
@@ -1437,258 +2577,726 @@
     "2026-10-12": {
       "session": "Recovery: swim 1500m + Upper Push lift",
       "target": "Easy",
+      "kind": "cross",
+      "miles": 0,
+      "key": false,
+      "lift": "upper_push",
       "phase": "Week 4 \u2014 Build 3",
       "week": 4,
-      "week_miles_target": 37
+      "week_miles_target": 39
     },
     "2026-10-13": {
       "session": "Quality \u2014 Intervals: 1.5 WU / 6\u00d71mi @ 8:00\u20138:10 (90s jog) / 1 CD",
       "target": "8:00\u20138:10/mi \u00b7 controlled",
+      "kind": "quality",
+      "miles": 8,
+      "key": true,
+      "lift": null,
       "phase": "Week 4 \u2014 Build 3",
       "week": 4,
-      "week_miles_target": 37
+      "week_miles_target": 39
     },
     "2026-10-14": {
-      "session": "Easy 6mi + Legs",
+      "session": "Easy 4mi + Legs",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 4,
+      "key": false,
+      "lift": "legs",
       "phase": "Week 4 \u2014 Build 3",
       "week": 4,
-      "week_miles_target": 37
+      "week_miles_target": 39
     },
     "2026-10-15": {
-      "session": "Medium-long 10mi, 2\u00d72mi @ 8:35 (1mi easy between)",
+      "session": "Medium-long 9mi, 2\u00d72mi @ 8:35 (1mi easy between)",
       "target": "MP 8:35/mi",
+      "kind": "medium_long",
+      "miles": 9,
+      "key": true,
+      "lift": null,
       "phase": "Week 4 \u2014 Build 3",
       "week": 4,
-      "week_miles_target": 37
+      "week_miles_target": 39
     },
     "2026-10-16": {
       "session": "Rest or 45min easy spin",
       "target": "Recovery",
+      "kind": "rest",
+      "miles": 0,
+      "key": false,
+      "lift": null,
       "phase": "Week 4 \u2014 Build 3",
       "week": 4,
-      "week_miles_target": 37
+      "week_miles_target": 39
     },
     "2026-10-17": {
-      "session": "Easy 4mi + strides",
+      "session": "Easy 3mi + strides",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 3,
+      "key": false,
+      "lift": "upper_pull",
       "phase": "Week 4 \u2014 Build 3",
       "week": 4,
-      "week_miles_target": 37
+      "week_miles_target": 39
     },
     "2026-10-18": {
-      "session": "LONG RUN 16mi \u2014 last 4mi @ 8:35. Practice race fueling: 60g carbs/hr from mile 4.",
+      "session": "LONG RUN 15mi \u2014 last 4mi @ 8:35. Practice race fuelling: 60g carbs/hr from mile 4.",
       "target": "Easy \u2192 MP 8:35/mi",
+      "kind": "long",
+      "miles": 15,
+      "key": true,
+      "lift": null,
       "phase": "Week 4 \u2014 Build 3",
       "week": 4,
-      "week_miles_target": 37
+      "week_miles_target": 39
     },
     "2026-10-19": {
       "session": "Recovery: 30min spin + Upper Pull lift",
       "target": "Easy",
+      "kind": "cross",
+      "miles": 0,
+      "key": false,
+      "lift": "upper_pull",
       "phase": "Week 5 \u2014 Peak 1",
       "week": 5,
-      "week_miles_target": 41
+      "week_miles_target": 44
     },
     "2026-10-20": {
       "session": "Quality \u2014 Tempo: 1.5 WU / 6mi @ 8:00\u20138:10 / 1 CD",
       "target": "8:00\u20138:10/mi",
+      "kind": "quality",
+      "miles": 8,
+      "key": true,
+      "lift": null,
       "phase": "Week 5 \u2014 Peak 1",
       "week": 5,
-      "week_miles_target": 41
+      "week_miles_target": 44
     },
     "2026-10-21": {
-      "session": "Easy 7mi + Legs (lighter)",
+      "session": "Easy 5mi + Legs (lighter)",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 5,
+      "key": false,
+      "lift": "legs",
       "phase": "Week 5 \u2014 Peak 1",
       "week": 5,
-      "week_miles_target": 41
+      "week_miles_target": 44
     },
     "2026-10-22": {
-      "session": "Medium-long 11mi, middle 5mi @ 8:35",
+      "session": "Medium-long 10mi, middle 5mi @ 8:35",
       "target": "MP 8:35/mi",
+      "kind": "medium_long",
+      "miles": 10,
+      "key": true,
+      "lift": null,
       "phase": "Week 5 \u2014 Peak 1",
       "week": 5,
-      "week_miles_target": 41
+      "week_miles_target": 44
     },
     "2026-10-23": {
       "session": "Rest or swim 2000m easy",
       "target": "Recovery",
+      "kind": "rest",
+      "miles": 0,
+      "key": false,
+      "lift": null,
       "phase": "Week 5 \u2014 Peak 1",
       "week": 5,
-      "week_miles_target": 41
+      "week_miles_target": 44
     },
     "2026-10-24": {
-      "session": "Easy 4mi + strides",
+      "session": "Easy 3mi + strides",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 3,
+      "key": false,
+      "lift": "upper_push",
       "phase": "Week 5 \u2014 Peak 1",
       "week": 5,
-      "week_miles_target": 41
+      "week_miles_target": 44
     },
     "2026-10-25": {
-      "session": "LONG RUN 18mi steady. Full fueling rehearsal: 60\u201375g carbs/hr, drink every 20min.",
+      "session": "LONG RUN 18mi steady. Full fuelling rehearsal: 60\u201375g carbs/hr, drink every 20min.",
       "target": "9:20\u20139:50/mi \u00b7 HR <155",
+      "kind": "long",
+      "miles": 18,
+      "key": true,
+      "lift": null,
       "phase": "Week 5 \u2014 Peak 1",
       "week": 5,
-      "week_miles_target": 41
+      "week_miles_target": 44
     },
     "2026-10-26": {
       "session": "Recovery: swim 1500m + Upper Push lift",
       "target": "Easy",
+      "kind": "cross",
+      "miles": 0,
+      "key": false,
+      "lift": "upper_push",
       "phase": "Week 6 \u2014 Peak 2",
       "week": 6,
-      "week_miles_target": 43
+      "week_miles_target": 46
     },
     "2026-10-27": {
       "session": "Quality \u2014 Intervals: 1.5 WU / 3\u00d72mi @ 8:00\u20138:10 (2min jog) / 1 CD",
       "target": "8:00\u20138:10/mi",
+      "kind": "quality",
+      "miles": 8,
+      "key": true,
+      "lift": null,
       "phase": "Week 6 \u2014 Peak 2",
       "week": 6,
-      "week_miles_target": 43
+      "week_miles_target": 46
     },
     "2026-10-28": {
-      "session": "Easy 6mi + Legs (light)",
+      "session": "Easy 5mi + Legs (light)",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 5,
+      "key": false,
+      "lift": "legs",
       "phase": "Week 6 \u2014 Peak 2",
       "week": 6,
-      "week_miles_target": 43
+      "week_miles_target": 46
     },
     "2026-10-29": {
       "session": "Medium-long 10mi, 6mi @ 8:35 \u2014 dress rehearsal pace feel",
       "target": "MP 8:35/mi \u00b7 should feel repeatable",
+      "kind": "medium_long",
+      "miles": 10,
+      "key": true,
+      "lift": null,
       "phase": "Week 6 \u2014 Peak 2",
       "week": 6,
-      "week_miles_target": 43
+      "week_miles_target": 46
     },
     "2026-10-30": {
       "session": "Rest \u2014 full day off legs",
       "target": "Rest",
+      "kind": "rest",
+      "miles": 0,
+      "key": false,
+      "lift": null,
       "phase": "Week 6 \u2014 Peak 2",
       "week": 6,
-      "week_miles_target": 43
+      "week_miles_target": 46
     },
     "2026-10-31": {
-      "session": "Easy 4mi + strides",
+      "session": "Easy 3mi + strides",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 3,
+      "key": false,
+      "lift": null,
       "phase": "Week 6 \u2014 Peak 2",
       "week": 6,
-      "week_miles_target": 43
+      "week_miles_target": 46
     },
     "2026-11-01": {
-      "session": "LONG RUN 20mi \u2014 race kit, race shoes, race breakfast, race fueling. Last 5mi @ 8:35.",
+      "session": "LONG RUN 20mi \u2014 race kit, race shoes, race breakfast, race fuelling. Last 5mi @ 8:35.",
       "target": "Easy \u2192 MP 8:35/mi \u00b7 the key session",
+      "kind": "long",
+      "miles": 20,
+      "key": true,
+      "lift": null,
       "phase": "Week 6 \u2014 Peak 2",
       "week": 6,
-      "week_miles_target": 43
+      "week_miles_target": 46
     },
     "2026-11-02": {
       "session": "Recovery: 30min spin + Upper Pull (70% load)",
       "target": "Easy",
+      "kind": "cross",
+      "miles": 0,
+      "key": false,
+      "lift": "upper_pull",
       "phase": "Week 7 \u2014 Taper 1",
       "week": 7,
-      "week_miles_target": 30
+      "week_miles_target": 34
     },
     "2026-11-03": {
       "session": "Quality \u2014 1.5 WU / 4mi @ 8:00\u20138:10 / 1 CD",
       "target": "8:00\u20138:10/mi \u00b7 sharp not deep",
+      "kind": "quality",
+      "miles": 6,
+      "key": true,
+      "lift": null,
       "phase": "Week 7 \u2014 Taper 1",
       "week": 7,
-      "week_miles_target": 30
+      "week_miles_target": 34
     },
     "2026-11-04": {
-      "session": "Easy 5mi (skip heavy legs from here)",
+      "session": "Easy 4mi (no heavy legs from here)",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 4,
+      "key": false,
+      "lift": "mobility",
       "phase": "Week 7 \u2014 Taper 1",
       "week": 7,
-      "week_miles_target": 30
+      "week_miles_target": 34
     },
     "2026-11-05": {
       "session": "Medium-long 8mi, 4mi @ 8:35",
       "target": "MP 8:35/mi",
+      "kind": "medium_long",
+      "miles": 8,
+      "key": true,
+      "lift": null,
       "phase": "Week 7 \u2014 Taper 1",
       "week": 7,
-      "week_miles_target": 30
+      "week_miles_target": 34
     },
     "2026-11-06": {
       "session": "Rest or swim 1500m easy",
       "target": "Recovery",
+      "kind": "rest",
+      "miles": 0,
+      "key": false,
+      "lift": null,
       "phase": "Week 7 \u2014 Taper 1",
       "week": 7,
-      "week_miles_target": 30
+      "week_miles_target": 34
     },
     "2026-11-07": {
-      "session": "Easy 4mi + 6\u00d720s strides",
+      "session": "Easy 3mi + 6\u00d720s strides",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 3,
+      "key": false,
+      "lift": null,
       "phase": "Week 7 \u2014 Taper 1",
       "week": 7,
-      "week_miles_target": 30
+      "week_miles_target": 34
     },
     "2026-11-08": {
       "session": "Long run 13mi, last 3mi @ 8:35",
       "target": "9:20\u20139:50 \u2192 MP 8:35/mi",
+      "kind": "long",
+      "miles": 13,
+      "key": true,
+      "lift": null,
       "phase": "Week 7 \u2014 Taper 1",
       "week": 7,
-      "week_miles_target": 30
+      "week_miles_target": 34
     },
     "2026-11-09": {
       "session": "Easy 5mi relaxed + 4\u00d720s strides",
       "target": "9:50\u201310:20/mi",
+      "kind": "easy",
+      "miles": 5,
+      "key": false,
+      "lift": "mobility",
       "phase": "Week 8 \u2014 Race Week",
       "week": 8,
-      "week_miles_target": 18
+      "week_miles_target": 45.2
     },
     "2026-11-10": {
       "session": "Sharpener: 1 WU / 3\u00d71mi @ 8:35 (2min jog) / 1 CD",
       "target": "MP 8:35/mi \u00b7 locks in rhythm",
+      "kind": "quality",
+      "miles": 5,
+      "key": true,
+      "lift": null,
       "phase": "Week 8 \u2014 Race Week",
       "week": 8,
-      "week_miles_target": 18
+      "week_miles_target": 45.2
     },
     "2026-11-11": {
       "session": "Easy 4mi. Carb-load begins \u2014 ramp to 8\u201310g/kg/day.",
       "target": "9:50\u201310:20/mi \u00b7 hydrate",
+      "kind": "easy",
+      "miles": 4,
+      "key": false,
+      "lift": null,
       "phase": "Week 8 \u2014 Race Week",
       "week": 8,
-      "week_miles_target": 18
+      "week_miles_target": 45.2
     },
     "2026-11-12": {
       "session": "Easy 3mi + 4 strides. Lay out race kit.",
       "target": "Very easy",
+      "kind": "easy",
+      "miles": 3,
+      "key": false,
+      "lift": null,
       "phase": "Week 8 \u2014 Race Week",
       "week": 8,
-      "week_miles_target": 18
+      "week_miles_target": 45.2
     },
     "2026-11-13": {
       "session": "Rest or 20min shakeout jog. Travel / packet pickup. Off legs by evening.",
       "target": "Rest",
+      "kind": "rest",
+      "miles": 0,
+      "key": false,
+      "lift": null,
       "phase": "Week 8 \u2014 Race Week",
       "week": 8,
-      "week_miles_target": 18
+      "week_miles_target": 45.2
     },
     "2026-11-14": {
       "session": "20min easy jog + 3 strides. Final carb-load day. Early night.",
       "target": "Prime \u00b7 rest",
+      "kind": "easy",
+      "miles": 2,
+      "key": false,
+      "lift": null,
       "phase": "Week 8 \u2014 Race Week",
       "week": 8,
-      "week_miles_target": 18
+      "week_miles_target": 45.2
     },
     "2026-11-15": {
       "session": "RACE DAY \u00b7 MARATHON \u00b7 goal 3:45:00 (8:35/mi). Fuel 60\u201375g carbs/hr from mile 4.",
       "target": "EXECUTE THE PLAN",
+      "kind": "race",
+      "miles": 26.2,
+      "key": true,
+      "lift": null,
       "phase": "Week 8 \u2014 Race Week",
       "week": 8,
-      "week_miles_target": 18
+      "week_miles_target": 45.2
     }
+  },
+  "matching": {
+    "2026-09-21": {
+      "status": "rest",
+      "actual_miles": 0
+    },
+    "2026-09-22": {
+      "status": "done",
+      "actual_miles": 5.0,
+      "planned_miles": 5,
+      "pct": 100
+    },
+    "2026-09-23": {
+      "status": "rest",
+      "actual_miles": 3.8
+    },
+    "2026-09-24": {
+      "status": "done",
+      "actual_miles": 6.0,
+      "planned_miles": 6,
+      "pct": 100
+    },
+    "2026-09-25": {
+      "status": "rest",
+      "actual_miles": 0
+    },
+    "2026-09-26": {
+      "status": "done",
+      "actual_miles": 2.4,
+      "planned_miles": 4,
+      "pct": 60
+    },
+    "2026-09-27": {
+      "status": "done",
+      "actual_miles": 9.1,
+      "planned_miles": 9,
+      "pct": 101
+    },
+    "2026-09-28": {
+      "status": "rest",
+      "actual_miles": 0
+    },
+    "2026-09-29": {
+      "status": "done",
+      "actual_miles": 6.5,
+      "planned_miles": 6,
+      "pct": 108
+    },
+    "2026-09-30": {
+      "status": "done",
+      "actual_miles": 5.0,
+      "planned_miles": 4,
+      "pct": 125
+    },
+    "2026-10-01": {
+      "status": "done",
+      "actual_miles": 7.8,
+      "planned_miles": 7,
+      "pct": 111
+    },
+    "2026-10-02": {
+      "status": "rest",
+      "actual_miles": 0
+    },
+    "2026-10-03": {
+      "status": "done",
+      "actual_miles": 3.1,
+      "planned_miles": 3,
+      "pct": 103
+    },
+    "2026-10-04": {
+      "status": "done",
+      "actual_miles": 11.8,
+      "planned_miles": 11,
+      "pct": 107
+    },
+    "2026-10-05": {
+      "status": "rest",
+      "actual_miles": 0
+    },
+    "2026-10-06": {
+      "status": "done",
+      "actual_miles": 7.3,
+      "planned_miles": 7,
+      "pct": 104
+    },
+    "2026-10-07": {
+      "status": "done",
+      "actual_miles": 5.6,
+      "planned_miles": 4,
+      "pct": 140
+    },
+    "2026-10-08": {
+      "status": "done",
+      "actual_miles": 8.8,
+      "planned_miles": 8,
+      "pct": 110
+    },
+    "2026-10-09": {
+      "status": "rest",
+      "actual_miles": 0
+    },
+    "2026-10-10": {
+      "status": "done",
+      "actual_miles": 3.5,
+      "planned_miles": 3,
+      "pct": 117
+    },
+    "2026-10-11": {
+      "status": "done",
+      "actual_miles": 13.3,
+      "planned_miles": 13,
+      "pct": 102
+    },
+    "2026-10-12": {
+      "status": "rest",
+      "actual_miles": 0
+    },
+    "2026-10-13": {
+      "status": "done",
+      "actual_miles": 8.2,
+      "planned_miles": 8,
+      "pct": 102
+    },
+    "2026-10-14": {
+      "status": "done",
+      "actual_miles": 6.2,
+      "planned_miles": 4,
+      "pct": 155
+    },
+    "2026-10-15": {
+      "status": "done",
+      "actual_miles": 9.8,
+      "planned_miles": 9,
+      "pct": 109
+    },
+    "2026-10-16": {
+      "status": "rest",
+      "actual_miles": 0
+    },
+    "2026-10-17": {
+      "status": "done",
+      "actual_miles": 3.9,
+      "planned_miles": 3,
+      "pct": 130
+    },
+    "2026-10-18": {
+      "status": "done",
+      "actual_miles": 14.8,
+      "planned_miles": 15,
+      "pct": 99
+    },
+    "2026-10-19": {
+      "status": "rest",
+      "actual_miles": 0
+    },
+    "2026-10-20": {
+      "status": "done",
+      "actual_miles": 9.2,
+      "planned_miles": 8,
+      "pct": 115
+    },
+    "2026-10-21": {
+      "status": "done",
+      "actual_miles": 7.0,
+      "planned_miles": 5,
+      "pct": 140
+    },
+    "2026-10-22": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-10-23": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-10-24": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-10-25": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-10-26": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-10-27": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-10-28": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-10-29": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-10-30": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-10-31": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-11-01": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-11-02": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-11-03": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-11-04": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-11-05": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-11-06": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-11-07": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-11-08": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-11-09": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-11-10": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-11-11": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-11-12": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-11-13": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-11-14": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    },
+    "2026-11-15": {
+      "status": "upcoming",
+      "actual_miles": 0.0
+    }
+  },
+  "adaptation": {
+    "level": "green",
+    "readiness": 77,
+    "triggers": [
+      {
+        "trigger": "readiness >= 70",
+        "effect": "Take the plan as written.",
+        "severity": "good"
+      }
+    ],
+    "suggestions": {
+      "today": {
+        "date": "2026-10-21",
+        "original": {
+          "session": "Easy 5mi + Legs (lighter)",
+          "target": "9:50\u201310:20/mi",
+          "kind": "easy",
+          "miles": 5,
+          "key": false,
+          "lift": "legs",
+          "phase": "Week 5 \u2014 Peak 1",
+          "week": 5,
+          "week_miles_target": 44
+        },
+        "suggested": null,
+        "changed": false,
+        "reasons": []
+      },
+      "tomorrow": {
+        "date": "2026-10-22",
+        "original": {
+          "session": "Medium-long 10mi, middle 5mi @ 8:35",
+          "target": "MP 8:35/mi",
+          "kind": "medium_long",
+          "miles": 10,
+          "key": true,
+          "lift": null,
+          "phase": "Week 5 \u2014 Peak 1",
+          "week": 5,
+          "week_miles_target": 44
+        },
+        "suggested": null,
+        "changed": false,
+        "reasons": []
+      }
+    },
+    "last_week": {
+      "week_start": "2026-10-12",
+      "planned_miles": 39,
+      "actual_miles": 42.9,
+      "key_planned": 3,
+      "key_done": 3,
+      "key_missed": 0,
+      "key_pending": 0
+    },
+    "hold_volume": false,
+    "absorb_week": false,
+    "fatigue_fitness_ratio": 1.15,
+    "note": "The base plan is never rewritten. These are suggestions shown next to the original session \u2014 you pick which one you do."
   },
   "coach": {
     "band": "moderate",
     "headline": "Mostly on track, with one or two things to keep an eye on.",
     "notes": [
-      "Sleep is averaging 7.6h against a 7.5h target \u2014 nothing to fix.",
-      "Workload ratio is 1.13, squarely in the productive range.",
-      "8 of 8 key sessions completed so far \u2014 the block is on the rails.",
-      "Recent runs project to 3:54:41, about 10 minutes off Sub-3:45:00 (8:35/mi) \u2014 25 days out, the marathon-pace work should be closing this now. Riegel reads training runs pessimistically, so treat it as a floor rather than a forecast.",
-      "Today's plan is: Easy 7mi + Legs (lighter). Green light."
+      "Sleep is averaging 7.56h against a 7.5h target \u2014 nothing to fix.",
+      "Workload ratio is 1.21, squarely in the productive range.",
+      "11 of 13 key sessions completed. The long runs are the ones that matter; protect those before the midweek quality.",
+      "Garmin's model says 3:47:00 and extrapolating your training runs says 3:53:08. The nearer of the two is 2 minutes off Sub-3:45:00 (8:35/mi) \u2014 25 days out, the marathon-pace work should be closing this now. Garmin models every run and reads optimistic; Riegel assumes a maximal effort it never got and reads pessimistic, so the truth sits between them.",
+      "Today's plan is: Easy 5mi + Legs (lighter). Green light."
     ],
     "source": "rules"
   },

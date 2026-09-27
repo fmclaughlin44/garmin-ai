@@ -22,6 +22,7 @@ Usage:
 import argparse
 import json
 import sys
+import time
 import traceback
 from datetime import date, timedelta
 from pathlib import Path
@@ -55,10 +56,32 @@ def login():
         sys.exit(1)
 
 
+# Garmin rate-limits, and the failure mode is a 429 that a naive retry loop turns
+# into a temporary ban. So: pace every call, and treat a 429 as "stop now".
+CALL_SPACING_SECONDS = 0.4
+
+
+class RateLimited(Exception):
+    """Garmin returned HTTP 429. Stop the run rather than retrying in a loop."""
+
+
+def _is_rate_limit(exc: Exception) -> bool:
+    text = f"{type(exc).__name__} {exc}"
+    return "429" in text or "TooManyRequests" in text or "rate limit" in text.lower()
+
+
 def safe_call(label, fn):
+    """Run one API call, paced, converting a 429 into a hard stop.
+
+    Every other failure is returned as a message so one bad metric doesn't take
+    down the day -- Garmin routinely drops connections on individual endpoints.
+    """
+    time.sleep(CALL_SPACING_SECONDS)
     try:
         return fn(), None
     except Exception as e:
+        if _is_rate_limit(e):
+            raise RateLimited(f"{label}: {e}") from e
         return None, f"{type(e).__name__}: {e}"
 
 
@@ -104,6 +127,44 @@ def fetch_day(garmin, day_str):
     if errors:
         day_data["_errors"] = errors
     return day_data
+
+
+def fetch_snapshots(garmin, day_str):
+    """Pull the account-wide metrics that aren't per-day facts.
+
+    These endpoints return "where you stand now" with no history, so each
+    observation is filed under today's date and the trend is built by keeping
+    them. Probed against this account -- the ones that come back empty
+    (endurance score, morning readiness, HRV, body composition) are not called,
+    because calling them just burns rate limit to store nothing.
+    """
+    results = {}
+    calls = {
+        # Garmin's own race predictions. Worth having next to our Riegel
+        # projection precisely because they disagree: Garmin models from all
+        # runs, Riegel extrapolates one.
+        "race_predictions": lambda: garmin.get_race_predictions(),
+        # VO2 max. Absent from the daily summary but present here.
+        "max_metrics": lambda: garmin.get_max_metrics(day_str),
+        "fitness_age": lambda: garmin.get_fitnessage_data(day_str),
+    }
+    # The range variant backfills the VO2 trend in one call instead of waiting
+    # weeks for daily snapshots to accumulate. Each entry carries its own
+    # observation date, so they file themselves correctly.
+    span_start = (date.fromisoformat(day_str) - timedelta(days=90)).isoformat()
+    vo2_range, err = safe_call("max_metrics_range",
+                               lambda: garmin.get_max_metrics_range(span_start, day_str))
+    if err:
+        log(f"  max_metrics_range: {err}")
+    elif vo2_range:
+        results["_max_metrics_range"] = vo2_range
+    for key, fn in calls.items():
+        value, err = safe_call(key, fn)
+        if err:
+            log(f"  {key}: {err}")
+        elif value not in (None, {}, [], ""):
+            results[key] = value
+    return results
 
 
 def render_wellness_markdown(day_str, d):
@@ -295,6 +356,11 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--days", type=int, default=7, help="How many days back to pull")
     parser.add_argument("--activities", type=int, default=20, help="How many recent activities to check")
+    parser.add_argument("--refresh", type=int, default=3,
+                        help="Always re-pull this many recent days, even if cached "
+                             "(Garmin revises sleep and stress for a day or two)")
+    parser.add_argument("--force", action="store_true",
+                        help="Re-pull every day in the window, ignoring the cache")
     args = parser.parse_args()
 
     WELLNESS_DIR.mkdir(parents=True, exist_ok=True)
@@ -307,24 +373,59 @@ def main():
 
     today = date.today()
     day_list = [(today - timedelta(days=i)).isoformat() for i in range(args.days)]
+    refresh_window = set(day_list[: max(args.refresh, 0)])
 
-    failed_days = []
-    for day_str in day_list:
-        log(f"Pulling wellness data for {day_str}...")
-        day_data = fetch_day(garmin, day_str)
-        if day_data.get("_errors"):
-            failed_days.append(day_str)
-        # put_day refuses to overwrite a good day with an empty payload, so a
-        # flaky pull degrades to "we keep what we already had".
-        store.put_day(day_str, day_data)
-        md = render_wellness_markdown(day_str, day_data)
-        (WELLNESS_DIR / f"{day_str}.md").write_text(md)
+    failed_days, skipped, pulled = [], 0, 0
 
-    log("Pulling recent activities...")
-    activities, err = safe_call("activities", lambda: garmin.get_activities(0, args.activities))
-    if err:
-        log(f"  Could not pull activities: {err}")
-        activities = []
+    try:
+        for day_str in day_list:
+            # Skip what we already hold. Only the newest few days are re-pulled,
+            # because Garmin keeps revising a day's sleep and stress for a day or
+            # two after it ends. Everything older is settled, so re-requesting it
+            # spends rate limit to write the same bytes.
+            if not args.force and day_str not in refresh_window and store.has_day(day_str):
+                skipped += 1
+                continue
+
+            log(f"Pulling wellness data for {day_str}...")
+            day_data = fetch_day(garmin, day_str)
+
+            if day_data.get("_errors"):
+                failed_days.append(day_str)
+                # An old day Garmin has nothing for gets marked as such, so it
+                # isn't retried on every run from now until the end of time.
+                is_old = day_str not in refresh_window
+                if is_old and not store.has_day(day_str):
+                    day_data["_failed"] = True
+
+            store.put_day(day_str, day_data)
+            pulled += 1
+            md = render_wellness_markdown(day_str, day_data)
+            (WELLNESS_DIR / f"{day_str}.md").write_text(md)
+
+        log("Pulling recent activities...")
+        activities, err = safe_call("activities", lambda: garmin.get_activities(0, args.activities))
+        if err:
+            log(f"  Could not pull activities: {err}")
+            activities = []
+
+        log("Pulling account-wide metrics (VO2 max, race predictions, fitness age)...")
+        snapshots = fetch_snapshots(garmin, today.isoformat())
+        vo2_range = snapshots.pop("_max_metrics_range", None)
+        for metric, payload in snapshots.items():
+            store.put_snapshot(metric, today.isoformat(), payload)
+        # File each historical VO2 observation under the date it was measured.
+        for entry in vo2_range or []:
+            observed = ((entry or {}).get("generic") or {}).get("calendarDate")
+            if observed:
+                store.put_snapshot("max_metrics", observed, entry)
+
+    except RateLimited as e:
+        log("")
+        log(f"Garmin rate-limited this run ({e}).")
+        log("Stopping here rather than retrying — everything pulled so far is saved.")
+        log("Wait a while before running again.")
+        return
 
     cutoff = day_list[-1] if day_list else today.isoformat()
     kept = 0
@@ -344,7 +445,10 @@ def main():
     cov = store.coverage()
 
     log("")
-    log(f"Done. Synced {len(day_list)} day(s) and {kept} activity/activities into the store.")
+    log(f"Done. Pulled {pulled} day(s), skipped {skipped} already cached, "
+        f"{kept} activity/activities.")
+    if snapshots:
+        log(f"Snapshots stored: {', '.join(sorted(snapshots))}")
     if failed_days:
         log(f"Partial data for {len(failed_days)} day(s): {', '.join(failed_days)}")
         log("(Any day that already had good data was left untouched.)")

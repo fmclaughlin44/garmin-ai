@@ -18,6 +18,7 @@
     --series-1:        #2a78d6;
     --series-1-soft:   #cde2fb;
     --series-2:        #eb6834;
+    --series-3:        #1baf7a;
 
     --good:            #0ca30c;
     --warning:         #fab219;
@@ -44,6 +45,7 @@
       --series-1:       #3987e5;
       --series-1-soft:  #184f95;
       --series-2:       #d95926;
+      --series-3:       #199e70;
       --grid:           rgba(255,255,255,0.08);
     }
   }
@@ -60,6 +62,7 @@
     --series-1:       #3987e5;
     --series-1-soft:  #184f95;
     --series-2:       #d95926;
+    --series-3:       #199e70;
     --grid:           rgba(255,255,255,0.08);
   }
 
@@ -248,6 +251,86 @@
 
   footer { font-size: 11.5px; color: var(--muted); text-align: center; border-top: 1px solid var(--border); padding-top: 16px; line-height: 1.7; }
 
+
+  /* ============ single-page layout ============ */
+
+  .section { display: flex; flex-direction: column; gap: 14px; }
+  .section-head { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; justify-content: space-between;
+                  border-bottom: 1px solid var(--border-strong); padding-bottom: 7px; }
+  .section-head h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.11em;
+                     color: var(--text-primary); margin: 0; }
+  .section-head .hint { font-size: 12px; color: var(--muted); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-side { display: grid; grid-template-columns: minmax(280px, 360px) 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 900px) { .grid-2, .grid-3, .grid-side { grid-template-columns: 1fr; } }
+
+  /* ============ the week: the anchor of the page ============ */
+
+  .week-card { background: var(--surface-1); border: 1px solid var(--border-strong); border-radius: 12px; padding: 20px 22px; }
+  .week-top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-start; justify-content: space-between; margin-bottom: 4px; }
+  .week-title { font-size: 20px; font-weight: 700; letter-spacing: -0.012em; margin: 0; }
+  .week-sub { font-size: 13.5px; color: var(--text-secondary); margin-top: 3px; max-width: 62ch; }
+  .week-progress { display: flex; gap: 22px; flex-wrap: wrap; }
+  .wp { text-align: right; }
+  .wp .n { font-family: var(--mono); font-size: 21px; font-weight: 500; letter-spacing: -0.015em; }
+  .wp .l { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+
+  .week-days { margin-top: 16px; display: flex; flex-direction: column; }
+  .wd { display: grid; grid-template-columns: 74px 1fr 92px; gap: 14px; padding: 12px 0;
+        border-top: 1px solid var(--border); align-items: start; }
+  .wd:first-child { border-top: none; }
+  .wd.is-today { background: color-mix(in srgb, var(--series-1) 7%, transparent);
+                 margin-inline: -22px; padding-inline: 22px; border-radius: 8px; border-top-color: transparent; }
+  .wd-when { font-family: var(--mono); font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 7px; padding-top: 2px; }
+  .wd.is-today .wd-when { font-weight: 500; color: var(--series-1); }
+  .wd-session { font-size: 14.5px; line-height: 1.45; }
+  .wd-target { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+  .wd-metric { text-align: right; font-family: var(--mono); font-size: 12px; color: var(--text-secondary); padding-top: 2px; }
+  .wd-metric .pct { font-size: 10.5px; color: var(--muted); display: block; }
+  .wd-lift { display: inline-block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em;
+             padding: 1px 6px; border-radius: 3px; background: var(--surface-2); color: var(--text-secondary); margin-left: 7px; vertical-align: 1px; }
+
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .s-done { background: var(--good); }
+  .s-moved { background: var(--series-2); }
+  .s-short { background: var(--warning); }
+  .s-missed { background: var(--border-strong); }
+  .s-today { background: var(--series-1); box-shadow: 0 0 0 3px color-mix(in srgb, var(--series-1) 22%, transparent); }
+  .s-rest, .s-upcoming { background: transparent; border: 1px solid var(--border-strong); }
+
+  /* suggested vs original */
+  .swap { margin-top: 10px; border: 1px solid var(--warning); border-radius: 9px; overflow: hidden;
+          background: color-mix(in srgb, var(--warning) 7%, transparent); }
+  .swap-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 12px;
+               font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary);
+               border-bottom: 1px solid var(--border); }
+  .swap-body { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); }
+  @media (max-width: 620px) { .swap-body { grid-template-columns: 1fr; } }
+  .swap-body > div { background: var(--surface-1); padding: 12px 13px; }
+  .swap-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px; }
+  .swap-session { font-size: 13.5px; line-height: 1.45; }
+  .swap-suggested { border-left: 2px solid var(--warning); }
+
+  .triggers { display: flex; flex-direction: column; gap: 7px; }
+  .trig { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: baseline; font-size: 13px; }
+  .trig-tag { font-family: var(--mono); font-size: 11px; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+  .trig-eff { color: var(--text-secondary); }
+
+  /* ============ compact block table ============ */
+  .blockrow { display: grid; grid-template-columns: 34px 1fr 120px 90px; gap: 12px; padding: 10px 0;
+              border-top: 1px solid var(--border); align-items: center; font-size: 13px; }
+  .blockrow:first-child { border-top: none; }
+  .blockrow.now { background: color-mix(in srgb, var(--series-1) 6%, transparent); margin-inline: -20px; padding-inline: 20px; border-radius: 6px; }
+  .blockrow .bw { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+  .blockrow .bp { font-weight: 600; }
+  .blockrow .bh { font-size: 11.5px; color: var(--muted); }
+  .blockrow .bm { font-family: var(--mono); font-size: 12px; text-align: right; color: var(--text-secondary); }
+  .minibar { height: 5px; border-radius: 999px; background: var(--series-1-soft); overflow: hidden; }
+  .minibar > i { display: block; height: 100%; background: var(--series-1); border-radius: 999px; }
+  @media (max-width: 700px) { .blockrow { grid-template-columns: 30px 1fr 80px; } .blockrow .minibar-wrap { display: none; } }
+
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 
@@ -264,45 +347,183 @@
     </div>
   </header>
 
-  <section class="hero">
-    <div class="card readiness">
-      <h2>Readiness today</h2>
-      <div class="figure"><div class="n" id="r-score">—</div><div class="of">/ 100</div></div>
-      <div id="r-band"></div>
-      <div class="meter"><i id="r-meter"></i></div>
-      <div class="verdict" id="r-verdict"></div>
-      <div class="components" id="r-components"></div>
+  <!-- ============ 1. THIS WEEK ============ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>This week</h2>
+      <span class="hint" id="week-hint"></span>
     </div>
-    <div>
-      <div class="tiles" id="tiles"></div>
+
+    <div class="week-card">
+      <div class="week-top">
+        <div>
+          <h3 class="week-title" id="wk-title">—</h3>
+          <div class="week-sub" id="wk-sub"></div>
+        </div>
+        <div class="week-progress" id="wk-progress"></div>
+      </div>
+      <div class="week-days" id="wk-days"></div>
+    </div>
+
+    <div class="card" id="adapt-card">
+      <h2>Why today looks like that</h2>
+      <div class="triggers" id="adapt-triggers"></div>
+      <p class="note" id="adapt-note" style="margin:12px 0 0"></p>
     </div>
   </section>
 
-  <nav class="tabs" id="tabs" role="tablist"></nav>
-
-  <!-- TODAY -->
-  <section class="panel" id="panel-today" role="tabpanel">
-    <div class="card">
-      <h2>Today's session</h2>
-      <h3 id="t-session">—</h3>
-      <div class="note" id="t-target"></div>
-      <div class="gap-bar" id="t-week"></div>
+  <!-- ============ 2. READINESS ============ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Readiness</h2>
+      <span class="hint">Composed from the signals this watch actually reports</span>
     </div>
-    <div class="card">
-      <h2>Training paces — derived from the goal time</h2>
-      <div class="pacegrid" id="pacegrid"></div>
-      <p class="note" style="margin-bottom:0">Every pace here is computed from the single goal time in
-        <code>plan/build_plan.py</code>. Change the goal and the whole plan re-derives.</p>
+    <div class="grid-side">
+      <div class="card readiness">
+        <div class="figure"><div class="n" id="r-score">—</div><div class="of">/ 100</div></div>
+        <div id="r-band"></div>
+        <div class="meter"><i id="r-meter"></i></div>
+        <div class="verdict" id="r-verdict"></div>
+        <div class="components" id="r-components"></div>
+      </div>
+      <div class="section" style="gap:14px">
+        <div class="tiles" id="tiles"></div>
+        <div class="card">
+          <div class="chart-head">
+            <div>
+              <h2 style="margin-bottom:2px">Readiness, last 6 weeks</h2>
+              <div class="chart-note">Each day scored from the data available that day, not rescored with hindsight.</div>
+            </div>
+          </div>
+          <div id="chart-readiness"></div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- TRAINING -->
-  <section class="panel" id="panel-training" role="tabpanel" hidden>
+  <!-- ============ 3. FITNESS, FATIGUE, FORM ============ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Fitness, fatigue and form</h2>
+      <span class="hint" id="form-hint"></span>
+    </div>
+    <div class="tiles" id="form-tiles"></div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="chart-head">
+          <div>
+            <h2 style="margin-bottom:2px">Fitness against fatigue</h2>
+            <div class="chart-note">Exponentially weighted load: 42-day fitness, 7-day fatigue, form is the difference.</div>
+          </div>
+          <div class="legend">
+            <span><i class="swatch line" style="background:var(--series-1)"></i>Fitness</span>
+            <span><i class="swatch line" style="background:var(--series-2)"></i>Fatigue</span>
+            <span><i class="swatch line" style="background:var(--series-3)"></i>Form</span>
+          </div>
+        </div>
+        <div id="chart-form"></div>
+      </div>
+      <div class="card">
+        <div class="chart-head">
+          <div>
+            <h2 style="margin-bottom:2px">Daily training load</h2>
+            <div class="chart-note">Banister TRIMP per session, summed by day. Line is the 7-day mean.</div>
+          </div>
+          <div class="legend">
+            <span><i class="swatch" style="background:var(--series-1)"></i>Daily</span>
+            <span><i class="swatch line" style="background:var(--series-2)"></i>7-day mean</span>
+          </div>
+        </div>
+        <div id="chart-load"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Workload ratio</h2>
+      <div class="tiles" id="load-tiles"></div>
+      <p class="note" id="load-label" style="margin:12px 0 0"></p>
+    </div>
+  </section>
+
+  <!-- ============ 4. RECOVERY DETAIL ============ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Recovery signals</h2>
+      <span class="hint">No HRV on this device — the nocturnal drop stands in for it</span>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="chart-head">
+          <div>
+            <h2 style="margin-bottom:2px">Resting heart rate against its baseline</h2>
+            <div class="chart-note">Band is the 28-day median ± one standard deviation.</div>
+          </div>
+        </div>
+        <div id="chart-rhr"></div>
+      </div>
+      <div class="card">
+        <div class="chart-head">
+          <div>
+            <h2 style="margin-bottom:2px">Nocturnal heart-rate drop</h2>
+            <div class="chart-note" id="noct-note">Sleep-onset heart rate minus the night's minimum. Deeper is better.</div>
+          </div>
+        </div>
+        <div id="chart-nocturnal"></div>
+      </div>
+    </div>
     <div class="card">
       <div class="chart-head">
         <div>
-          <h2 style="margin-bottom:2px">Weekly volume — actual against target</h2>
-          <div class="chart-note">Run mileage only. The track is the week's target; the fill is what Garmin actually recorded.</div>
+          <h2 style="margin-bottom:2px">Sleep</h2>
+          <div class="chart-note">Hours per night; the rule marks the target. Scored here from duration and stage composition, since this device reports no sleep score.</div>
+        </div>
+      </div>
+      <div id="chart-sleep"></div>
+      <details class="tableview"><summary>Daily table — every recovery number</summary><div class="scroll-x" id="table-recovery"></div></details>
+    </div>
+  </section>
+
+  <!-- ============ 5. WHERE YOU STAND ============ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Where you stand</h2>
+      <span class="hint">Two models, deliberately shown together</span>
+    </div>
+    <div class="grid-side">
+      <div class="card">
+        <h2>Projected marathon</h2>
+        <div style="display:flex;align-items:baseline;gap:10px">
+          <div id="p-time" style="font-family:var(--mono);font-size:40px;font-weight:500;letter-spacing:-0.02em"></div>
+          <div style="font-size:13px;color:var(--muted)" id="p-pace"></div>
+        </div>
+        <div id="p-band"></div>
+        <div class="gap-bar" id="p-gap"></div>
+        <dl class="kv" style="margin-top:16px" id="p-reads"></dl>
+        <p class="note" id="p-note" style="margin:14px 0 0"></p>
+      </div>
+      <div class="section" style="gap:14px">
+        <div class="tiles" id="fit-tiles"></div>
+        <div class="card">
+          <h2>Recent runs</h2>
+          <div class="scroll-x" id="table-runs"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6. THE BLOCK ============ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>The whole block</h2>
+      <span class="hint">Eight weeks, Sep 21 to race day. Completion is measured, not ticked.</span>
+    </div>
+    <div class="card">
+      <div id="block"></div>
+    </div>
+    <div class="card">
+      <div class="chart-head">
+        <div>
+          <h2 style="margin-bottom:2px">Weekly volume</h2>
+          <div class="chart-note">Run mileage. Track is the week's target, fill is what was recorded.</div>
         </div>
         <div class="legend">
           <span><i class="swatch" style="background:var(--series-1)"></i>Actual</span>
@@ -310,111 +531,63 @@
         </div>
       </div>
       <div id="chart-mileage"></div>
-      <details class="tableview"><summary>Table view</summary><div class="scroll-x" id="table-mileage"></div></details>
-    </div>
-    <div class="card">
-      <h2>The block — 8 weeks</h2>
-      <div id="plan"></div>
-      <p class="note" style="margin-top:14px;margin-bottom:0">A session counts as completed when Garmin
-        recorded an activity that day. Nothing is ticked off by hand, so the adherence number can't flatter itself.</p>
     </div>
   </section>
 
-  <!-- LOAD -->
-  <section class="panel" id="panel-load" role="tabpanel" hidden>
-    <div class="card">
-      <h2>Workload</h2>
-      <div class="tiles" id="load-tiles"></div>
-      <p class="note" id="load-label" style="margin-top:14px;margin-bottom:0"></p>
+  <!-- ============ 7. PACES & FUEL ============ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Paces and fuel</h2>
+      <span class="hint">Every pace derived from the one goal time</span>
     </div>
     <div class="card">
-      <div class="chart-head">
-        <div>
-          <h2 style="margin-bottom:2px">Daily training load</h2>
-          <div class="chart-note">Banister TRIMP per session, summed by day. The line is the 7-day rolling mean.</div>
-        </div>
-        <div class="legend">
-          <span><i class="swatch" style="background:var(--series-1)"></i>Daily load</span>
-          <span><i class="swatch line" style="background:var(--series-2)"></i>7-day mean</span>
-        </div>
+      <h2>Training paces</h2>
+      <div class="pacegrid" id="pacegrid"></div>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <h2>Today's carbohydrate</h2>
+        <div id="fuel-today"></div>
+        <p class="note" id="fuel-note" style="margin:12px 0 0"></p>
       </div>
-      <div id="chart-load"></div>
-      <details class="tableview"><summary>Table view</summary><div class="scroll-x" id="table-load"></div></details>
-    </div>
-  </section>
-
-  <!-- RECOVERY -->
-  <section class="panel" id="panel-recovery" role="tabpanel" hidden>
-    <div class="card">
-      <div class="chart-head">
-        <div>
-          <h2 style="margin-bottom:2px">Resting heart rate against its own baseline</h2>
-          <div class="chart-note">The band is the 28-day median plus or minus one standard deviation. A morning outside it is the signal worth reading.</div>
-        </div>
+      <div class="card">
+        <h2>Race-day fuelling</h2>
+        <dl class="kv" id="fuel-race"></dl>
       </div>
-      <div id="chart-rhr"></div>
-      <details class="tableview"><summary>Table view</summary><div class="scroll-x" id="table-rhr"></div></details>
-    </div>
-    <div class="card">
-      <div class="chart-head">
-        <div>
-          <h2 style="margin-bottom:2px">Sleep</h2>
-          <div class="chart-note">Hours per night. The rule marks the configured target.</div>
-        </div>
+      <div class="card">
+        <h2>Carb load</h2>
+        <dl class="kv" id="fuel-load"></dl>
       </div>
-      <div id="chart-sleep"></div>
-      <details class="tableview"><summary>Table view</summary><div class="scroll-x" id="table-sleep"></div></details>
-    </div>
-    <div class="card">
-      <h2>What this watch does and doesn't report</h2>
-      <div class="prov" id="prov"></div>
     </div>
   </section>
 
-  <!-- FITNESS -->
-  <section class="panel" id="panel-fitness" role="tabpanel" hidden>
-    <div class="card">
-      <h2>Projected marathon time</h2>
-      <div class="figure" style="display:flex;align-items:baseline;gap:10px">
-        <div class="n" id="p-time" style="font-family:var(--mono);font-size:44px;font-weight:500;letter-spacing:-0.02em"></div>
-        <div class="of" style="font-size:13px;color:var(--muted)" id="p-pace"></div>
-      </div>
-      <div id="p-band"></div>
-      <div class="gap-bar" id="p-gap"></div>
-      <dl class="kv" style="margin-top:16px" id="p-reads"></dl>
-      <p class="note" id="p-note" style="margin-top:14px;margin-bottom:0"></p>
-    </div>
-    <div class="card">
-      <h2>Running — last 28 days</h2>
-      <div class="tiles" id="fit-tiles"></div>
-      <details class="tableview" open><summary>Recent runs</summary><div class="scroll-x" id="table-runs"></div></details>
-    </div>
-  </section>
-
-  <!-- FUEL -->
-  <section class="panel" id="panel-fuel" role="tabpanel" hidden>
-    <div class="card">
-      <h2>Today's carbohydrate target</h2>
-      <div class="tiles" id="fuel-tiles"></div>
-      <p class="note" id="fuel-note" style="margin-top:14px;margin-bottom:0"></p>
-    </div>
-    <div class="card">
-      <h2>Race-day fuelling</h2>
-      <dl class="kv" id="fuel-race"></dl>
-    </div>
-    <div class="card">
-      <h2>Carb load</h2>
-      <dl class="kv" id="fuel-load"></dl>
-    </div>
-  </section>
-
-  <!-- COACH -->
-  <section class="panel" id="panel-coach" role="tabpanel" hidden>
-    <div class="card">
+  <!-- ============ 8. COACH ============ -->
+  <section class="section">
+    <div class="section-head">
       <h2>Coach's read</h2>
+      <span class="hint" id="coach-source"></span>
+    </div>
+    <div class="card">
       <div id="coach-band"></div>
       <div id="coach-body" style="margin-top:10px"></div>
-      <p class="note" id="coach-prov" style="margin-top:14px;margin-bottom:0"></p>
+    </div>
+  </section>
+
+  <!-- ============ 9. PROVENANCE ============ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>What this watch reports</h2>
+      <span class="hint">Probed, not assumed</span>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h2>In use</h2>
+        <div class="prov" id="prov-yes"></div>
+      </div>
+      <div class="card">
+        <h2>Not available</h2>
+        <div class="prov" id="prov-no"></div>
+      </div>
     </div>
   </section>
 
@@ -432,9 +605,14 @@ const SVG_NS = "http://www.w3.org/2000/svg";
 const STATUS = { good: "var(--good)", moderate: "var(--warning)", warning: "var(--warning)",
                  low: "var(--serious)", serious: "var(--serious)", poor: "var(--critical)",
                  critical: "var(--critical)", optimal: "var(--good)", detraining: "var(--warning)",
-                 high_risk: "var(--critical)", insufficient_history: "var(--muted)", unknown: "var(--muted)" };
-const ICON = { good: "●", optimal: "●", moderate: "◐", warning: "◐", detraining: "◐",
-               low: "◔", serious: "◔", poor: "○", critical: "○", high_risk: "○",
+                 caution: "var(--serious)", high_risk: "var(--critical)", green: "var(--good)",
+                 fresh: "var(--good)", tapered: "var(--good)", building: "var(--series-1)",
+                 loaded: "var(--warning)", overloaded: "var(--critical)",
+                 insufficient_history: "var(--muted)", unknown: "var(--muted)" };
+const ICON = { good: "●", optimal: "●", green: "●", fresh: "●", tapered: "●", building: "●",
+               moderate: "◐", warning: "◐", detraining: "◐", loaded: "◐",
+               low: "◔", serious: "◔", caution: "◔",
+               poor: "○", critical: "○", high_risk: "○", overloaded: "○",
                insufficient_history: "○", unknown: "○" };
 
 function el(tag, attrs = {}, text) {
@@ -450,31 +628,26 @@ function svgEl(tag, attrs = {}) {
   for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
   return node;
 }
-const nn = (v, fallback = "—") => (v === null || v === undefined || v === "" ? fallback : v);
-const shortDate = (iso) => {
-  const [, m, d] = iso.split("-");
-  return `${Number(m)}/${Number(d)}`;
-};
-// All date maths is done in UTC and formatted from the ISO string. Using a
-// local Date plus toISOString() would shift every date by one day for any
-// viewer east of UTC, which silently misaligns the whole training plan.
+const nn = (v, fb = "—") => (v === null || v === undefined || v === "" ? fb : v);
+const has = (v) => v !== null && v !== undefined;
+const shortDate = (iso) => { const [, m, d] = iso.split("-"); return `${Number(m)}/${Number(d)}`; };
+
+// All date maths in UTC, formatted from the ISO string. A local Date plus
+// toISOString() shifts every date by a day for viewers east of UTC, which would
+// silently misalign the whole training plan.
 const utcDate = (iso) => new Date(iso + "T00:00:00Z");
 const dowName = (iso) => ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][utcDate(iso).getUTCDay()];
-const addDays = (iso, n) => {
-  const d = utcDate(iso);
-  d.setUTCDate(d.getUTCDate() + n);
-  return d.toISOString().slice(0, 10);
-};
+const addDays = (iso, n) => { const d = utcDate(iso); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 
 function badge(band, label) {
   const wrap = el("div", { class: "band" });
-  wrap.style.background = `color-mix(in srgb, ${STATUS[band] || "var(--muted)"} 15%, transparent)`;
-  wrap.style.color = STATUS[band] || "var(--muted)";
+  const color = STATUS[band] || "var(--muted)";
+  wrap.style.background = `color-mix(in srgb, ${color} 15%, transparent)`;
+  wrap.style.color = color;
   wrap.appendChild(el("i", { class: "ic", "aria-hidden": "true" }, ICON[band] || "○"));
   wrap.appendChild(el("span", {}, label));
   return wrap;
 }
-
 function tile(label, value, sub, subClass) {
   const node = el("div", { class: "tile" });
   node.appendChild(el("div", { class: "lab" }, label));
@@ -482,11 +655,9 @@ function tile(label, value, sub, subClass) {
   if (sub) node.appendChild(el("div", { class: "sub" + (subClass ? " " + subClass : "") }, sub));
   return node;
 }
-
 function table(container, columns, rows) {
   container.replaceChildren();
-  const t = el("table");
-  const thead = el("thead"), tr = el("tr");
+  const t = el("table"), thead = el("thead"), tr = el("tr");
   columns.forEach((c) => tr.appendChild(el("th", { class: c.num ? "num" : "" }, c.label)));
   thead.appendChild(tr); t.appendChild(thead);
   const tbody = el("tbody");
@@ -497,65 +668,70 @@ function table(container, columns, rows) {
   });
   t.appendChild(tbody); container.appendChild(t);
 }
+function kv(container, pairs) {
+  container.replaceChildren();
+  pairs.forEach(([k, v]) => {
+    if (!has(v)) return;
+    container.appendChild(el("dt", {}, k));
+    container.appendChild(el("dd", {}, String(v)));
+  });
+}
 
 /* ------------------------------------------------------------------ tooltip */
 const tip = $("tip");
 function showTip(evt, html) {
-  tip.innerHTML = html;
-  tip.style.opacity = "1";
+  tip.innerHTML = html; tip.style.opacity = "1";
   const pad = 14, box = tip.getBoundingClientRect();
   let x = evt.clientX + pad, y = evt.clientY - box.height - pad;
   if (x + box.width > window.innerWidth - 8) x = evt.clientX - box.width - pad;
   if (y < 8) y = evt.clientY + pad;
   tip.style.left = x + "px"; tip.style.top = y + "px";
 }
-function hideTip() { tip.style.opacity = "0"; }
+const hideTip = () => { tip.style.opacity = "0"; };
 function attachTip(node, htmlFn) {
   node.addEventListener("mousemove", (e) => showTip(e, htmlFn()));
   node.addEventListener("mouseleave", hideTip);
-  node.addEventListener("focus", (e) => {
+  node.addEventListener("focus", () => {
     const r = node.getBoundingClientRect();
     showTip({ clientX: r.left + r.width / 2, clientY: r.top }, htmlFn());
   });
   node.addEventListener("blur", hideTip);
 }
-const tipRow = (label, value) => `<div class="t-row"><span>${label}</span><b>${value}</b></div>`;
+const tipRow = (l, v) => `<div class="t-row"><span>${l}</span><b>${v}</b></div>`;
 
 /* ------------------------------------------------------------------ charts */
-// Every chart draws into a fixed viewBox and scales with the container, so the
-// axis band is always inside the box and labels can't be clipped.
 
-function barChart(mount, { points, height = 150, pad = { t: 10, r: 8, b: 22, l: 34 },
+function barChart(mount, { points, height = 150, pad = { t: 10, r: 8, b: 22, l: 36 },
                            color = "var(--series-1)", trackColor = null, rule = null,
-                           tipFn, yLabel = (v) => String(v), tickEvery = 7 }) {
+                           tipFn, yLabel = (v) => String(Math.round(v)), tickEvery = 7,
+                           baseline = 0 }) {
   const W = 760, H = height;
   const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" });
   const plotW = W - pad.l - pad.r, plotH = H - pad.t - pad.b;
-  const maxRaw = Math.max(...points.map((p) => Math.max(p.value || 0, p.track || 0)), rule || 0, 1);
-  const max = maxRaw * 1.12;
-  const y = (v) => pad.t + plotH - (v / max) * plotH;
+  const values = points.flatMap((p) => [p.value, p.track].filter(has));
+  const maxRaw = Math.max(...values, rule || 0, 1);
+  const minRaw = Math.min(...values, baseline, 0);
+  const max = maxRaw * 1.12, min = minRaw < 0 ? minRaw * 1.12 : 0;
+  const y = (v) => pad.t + plotH - ((v - min) / (max - min || 1)) * plotH;
   const bandW = plotW / points.length;
-  const barW = Math.max(2, Math.min(bandW - 2, bandW * 0.72));   // 2px surface gap
+  const barW = Math.max(2, Math.min(bandW - 2, bandW * 0.72));  // 2px surface gap
 
-  [0, max / 2, max].forEach((v) => {
+  [min, (min + max) / 2, max].forEach((v) => {
     svg.appendChild(svgEl("line", { class: "gridline", x1: pad.l, x2: W - pad.r, y1: y(v), y2: y(v) }));
-    const label = svgEl("text", { class: "tick", x: pad.l - 6, y: y(v) + 3, "text-anchor": "end" });
-    label.textContent = yLabel(v);
-    svg.appendChild(label);
+    const t = svgEl("text", { class: "tick", x: pad.l - 6, y: y(v) + 3, "text-anchor": "end" });
+    t.textContent = yLabel(v); svg.appendChild(t);
   });
 
   points.forEach((p, i) => {
     const cx = pad.l + bandW * i + bandW / 2;
-    if (trackColor && p.track) {
-      const h = plotH - (y(p.track) - pad.t);
-      svg.appendChild(svgEl("rect", { x: cx - barW / 2, y: y(p.track), width: barW, height: Math.max(h, 0),
-                                      rx: 4, fill: trackColor }));
+    if (trackColor && has(p.track) && p.track > 0) {
+      svg.appendChild(svgEl("rect", { x: cx - barW / 2, y: y(p.track), width: barW,
+        height: Math.max(y(0) - y(p.track), 0), rx: 4, fill: trackColor }));
     }
-    const value = p.value || 0;
-    if (value > 0) {
-      const h = plotH - (y(value) - pad.t);
-      svg.appendChild(svgEl("rect", { x: cx - barW / 2, y: y(value), width: barW, height: Math.max(h, 1),
-                                      rx: 4, fill: p.color || color }));
+    if (has(p.value) && p.value !== 0) {
+      const top = Math.min(y(p.value), y(0)), h = Math.abs(y(p.value) - y(0));
+      svg.appendChild(svgEl("rect", { x: cx - barW / 2, y: top, width: barW,
+        height: Math.max(h, 1), rx: 4, fill: p.color || color }));
     }
     if (i % tickEvery === 0) {
       const t = svgEl("text", { class: "tick", x: cx, y: H - pad.b + 13, "text-anchor": "middle" });
@@ -563,15 +739,14 @@ function barChart(mount, { points, height = 150, pad = { t: 10, r: 8, b: 22, l: 
     }
     if (tipFn) {
       const hit = svgEl("rect", { class: "hit", x: pad.l + bandW * i, y: pad.t,
-                                  width: bandW, height: plotH, tabindex: "0" });
-      attachTip(hit, () => tipFn(p));
-      svg.appendChild(hit);
+        width: bandW, height: plotH, tabindex: "0" });
+      attachTip(hit, () => tipFn(p)); svg.appendChild(hit);
     }
   });
 
-  if (rule !== null) {
+  if (has(rule)) {
     svg.appendChild(svgEl("line", { x1: pad.l, x2: W - pad.r, y1: y(rule), y2: y(rule),
-                                    stroke: "var(--series-2)", "stroke-width": 1.5 }));
+      stroke: "var(--series-2)", "stroke-width": 1.5 }));
   }
   svg.appendChild(svgEl("line", { class: "axis-line", x1: pad.l, x2: W - pad.r, y1: y(0), y2: y(0) }));
   mount.replaceChildren(svg);
@@ -579,26 +754,27 @@ function barChart(mount, { points, height = 150, pad = { t: 10, r: 8, b: 22, l: 
 }
 
 function overlayLine(ctx, values, color) {
-  const pts = values.map((v, i) => (v === null ? null : [ctx.x(i), ctx.y(v)])).filter(Boolean);
+  const pts = values.map((v, i) => (has(v) ? [ctx.x(i), ctx.y(v)] : null)).filter(Boolean);
   if (pts.length < 2) return;
-  ctx.svg.appendChild(svgEl("path", {
-    d: "M" + pts.map((p) => p.join(",")).join("L"),
-    fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round",
-  }));
+  ctx.svg.appendChild(svgEl("path", { d: "M" + pts.map((p) => p.join(",")).join("L"),
+    fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round" }));
 }
 
-function lineChart(mount, { points, height = 165, pad = { t: 12, r: 40, b: 22, l: 34 },
-                            band = null, color = "var(--series-1)", tipFn, yLabel = (v) => String(v) }) {
+function lineChart(mount, { labels, series, height = 170, pad = { t: 12, r: 44, b: 22, l: 36 },
+                            band = null, tipFn, yLabel = (v) => String(Math.round(v)),
+                            zeroLine = false }) {
   const W = 760, H = height;
   const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" });
   const plotW = W - pad.l - pad.r, plotH = H - pad.t - pad.b;
-  const values = points.map((p) => p.value).filter((v) => v !== null && v !== undefined);
+  const all = series.flatMap((s) => s.values.filter(has));
   const extras = band ? [band.low, band.high, band.mid] : [];
-  const lo = Math.min(...values, ...extras) - 2, hi = Math.max(...values, ...extras) + 2;
-  const y = (v) => pad.t + plotH - ((v - lo) / (hi - lo || 1)) * plotH;
-  const x = (i) => pad.l + (points.length === 1 ? plotW / 2 : (plotW / (points.length - 1)) * i);
+  if (zeroLine) extras.push(0);
+  const lo = Math.min(...all, ...extras), hi = Math.max(...all, ...extras);
+  const padY = (hi - lo) * 0.12 || 2;
+  const y = (v) => pad.t + plotH - ((v - (lo - padY)) / ((hi + padY) - (lo - padY) || 1)) * plotH;
+  const x = (i) => pad.l + (labels.length === 1 ? plotW / 2 : (plotW / (labels.length - 1)) * i);
 
-  [lo, (lo + hi) / 2, hi].forEach((v) => {
+  [lo - padY, (lo + hi) / 2, hi + padY].forEach((v) => {
     svg.appendChild(svgEl("line", { class: "gridline", x1: pad.l, x2: W - pad.r, y1: y(v), y2: y(v) }));
     const t = svgEl("text", { class: "tick", x: pad.l - 6, y: y(v) + 3, "text-anchor": "end" });
     t.textContent = yLabel(v); svg.appendChild(t);
@@ -606,50 +782,49 @@ function lineChart(mount, { points, height = 165, pad = { t: 12, r: 40, b: 22, l
 
   if (band) {
     svg.appendChild(svgEl("rect", { x: pad.l, y: y(band.high), width: plotW,
-                                    height: Math.max(y(band.low) - y(band.high), 1),
-                                    fill: "var(--series-1)", opacity: 0.10 }));
+      height: Math.max(y(band.low) - y(band.high), 1), fill: "var(--series-1)", opacity: 0.10 }));
     svg.appendChild(svgEl("line", { x1: pad.l, x2: W - pad.r, y1: y(band.mid), y2: y(band.mid),
-                                    stroke: "var(--series-1)", "stroke-width": 1, opacity: 0.55 }));
+      stroke: "var(--series-1)", "stroke-width": 1, opacity: 0.55 }));
     const t = svgEl("text", { class: "tick", x: W - pad.r + 5, y: y(band.mid) + 3 });
     t.textContent = "baseline"; svg.appendChild(t);
   }
-
-  const segs = []; let cur = [];
-  points.forEach((p, i) => {
-    if (p.value === null || p.value === undefined) { if (cur.length) segs.push(cur); cur = []; }
-    else cur.push([x(i), y(p.value)]);
-  });
-  if (cur.length) segs.push(cur);
-  segs.forEach((seg) => {
-    if (seg.length === 1) {
-      svg.appendChild(svgEl("circle", { cx: seg[0][0], cy: seg[0][1], r: 2.5, fill: color }));
-    } else {
-      svg.appendChild(svgEl("path", { d: "M" + seg.map((p) => p.join(",")).join("L"),
-                                      fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round" }));
-    }
-  });
-
-  // emphasise the endpoint and label it directly
-  const lastIdx = [...points].reverse().findIndex((p) => p.value !== null && p.value !== undefined);
-  if (lastIdx !== -1) {
-    const i = points.length - 1 - lastIdx, p = points[i];
-    svg.appendChild(svgEl("circle", { cx: x(i), cy: y(p.value), r: 4.5, fill: color,
-                                      stroke: "var(--surface-1)", "stroke-width": 2 }));
-    const t = svgEl("text", { x: x(i) + 9, y: y(p.value) + 4, "font-size": "11" });
-    t.setAttribute("fill", "var(--text-primary)");
-    t.textContent = yLabel(p.value); svg.appendChild(t);
+  if (zeroLine) {
+    svg.appendChild(svgEl("line", { x1: pad.l, x2: W - pad.r, y1: y(0), y2: y(0),
+      stroke: "var(--border-strong)", "stroke-width": 1 }));
   }
 
-  points.forEach((p, i) => {
+  series.forEach((s) => {
+    const segs = []; let cur = [];
+    s.values.forEach((v, i) => {
+      if (!has(v)) { if (cur.length) segs.push(cur); cur = []; } else cur.push([x(i), y(v)]);
+    });
+    if (cur.length) segs.push(cur);
+    segs.forEach((seg) => {
+      if (seg.length === 1) svg.appendChild(svgEl("circle", { cx: seg[0][0], cy: seg[0][1], r: 2.5, fill: s.color }));
+      else svg.appendChild(svgEl("path", { d: "M" + seg.map((p) => p.join(",")).join("L"),
+        fill: "none", stroke: s.color, "stroke-width": 2, "stroke-linejoin": "round" }));
+    });
+    // Emphasise and directly label the endpoint of each series.
+    const revIdx = [...s.values].reverse().findIndex(has);
+    if (revIdx !== -1) {
+      const i = s.values.length - 1 - revIdx, v = s.values[i];
+      svg.appendChild(svgEl("circle", { cx: x(i), cy: y(v), r: 4.5, fill: s.color,
+        stroke: "var(--surface-1)", "stroke-width": 2 }));
+      const t = svgEl("text", { x: x(i) + 9, y: y(v) + 4, "font-size": "11" });
+      t.setAttribute("fill", "var(--text-primary)");
+      t.textContent = yLabel(v); svg.appendChild(t);
+    }
+  });
+
+  labels.forEach((lab, i) => {
     if (i % 7 === 0) {
       const t = svgEl("text", { class: "tick", x: x(i), y: H - pad.b + 13, "text-anchor": "middle" });
-      t.textContent = p.label; svg.appendChild(t);
+      t.textContent = lab; svg.appendChild(t);
     }
-    if (tipFn && p.value !== null && p.value !== undefined) {
-      const bw = plotW / points.length;
+    if (tipFn) {
+      const bw = plotW / labels.length;
       const hit = svgEl("rect", { class: "hit", x: x(i) - bw / 2, y: pad.t, width: bw, height: plotH, tabindex: "0" });
-      attachTip(hit, () => tipFn(p));
-      svg.appendChild(hit);
+      attachTip(hit, () => tipFn(i)); svg.appendChild(hit);
     }
   });
 
@@ -657,164 +832,220 @@ function lineChart(mount, { points, height = 165, pad = { t: 12, r: 40, b: 22, l
   mount.replaceChildren(svg);
 }
 
-/* ------------------------------------------------------------------ render */
+/* ------------------------------------------------------------------ renderers */
 
-const COMPONENT_LABELS = {
-  resting_hr: "Resting HR", sleep: "Sleep", body_battery: "Body battery",
-  stress: "Stress", training_load: "Training load",
-};
+const LIFT_LABEL = { upper_push: "push", upper_pull: "pull", legs: "legs", mobility: "mobility" };
+const STATUS_WORD = { done: "done", moved: "moved", short: "cut short", missed: "missed",
+                      today: "today", rest: "rest", upcoming: "" };
 
 function renderHeader(d) {
   const race = d.race || {};
   const goalShort = race.goal ? String(race.goal).split(" ")[0].replace(/:00$/, "") : null;
   $("race-title").textContent = goalShort ? `Road to ${goalShort}` : "Training dashboard";
   const bits = [];
-  if (race.name) bits.push(`<strong>${race.name}</strong>`);
-  if (race.distance) bits.push(race.distance);
+  if (race.distance) bits.push(`<strong>${race.distance}</strong>`);
   if (race.goal) bits.push(`goal ${race.goal}`);
   if (race.date) bits.push(utcDate(race.date).toLocaleDateString(undefined,
     { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" }));
   $("race-meta").innerHTML = bits.join(" · ");
   const days = race.days_to_race;
-  $("cd-n").textContent = days === null || days === undefined ? "—" : days;
+  $("cd-n").textContent = has(days) ? days : "—";
   $("cd-u").textContent = days === 1 ? "day to race" : "days to race";
+}
+
+/* ---- the week: front and centre ---- */
+function renderWeek(d) {
+  const week = (d.today && d.today.week) || null;
+  const planDays = d.plan_days || {};
+  const matching = d.matching || {};
+  const adaptation = d.adaptation || {};
+  const today = d.meta.as_of;
+
+  if (!week) {
+    $("wk-title").textContent = "No plan week covers today";
+    return;
+  }
+
+  $("wk-title").textContent = week.phase;
+  $("wk-sub").textContent = week.headline || "";
+  $("week-hint").textContent =
+    `${shortDate(week.start)} – ${shortDate(week.end)} · week ${week.week} of ${(d.block || {}).weeks || 8}`;
+
+  const done = week.key_sessions_done, due = week.key_sessions_due;
+  const prog = $("wk-progress"); prog.replaceChildren();
+  [[`${week.miles_actual}`, `of ${week.miles_target} mi`],
+   [`${done}/${due}`, "key sessions"]].forEach(([n, l]) => {
+    const cell = el("div", { class: "wp" });
+    cell.appendChild(el("div", { class: "n" }, n));
+    cell.appendChild(el("div", { class: "l" }, l));
+    prog.appendChild(cell);
+  });
+
+  const mount = $("wk-days"); mount.replaceChildren();
+  for (let i = 0; i < 7; i++) {
+    const iso = addDays(week.start, i);
+    const entry = planDays[iso];
+    if (!entry) continue;
+    const match = matching[iso] || {};
+    const isToday = iso === today;
+
+    const row = el("div", { class: "wd" + (isToday ? " is-today" : "") });
+
+    const when = el("div", { class: "wd-when" });
+    const state = isToday && match.status !== "done" ? "today" : (match.status || "upcoming");
+    when.appendChild(el("i", { class: "status-dot s-" + state }));
+    when.appendChild(el("span", {}, `${dowName(iso)} ${shortDate(iso)}`));
+    row.appendChild(when);
+
+    const body = el("div");
+    const session = el("div", { class: "wd-session" });
+    session.appendChild(el("span", {}, entry.session));
+    if (entry.lift) session.appendChild(el("span", { class: "wd-lift" }, LIFT_LABEL[entry.lift] || entry.lift));
+    body.appendChild(session);
+    if (entry.target) body.appendChild(el("div", { class: "wd-target" }, entry.target));
+
+    // The suggestion sits beside the original, never replacing it.
+    const suggestionKey = iso === today ? "today" : iso === addDays(today, 1) ? "tomorrow" : null;
+    const suggestion = suggestionKey ? (adaptation.suggestions || {})[suggestionKey] : null;
+    if (suggestion && suggestion.changed) {
+      const swap = el("div", { class: "swap" });
+      const head = el("div", { class: "swap-head" });
+      head.appendChild(el("span", {}, "Adjusted for today's recovery"));
+      (suggestion.reasons || []).forEach((r) => head.appendChild(el("span", { class: "chip" }, r)));
+      swap.appendChild(head);
+      const sbody = el("div", { class: "swap-body" });
+      const orig = el("div");
+      orig.appendChild(el("div", { class: "swap-label" }, "Original plan"));
+      orig.appendChild(el("div", { class: "swap-session" }, suggestion.original.session));
+      const sug = el("div", { class: "swap-suggested" });
+      sug.appendChild(el("div", { class: "swap-label" }, "Suggested"));
+      sug.appendChild(el("div", { class: "swap-session" }, suggestion.suggested.session));
+      if (suggestion.suggested.lift_note) {
+        sug.appendChild(el("div", { class: "wd-target" }, suggestion.suggested.lift_note));
+      }
+      sbody.appendChild(orig); sbody.appendChild(sug);
+      swap.appendChild(sbody);
+      body.appendChild(swap);
+    }
+    row.appendChild(body);
+
+    const metric = el("div", { class: "wd-metric" });
+    if (entry.miles > 0) {
+      const word = STATUS_WORD[match.status] || "";
+      metric.appendChild(el("span", {}, match.actual_miles
+        ? `${match.actual_miles} / ${entry.miles}mi` : `${entry.miles} mi`));
+      if (word) metric.appendChild(el("span", { class: "pct" }, word));
+    } else if (match.actual_miles) {
+      metric.appendChild(el("span", {}, `${match.actual_miles} mi`));
+      metric.appendChild(el("span", { class: "pct" }, "unplanned"));
+    }
+    row.appendChild(metric);
+    mount.appendChild(row);
+  }
+
+  // Triggers
+  const trig = $("adapt-triggers"); trig.replaceChildren();
+  (adaptation.triggers || []).forEach((t) => {
+    const row = el("div", { class: "trig" });
+    const tag = el("span", { class: "trig-tag" }, t.trigger);
+    const color = STATUS[t.severity] || "var(--muted)";
+    tag.style.background = `color-mix(in srgb, ${color} 15%, transparent)`;
+    tag.style.color = color;
+    row.appendChild(tag);
+    row.appendChild(el("span", { class: "trig-eff" }, t.effect));
+    trig.appendChild(row);
+  });
+  if (!(adaptation.triggers || []).length) {
+    trig.appendChild(el("div", { class: "note" }, "No adjustments triggered — the plan stands as written."));
+  }
+  $("adapt-note").textContent = adaptation.note || "";
 }
 
 function renderReadiness(d) {
   const r = d.readiness || {};
   $("r-score").textContent = nn(r.score);
-  $("r-band").replaceChildren(badge(r.band, (r.band || "unknown").replace("_", " ")));
+  $("r-band").replaceChildren(badge(r.band, (r.band || "unknown").replace(/_/g, " ")));
   const meter = $("r-meter");
   meter.style.width = (r.score || 0) + "%";
   meter.style.background = STATUS[r.band] || "var(--muted)";
   $("r-verdict").textContent = nn(r.label, "");
 
+  const LABELS = { resting_hr: "Resting HR", nocturnal_drop: "Nocturnal drop", sleep: "Sleep",
+                   body_battery: "Body battery", stress: "Stress", training_load: "Training load" };
   const wrap = $("r-components"); wrap.replaceChildren();
-  Object.entries(COMPONENT_LABELS).forEach(([key, label]) => {
+  Object.entries(LABELS).forEach(([key, label]) => {
     const score = (r.components || {})[key];
-    const row = el("div", { class: "comp" + (score === null || score === undefined ? " absent" : "") });
+    const row = el("div", { class: "comp" + (has(score) ? "" : " absent") });
     row.appendChild(el("div", { class: "lab" }, label));
-    const track = el("div", { class: "track" });
-    const fill = el("i");
-    fill.style.width = score === null || score === undefined ? "0%" : Math.round(score * 100) + "%";
+    const track = el("div", { class: "track" }), fill = el("i");
+    fill.style.width = has(score) ? Math.round(score * 100) + "%" : "0%";
     track.appendChild(fill); row.appendChild(track);
-    row.appendChild(el("div", { class: "val" }, score === null || score === undefined ? "n/a" : Math.round(score * 100)));
+    row.appendChild(el("div", { class: "val" }, has(score) ? Math.round(score * 100) : "n/a"));
     wrap.appendChild(row);
   });
-}
 
-function renderTiles(d) {
-  const rhr = d.recovery.resting_hr || {}, sleep = d.recovery.sleep || {}, load = d.load || {};
-  const latest = d.recovery.latest || {};
-  const deltaText = rhr.delta === null || rhr.delta === undefined ? null
-    : `${rhr.delta > 0 ? "+" : ""}${rhr.delta} vs ${rhr.baseline} baseline`;
-  const deltaClass = rhr.delta === null || rhr.delta === undefined ? null
-    : rhr.delta >= 5 ? "serious" : rhr.delta >= 3 ? "warning" : "good";
+  // Tiles
+  const rhr = d.recovery.resting_hr || {}, noct = d.recovery.nocturnal || {},
+        sleep = d.recovery.sleep || {}, latest = d.recovery.latest || {};
+  const deltaText = has(rhr.delta) ? `${rhr.delta > 0 ? "+" : ""}${rhr.delta} vs ${rhr.baseline} baseline` : null;
+  const deltaClass = !has(rhr.delta) ? null : rhr.delta >= 5 ? "serious" : rhr.delta >= 3 ? "warning" : "good";
+  const nDelta = has(noct.delta) ? `${noct.delta > 0 ? "+" : ""}${noct.delta} vs ${noct.baseline} usual` : null;
+  const nClass = !has(noct.delta) ? null : noct.delta <= -2 ? "warning" : "good";
 
-  const wrap = $("tiles"); wrap.replaceChildren();
-  wrap.appendChild(tile("Resting HR", rhr.today ? rhr.today + " bpm" : null, deltaText, deltaClass));
-  wrap.appendChild(tile("Sleep last night", sleep.last_night_hours ? sleep.last_night_hours + " h" : null,
-    sleep.avg_7day_hours ? sleep.avg_7day_hours + " h 7-day average" : null));
-  wrap.appendChild(tile("Workload ratio", nn(load.ratio),
-    load.zone ? load.zone.replace("_", " ") : null,
-    load.zone === "optimal" ? "good" : load.zone === "high_risk" ? "critical" : load.zone === "caution" ? "serious" : "warning"));
-  wrap.appendChild(tile("7-day load", nn(load.acute_7day),
-    load.chronic_28day_weekly ? `${load.chronic_28day_weekly} chronic` : null));
-  wrap.appendChild(tile("28-day run miles", nn(d.fitness.miles_28day),
-    d.fitness.longest_run_28day ? `longest ${d.fitness.longest_run_28day} mi` : null));
-  wrap.appendChild(tile("Body battery", nn(latest.bb_wake || latest.bb_high),
+  const tiles = $("tiles"); tiles.replaceChildren();
+  tiles.appendChild(tile("Resting HR", has(rhr.today) ? rhr.today + " bpm" : null, deltaText, deltaClass));
+  tiles.appendChild(tile("Nocturnal drop", has(noct.today) ? noct.today + " bpm" : null, nDelta, nClass));
+  tiles.appendChild(tile("Sleep last night", has(sleep.last_night_hours) ? sleep.last_night_hours + " h" : null,
+    has(sleep.avg_7day_hours) ? sleep.avg_7day_hours + " h 7-night average" : null));
+  tiles.appendChild(tile("Body battery", nn(latest.bb_wake || latest.bb_high),
     latest.bb_wake ? "at wake" : latest.bb_high ? "day peak" : null));
-}
 
-function renderToday(d) {
-  const plan = d.today.plan || {};
-  $("t-session").textContent = nn(plan.session, "No session planned for today.");
-  $("t-target").textContent = nn(plan.target, "");
-  const week = d.today.week;
-  const wrap = $("t-week"); wrap.replaceChildren();
-  if (week) {
-    wrap.appendChild(badge("good", `Week ${week.week}`));
-    wrap.appendChild(el("span", { class: "seg" }, `${week.phase} — ${week.miles_actual} of ${week.miles_target} mi`));
+  // Readiness trend
+  const series = d.recovery.readiness_series || {};
+  const keys = Object.keys(series).sort();
+  if (keys.length > 2) {
+    lineChart($("chart-readiness"), {
+      labels: keys.map(shortDate), height: 150,
+      series: [{ name: "Readiness", color: "var(--series-1)", values: keys.map((k) => series[k].score) }],
+      tipFn: (i) => `<div class="t-date">${keys[i]}</div>`
+        + tipRow("Readiness", nn(series[keys[i]].score)) + tipRow("Band", nn(series[keys[i]].band)),
+    });
   }
-  const grid = $("pacegrid"); grid.replaceChildren();
-  const order = [["marathon", "Marathon pace"], ["threshold", "Threshold"], ["interval", "Interval"],
-                 ["long", "Long run"], ["easy", "Easy"], ["half", "Half pace"]];
-  order.forEach(([key, label]) => {
-    if (!d.paces || !d.paces[key]) return;
-    const cell = el("div");
-    cell.appendChild(el("div", { class: "lab" }, label));
-    cell.appendChild(el("div", { class: "val" }, d.paces[key] + "/mi"));
-    grid.appendChild(cell);
-  });
+  if (noct.note) $("noct-note").textContent += " " + noct.note;
 }
 
-function renderTraining(d) {
-  const weeks = d.adherence.weeks || [];
-  const points = weeks.map((w) => ({
-    label: "W" + w.week, value: w.miles_actual, track: w.miles_target, week: w,
-    color: w.status === "current" ? "var(--series-1)" : undefined,
-  }));
-  barChart($("chart-mileage"), {
-    points, height: 168, trackColor: "var(--series-1-soft)", tickEvery: 1,
-    yLabel: (v) => String(Math.round(v)),
-    tipFn: (p) => `<div class="t-date">Week ${p.week.week} · ${shortDate(p.week.start)}–${shortDate(p.week.end)}</div>`
-      + `<div style="margin:3px 0 4px">${p.week.phase}</div>`
-      + tipRow("Actual", p.week.miles_actual + " mi") + tipRow("Target", p.week.miles_target + " mi")
-      + tipRow("Key sessions", `${p.week.key_sessions_done}/${p.week.key_sessions_due}`),
-  });
-  table($("table-mileage"),
-    [{ key: "week", label: "Week" }, { key: "phase", label: "Phase" },
-     { key: "miles_actual", label: "Actual mi", num: true }, { key: "miles_target", label: "Target mi", num: true },
-     { key: "key", label: "Key sessions", num: true }, { key: "status", label: "Status" }],
-    weeks.map((w) => ({ ...w, key: `${w.key_sessions_done}/${w.key_sessions_due}` })));
+function renderForm(d) {
+  const form = d.form || {}, load = d.load || {};
+  $("form-hint").textContent = form.method || "";
 
-  const mount = $("plan"); mount.replaceChildren();
-  const today = d.meta.as_of;
-  weeks.forEach((w) => {
-    const det = el("details", { class: "weekrow", "data-status": w.status });
-    if (w.status === "current") det.setAttribute("open", "");
-    const sum = el("summary");
-    sum.appendChild(el("div", { class: "wnum" }, "W" + w.week));
-    const mid = el("div");
-    const phase = el("div", { class: "wphase" }, w.phase.replace(/^Week \d+ — /, ""));
-    if (w.status === "current") phase.appendChild(el("span", { class: "chip current" }, "this week"));
-    mid.appendChild(phase);
-    mid.appendChild(el("div", { class: "whead" }, w.headline));
-    sum.appendChild(mid);
-    sum.appendChild(el("div", { class: "wmiles" }, `${w.miles_actual} / ${w.miles_target} mi`));
-    det.appendChild(sum);
+  const tiles = $("form-tiles"); tiles.replaceChildren();
+  tiles.appendChild(tile("Fitness (CTL)", nn(form.fitness), "42-day load average"));
+  tiles.appendChild(tile("Fatigue (ATL)", nn(form.fatigue), "7-day load average"));
+  tiles.appendChild(tile("Form (TSB)", has(form.form) ? (form.form > 0 ? "+" : "") + form.form : null,
+    form.zone ? form.zone.replace(/_/g, " ") : null,
+    form.zone === "tapered" || form.zone === "fresh" ? "good"
+      : form.zone === "overloaded" ? "critical" : form.zone === "loaded" ? "warning" : null));
+  tiles.appendChild(tile("Fatigue / fitness", nn((d.adaptation || {}).fatigue_fitness_ratio),
+    "above 1.40 eases the next workout"));
 
-    for (let i = 0; i < 7; i++) {
-      const iso = addDays(w.start, i);
-      const entry = (d.plan_days || {})[iso];
-      if (!entry) continue;
-      const row = el("div", { class: "day" + (iso === today ? " today" : "") });
-      const state = iso === today ? "today" : iso < today ? (d.completed_days || []).includes(iso) ? "done" : "missed" : "future";
-      const dow = el("div", { class: "dow" });
-      dow.appendChild(el("i", { class: "dot " + state }));
-      dow.appendChild(el("span", {}, `${dowName(iso)} ${shortDate(iso)}`));
-      row.appendChild(dow);
-      const body = el("div");
-      body.appendChild(el("div", {}, entry.session));
-      if (entry.target) body.appendChild(el("div", { class: "target" }, entry.target));
-      row.appendChild(body);
-      det.appendChild(row);
-    }
-    mount.appendChild(det);
-  });
-}
+  const fs = form.series || {};
+  const keys = Object.keys(fs).sort();
+  if (keys.length > 2) {
+    lineChart($("chart-form"), {
+      labels: keys.map(shortDate), height: 175, zeroLine: true,
+      series: [
+        { name: "Fitness", color: "var(--series-1)", values: keys.map((k) => fs[k].fitness) },
+        { name: "Fatigue", color: "var(--series-2)", values: keys.map((k) => fs[k].fatigue) },
+        { name: "Form", color: "var(--series-3)", values: keys.map((k) => fs[k].form) },
+      ],
+      tipFn: (i) => `<div class="t-date">${keys[i]}</div>`
+        + tipRow("Fitness", fs[keys[i]].fitness) + tipRow("Fatigue", fs[keys[i]].fatigue)
+        + tipRow("Form", (fs[keys[i]].form > 0 ? "+" : "") + fs[keys[i]].form),
+    });
+  }
+  $("form-hint").textContent = form.label || form.method || "";
 
-function renderLoad(d) {
-  const load = d.load || {};
-  const wrap = $("load-tiles"); wrap.replaceChildren();
-  wrap.appendChild(tile("Acute (7-day)", nn(load.acute_7day)));
-  wrap.appendChild(tile("Chronic (weekly)", nn(load.chronic_28day_weekly)));
-  wrap.appendChild(tile("Ratio", nn(load.ratio), load.zone ? load.zone.replace("_", " ") : null,
-    load.zone === "optimal" ? "good" : load.zone === "high_risk" ? "critical" : "warning"));
-  wrap.appendChild(tile("Monotony", nn(load.monotony), "same-ness of the week"));
-  wrap.appendChild(tile("Strain", nn(load.strain), "load × monotony"));
-  $("load-label").textContent = nn(load.label, "");
-
+  // Daily load
   const daily = Object.entries(load.daily || {}).sort();
   const points = daily.map(([date, value]) => ({ label: shortDate(date), value, date }));
   const rolling = points.map((_, i) => {
@@ -822,83 +1053,100 @@ function renderLoad(d) {
     return slice.length ? slice.reduce((a, b) => a + b, 0) / slice.length : null;
   });
   const ctx = barChart($("chart-load"), {
-    points, height: 175, yLabel: (v) => Math.round(v),
+    points, height: 175,
     tipFn: (p) => `<div class="t-date">${p.date}</div>` + tipRow("Load", Math.round(p.value)),
   });
   overlayLine(ctx, rolling, "var(--series-2)");
-  table($("table-load"), [{ key: "date", label: "Date" }, { key: "value", label: "Load", num: true }],
-    [...points].reverse());
+
+  const lt = $("load-tiles"); lt.replaceChildren();
+  lt.appendChild(tile("Acute (7-day)", nn(load.acute_7day)));
+  lt.appendChild(tile("Chronic (weekly)", nn(load.chronic_28day_weekly)));
+  lt.appendChild(tile("Ratio", nn(load.ratio), load.zone ? load.zone.replace(/_/g, " ") : null,
+    load.zone === "optimal" ? "good" : load.zone === "high_risk" ? "critical"
+      : load.zone === "caution" ? "serious" : "warning"));
+  lt.appendChild(tile("Monotony", nn(load.monotony), "same-ness of the week"));
+  lt.appendChild(tile("Strain", nn(load.strain), "load × monotony"));
+  $("load-label").textContent = nn(load.label, "");
 }
 
-function renderRecovery(d) {
-  const history = d.recovery.history || [], rhr = d.recovery.resting_hr || {};
-  const points = history.map((h) => ({ label: shortDate(h.date), value: h.rhr, date: h.date, h }));
-  const band = rhr.baseline !== null && rhr.baseline !== undefined
-    ? { mid: rhr.baseline, low: rhr.baseline - (rhr.stdev || 1), high: rhr.baseline + (rhr.stdev || 1) } : null;
+function renderRecoveryCharts(d) {
+  const history = d.recovery.history || [], rhr = d.recovery.resting_hr || {},
+        noct = d.recovery.nocturnal || {};
+  const labels = history.map((h) => shortDate(h.date));
+
   lineChart($("chart-rhr"), {
-    points, band, yLabel: (v) => Math.round(v),
-    tipFn: (p) => `<div class="t-date">${p.date}</div>` + tipRow("Resting HR", p.value + " bpm")
-      + (band ? tipRow("vs baseline", `${(p.value - band.mid) > 0 ? "+" : ""}${(p.value - band.mid).toFixed(1)}`) : ""),
+    labels, height: 165,
+    series: [{ name: "Resting HR", color: "var(--series-1)", values: history.map((h) => h.rhr) }],
+    band: has(rhr.baseline) ? { mid: rhr.baseline, low: rhr.baseline - (rhr.stdev || 1),
+                                high: rhr.baseline + (rhr.stdev || 1) } : null,
+    tipFn: (i) => `<div class="t-date">${history[i].date}</div>`
+      + tipRow("Resting HR", nn(history[i].rhr) + " bpm")
+      + (has(rhr.baseline) && has(history[i].rhr)
+          ? tipRow("vs baseline", `${history[i].rhr - rhr.baseline > 0 ? "+" : ""}${(history[i].rhr - rhr.baseline).toFixed(1)}`) : ""),
   });
-  table($("table-rhr"), [{ key: "date", label: "Date" }, { key: "rhr", label: "Resting HR", num: true },
-                         { key: "sleep_hours", label: "Sleep h", num: true },
-                         { key: "stress_avg", label: "Stress", num: true },
-                         { key: "steps", label: "Steps", num: true }], [...history].reverse());
+
+  const nPoints = history.map((h) => ({ label: shortDate(h.date), value: h.nocturnal_drop, h, date: h.date }));
+  barChart($("chart-nocturnal"), {
+    points: nPoints, height: 165, rule: has(noct.baseline) ? noct.baseline : null,
+    yLabel: (v) => String(Math.round(v)),
+    tipFn: (p) => `<div class="t-date">${p.date}</div>`
+      + (has(p.value) ? tipRow("Drop", p.value + " bpm") : tipRow("Drop", "no overnight data"))
+      + (has(p.h.overnight_hr_min) ? tipRow("Night minimum", p.h.overnight_hr_min + " bpm") : "")
+      + (has(p.h.nocturnal_drop_timing) ? tipRow("Bottomed out at", Math.round(p.h.nocturnal_drop_timing * 100) + "% of night") : ""),
+  });
 
   const nights = history.slice(-14).map((h) => ({ label: shortDate(h.date), value: h.sleep_hours, h, date: h.date }));
   barChart($("chart-sleep"), {
     points: nights, height: 150, tickEvery: 2, rule: d.recovery.sleep.target_hours,
     yLabel: (v) => v.toFixed(0) + "h",
     tipFn: (p) => `<div class="t-date">${p.date}</div>`
-      + tipRow("Sleep", p.value ? p.value + " h" : "no data")
+      + tipRow("Sleep", has(p.value) ? p.value + " h" : "no data")
       + (p.h.deep_pct ? tipRow("Deep", p.h.deep_pct + "%") : "")
       + (p.h.rem_pct ? tipRow("REM", p.h.rem_pct + "%") : ""),
   });
-  table($("table-sleep"), [{ key: "date", label: "Date" }, { key: "sleep_hours", label: "Hours", num: true },
-                           { key: "deep_pct", label: "Deep %", num: true }, { key: "rem_pct", label: "REM %", num: true }],
-    [...history].reverse());
 
-  const prov = $("prov"); prov.replaceChildren();
-  (d.meta.unavailable_signals || []).forEach((item) => {
-    const row = el("div");
-    row.appendChild(el("span", { class: "sig" }, item.signal + ": "));
-    row.appendChild(el("span", {}, item.reason));
-    prov.appendChild(row);
-  });
-  if (!(d.meta.unavailable_signals || []).length) {
-    prov.appendChild(el("div", {}, "Every signal the readiness model uses is reporting normally."));
-  }
-  const hrmax = d.meta.hr_max || {};
-  prov.appendChild(el("div", {}, `HRmax used for training load: ${hrmax.value} bpm (${hrmax.method}).`));
+  table($("table-recovery"),
+    [{ key: "date", label: "Date" }, { key: "readiness_score", label: "Readiness", num: true },
+     { key: "rhr", label: "RHR", num: true }, { key: "nocturnal_drop", label: "Drop", num: true },
+     { key: "overnight_hr_min", label: "Night min", num: true },
+     { key: "sleep_hours", label: "Sleep h", num: true }, { key: "deep_pct", label: "Deep %", num: true },
+     { key: "stress_avg", label: "Stress", num: true }, { key: "steps", label: "Steps", num: true }],
+    [...history].reverse());
 }
 
-function renderFitness(d) {
-  const p = d.projection || {}, f = d.fitness || {};
-  $("p-time").textContent = nn(p.predicted);
-  $("p-pace").textContent = p.predicted_pace ? p.predicted_pace + "/mi" : "";
+function renderStanding(d) {
+  const p = d.projection || {}, f = d.fitness || {}, g = d.garmin || {};
+  $("p-time").textContent = nn(p.best || p.predicted);
+  $("p-pace").textContent = p.predicted_pace ? "fastest read " + p.predicted_pace + "/mi" : "";
   $("p-band").replaceChildren(badge(p.on_track ? "good" : "warning",
     p.on_track ? "at or ahead of goal" : "behind goal"));
   const gap = $("p-gap"); gap.replaceChildren();
-  if (p.gap) {
-    gap.appendChild(el("span", { class: "seg" }, `${p.gap} versus goal ${nn(p.goal, "")}`));
-  }
-  const reads = $("p-reads"); reads.replaceChildren();
-  const rows = [];
-  if (p.basis) rows.push(["Fastest-projecting run", `${p.predicted} — from ${p.basis.miles} mi @ ${p.basis.pace}/mi on ${p.basis.date}`]);
-  if (p.from_longest) rows.push(["From the longest run", `${p.from_longest.time} — from ${p.from_longest.basis.miles} mi @ ${p.from_longest.basis.pace}/mi on ${p.from_longest.basis.date}`]);
-  if (p.conservative) rows.push(["Slowest-projecting run", `${p.conservative.time} — from ${p.conservative.basis.miles} mi @ ${p.conservative.basis.pace}/mi`]);
-  rows.forEach(([k, v]) => { reads.appendChild(el("dt", {}, k)); reads.appendChild(el("dd", {}, v)); });
-  $("p-note").textContent = nn(p.note, "");
+  if (p.gap) gap.appendChild(el("span", { class: "seg" }, `${p.gap} versus goal ${nn(p.goal, "")}`));
 
-  const wrap = $("fit-tiles"); wrap.replaceChildren();
-  wrap.appendChild(tile("Runs", nn(f.runs_28day)));
-  wrap.appendChild(tile("Miles", nn(f.miles_28day)));
-  wrap.appendChild(tile("Longest", f.longest_run_28day ? f.longest_run_28day + " mi" : null));
-  wrap.appendChild(tile("Average pace", f.avg_pace_28day ? f.avg_pace_28day + "/mi" : null));
-  wrap.appendChild(tile("Efficiency index", nn(f.efficiency_index_latest),
-    f.efficiency_trend_pct === null || f.efficiency_trend_pct === undefined ? "speed per heartbeat"
-      : `${f.efficiency_trend_pct > 0 ? "+" : ""}${f.efficiency_trend_pct}% over the window`,
+  const reads = [];
+  if (g.race_prediction) reads.push(["Garmin's model", `${g.race_prediction.marathon} (${g.race_prediction.marathon_pace}/mi)`]);
+  if (p.predicted) reads.push(["Your training runs (Riegel)", `${p.predicted} — from ${p.basis.miles} mi @ ${p.basis.pace}/mi`]);
+  if (p.from_longest) reads.push(["From the longest run", `${p.from_longest.time} — ${p.from_longest.basis.miles} mi @ ${p.from_longest.basis.pace}/mi`]);
+  if (g.race_prediction) reads.push(["Garmin half / 10k / 5k",
+    `${g.race_prediction.half} · ${g.race_prediction["10k"]} · ${g.race_prediction["5k"]}`]);
+  kv($("p-reads"), reads);
+  $("p-note").textContent = p.bracket_note || p.note || "";
+
+  const tiles = $("fit-tiles"); tiles.replaceChildren();
+  tiles.appendChild(tile("VO₂ max", nn(g.vo2_max),
+    has(g.vo2_trend) ? `${g.vo2_trend > 0 ? "+" : ""}${g.vo2_trend} over the window` : "Garmin estimate",
+    g.vo2_trend > 0 ? "good" : g.vo2_trend < 0 ? "warning" : null));
+  tiles.appendChild(tile("28-day miles", nn(f.miles_28day), `${nn(f.runs_28day)} runs`));
+  tiles.appendChild(tile("Longest run", has(f.longest_run_28day) ? f.longest_run_28day + " mi" : null, "last 28 days"));
+  tiles.appendChild(tile("Average pace", f.avg_pace_28day ? f.avg_pace_28day + "/mi" : null, "last 28 days"));
+  tiles.appendChild(tile("Efficiency index", nn(f.efficiency_index_latest),
+    has(f.efficiency_trend_pct) ? `${f.efficiency_trend_pct > 0 ? "+" : ""}${f.efficiency_trend_pct}% — speed per heartbeat`
+      : "speed per heartbeat",
     f.efficiency_trend_pct > 0 ? "good" : f.efficiency_trend_pct < 0 ? "warning" : null));
+  if (g.fitness_age && has(g.fitness_age.fitness_age)) {
+    tiles.appendChild(tile("Fitness age", g.fitness_age.fitness_age,
+      `chronological ${g.fitness_age.chronological_age}`, "good"));
+  }
 
   table($("table-runs"),
     [{ key: "date", label: "Date" }, { key: "name", label: "Run" }, { key: "miles", label: "Miles", num: true },
@@ -907,48 +1155,114 @@ function renderFitness(d) {
     [...(f.recent_runs || [])].reverse());
 }
 
-function renderFuel(d) {
+function renderBlock(d) {
+  const weeks = (d.adherence || {}).weeks || [];
+  const mount = $("block"); mount.replaceChildren();
+  weeks.forEach((w) => {
+    const row = el("div", { class: "blockrow" + (w.status === "current" ? " now" : "") });
+    row.appendChild(el("div", { class: "bw" }, "W" + w.week));
+    const mid = el("div");
+    const title = el("div", { class: "bp" }, w.phase.replace(/^Week \d+ — /, ""));
+    if (w.status === "current") title.appendChild(el("span", { class: "chip current" }, "now"));
+    mid.appendChild(title);
+    mid.appendChild(el("div", { class: "bh" }, w.headline || ""));
+    row.appendChild(mid);
+    const barWrap = el("div", { class: "minibar-wrap" });
+    const bar = el("div", { class: "minibar" }), fill = el("i");
+    const pct = w.miles_target ? Math.min(100, (w.miles_actual / w.miles_target) * 100) : 0;
+    fill.style.width = pct + "%";
+    if (w.status === "upcoming") fill.style.background = "var(--border-strong)";
+    bar.appendChild(fill); barWrap.appendChild(bar);
+    row.appendChild(barWrap);
+    const metric = el("div", { class: "bm" });
+    metric.appendChild(el("div", {}, `${w.miles_actual} / ${w.miles_target} mi`));
+    metric.appendChild(el("div", { class: "pct", style: "font-size:10.5px;color:var(--muted)" },
+      `${w.key_sessions_done}/${w.key_sessions_due} key`));
+    row.appendChild(metric);
+    mount.appendChild(row);
+  });
+
+  barChart($("chart-mileage"), {
+    points: weeks.map((w) => ({ label: "W" + w.week, value: w.miles_actual, track: w.miles_target, week: w,
+      color: w.status === "current" ? "var(--series-1)" : undefined })),
+    height: 168, trackColor: "var(--series-1-soft)", tickEvery: 1,
+    tipFn: (p) => `<div class="t-date">Week ${p.week.week} · ${shortDate(p.week.start)}–${shortDate(p.week.end)}</div>`
+      + `<div style="margin:3px 0 4px">${p.week.phase}</div>`
+      + tipRow("Actual", p.week.miles_actual + " mi") + tipRow("Target", p.week.miles_target + " mi")
+      + tipRow("Key sessions", `${p.week.key_sessions_done}/${p.week.key_sessions_due}`),
+  });
+}
+
+function renderPacesFuel(d) {
+  const grid = $("pacegrid"); grid.replaceChildren();
+  [["marathon", "Marathon pace"], ["threshold", "Threshold"], ["interval", "Interval"],
+   ["long", "Long run"], ["easy", "Easy"], ["half", "Half pace"]].forEach(([key, label]) => {
+    if (!d.paces || !d.paces[key]) return;
+    const cell = el("div");
+    cell.appendChild(el("div", { class: "lab" }, label));
+    cell.appendChild(el("div", { class: "val" }, d.paces[key] + "/mi"));
+    grid.appendChild(cell);
+  });
+
   const fuel = d.fuel || {};
-  const wrap = $("fuel-tiles"); wrap.replaceChildren();
-  wrap.appendChild(tile("Today", fuel.band || "—", "session type"));
-  wrap.appendChild(tile("Carbohydrate", fuel.carbs_per_kg ? fuel.carbs_per_kg + " g/kg" : null,
+  const ft = $("fuel-today"); ft.replaceChildren();
+  const tiles = el("div", { class: "tiles" });
+  tiles.appendChild(tile("Session type", fuel.band || "—"));
+  tiles.appendChild(tile("Carbohydrate", fuel.carbs_per_kg ? fuel.carbs_per_kg + " g/kg" : null,
     fuel.carbs_grams ? fuel.carbs_grams + " g total" : "set weight_kg in config.json for grams"));
-  wrap.appendChild(tile("Protein", fuel.protein_per_kg || null, "every day"));
+  tiles.appendChild(tile("Protein", fuel.protein_per_kg || null, "every day"));
+  ft.appendChild(tiles);
   $("fuel-note").textContent = nn(fuel.note, "");
 
-  const race = $("fuel-race"); race.replaceChildren();
-  Object.entries(fuel.race_day || {}).forEach(([k, v]) => {
-    race.appendChild(el("dt", {}, k.replace(/_/g, " ")));
-    race.appendChild(el("dd", {}, v));
-  });
-  const cl = $("fuel-load"); cl.replaceChildren();
-  Object.entries(fuel.carb_load || {}).forEach(([k, v]) => {
-    cl.appendChild(el("dt", {}, k.replace(/_/g, " ")));
-    cl.appendChild(el("dd", {}, v));
-  });
+  kv($("fuel-race"), Object.entries(fuel.race_day || {}).map(([k, v]) => [k.replace(/_/g, " "), v]));
+  kv($("fuel-load"), Object.entries(fuel.carb_load || {}).map(([k, v]) => [k.replace(/_/g, " "), v]));
 }
 
 function renderCoach(d) {
   const coach = d.coach || {};
-  $("coach-band").replaceChildren(badge(coach.band || "unknown", (coach.band || "unknown").replace("_", " ")));
+  $("coach-band").replaceChildren(badge(coach.band || "unknown", (coach.band || "unknown").replace(/_/g, " ")));
   const body = $("coach-body"); body.replaceChildren();
   if (coach.headline) {
     const h = el("div", {}, coach.headline);
-    h.style.fontSize = "15px"; h.style.marginBottom = "8px";
+    h.style.cssText = "font-size:15.5px;margin-bottom:10px;font-weight:500";
     body.appendChild(h);
   }
   (coach.notes || []).forEach((line) => {
-    const row = el("div", {});
-    row.style.cssText = "font-size:13.5px;color:var(--text-secondary);padding:4px 0";
-    row.textContent = "— " + line;
+    const row = el("div", {}, line);
+    row.style.cssText = "font-size:13.5px;color:var(--text-secondary);padding:5px 0 5px 14px;border-left:2px solid var(--border);margin-bottom:4px";
     body.appendChild(row);
   });
-  if (!coach.headline && !(coach.notes || []).length) {
-    body.appendChild(el("div", { class: "note" }, "No coach note in this build. Run coach.py after signals.py."));
+  $("coach-source").textContent = coach.source === "claude"
+    ? `Written by Claude (${coach.model || "model"}) from the computed signals`
+    : "Deterministic rules engine — same inputs always give the same read";
+}
+
+function renderProvenance(d) {
+  const yes = $("prov-yes"); yes.replaceChildren();
+  ((d.meta || {}).available_signals || []).forEach((item) => {
+    const row = el("div");
+    row.appendChild(el("span", { class: "sig" }, item.signal + ": "));
+    row.appendChild(el("span", {}, item.reason));
+    yes.appendChild(row);
+  });
+  const hrmax = (d.meta || {}).hr_max || {};
+  yes.appendChild(el("div", {}, `HRmax for training load: ${hrmax.value} bpm (${hrmax.method}).`));
+  const measured = (d.load || {}).measured_sport_rates || {};
+  if (Object.keys(measured).length) {
+    yes.appendChild(el("div", {}, "Load per minute measured from your own sessions for: "
+      + Object.entries(measured).map(([k, v]) => `${k.replace(/_/g, " ")} (${v.sessions})`).join(", ") + "."));
   }
-  $("coach-prov").textContent = coach.source === "claude"
-    ? "Written by Claude from the computed signals above."
-    : "Deterministic rules engine over the computed signals — no model call, same input always gives the same read.";
+
+  const no = $("prov-no"); no.replaceChildren();
+  ((d.meta || {}).unavailable_signals || []).forEach((item) => {
+    const row = el("div");
+    row.appendChild(el("span", { class: "sig" }, item.signal + ": "));
+    row.appendChild(el("span", {}, item.reason));
+    no.appendChild(row);
+  });
+  if (!((d.meta || {}).unavailable_signals || []).length) {
+    no.appendChild(el("div", {}, "Everything the model wants is reporting normally."));
+  }
 }
 
 function renderFooter(d) {
@@ -957,44 +1271,29 @@ function renderFooter(d) {
     `Generated ${m.generated_at} · data through ${m.data_through}`,
     `Store: ${c.day_count} days (${c.first_day} → ${c.last_day}), ${c.activity_count} activities`,
   ];
-  if (d.demo) parts.push("DEMO DATA — synthetic, generated for the public demo. Not real health data.");
-  else parts.push("Local file · your data stays on this machine");
+  parts.push(d.demo
+    ? "DEMO DATA — synthetic, generated for the public demo. Not real health data."
+    : "Local file · your data stays on this machine");
   $("footer").innerHTML = parts.join("<br>");
-}
-
-/* ------------------------------------------------------------------ tabs */
-const TABS = [
-  ["today", "Today"], ["training", "Training"], ["load", "Load"],
-  ["recovery", "Recovery"], ["fitness", "Fitness"], ["fuel", "Fuel"], ["coach", "Coach"],
-];
-function initTabs() {
-  const bar = $("tabs");
-  TABS.forEach(([key, label], i) => {
-    const b = el("button", { type: "button", role: "tab", id: "tab-" + key,
-                             "aria-controls": "panel-" + key, "aria-selected": i === 0 ? "true" : "false" }, label);
-    b.addEventListener("click", () => selectTab(key));
-    bar.appendChild(b);
-  });
-  const fromHash = (location.hash || "").replace("#", "");
-  selectTab(TABS.some(([k]) => k === fromHash) ? fromHash : TABS[0][0]);
-}
-function selectTab(key) {
-  TABS.forEach(([k]) => {
-    $("panel-" + k).hidden = k !== key;
-    $("tab-" + k).setAttribute("aria-selected", k === key ? "true" : "false");
-  });
-  try { history.replaceState(null, "", "#" + key); } catch (e) { /* file:// refuses this */ }
 }
 
 /* ------------------------------------------------------------------ boot */
 function render(d) {
-  renderHeader(d); renderReadiness(d); renderTiles(d);
-  renderToday(d); renderTraining(d); renderLoad(d);
-  renderRecovery(d); renderFitness(d); renderFuel(d); renderCoach(d); renderFooter(d);
-  initTabs();
+  renderHeader(d); renderWeek(d); renderReadiness(d); renderForm(d);
+  renderRecoveryCharts(d); renderStanding(d); renderBlock(d);
+  renderPacesFuel(d); renderCoach(d); renderProvenance(d); renderFooter(d);
 }
-if (DATA) render(DATA);
-else document.querySelector(".page").prepend(
-  Object.assign(document.createElement("div"),
-    { className: "card", textContent: "No data. Run: python3 signals.py && python3 build_dashboard.py" }));
+if (DATA) {
+  try { render(DATA); }
+  catch (err) {
+    const box = el("div", { class: "card" });
+    box.appendChild(el("h2", {}, "Render error"));
+    box.appendChild(el("div", { class: "note" }, String(err && err.stack || err)));
+    document.querySelector(".page").prepend(box);
+    throw err;
+  }
+} else {
+  document.querySelector(".page").prepend(
+    el("div", { class: "card" }, "No data. Run: python3 run_daily.py"));
+}
 </script>

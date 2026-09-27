@@ -19,12 +19,26 @@ possible.
 
 A note on what this device actually reports
 -------------------------------------------
-Frank's Garmin returns no HRV data and no Training Readiness score (both come
-back empty, not errored). So the readiness model here is built from what the
-watch *does* report -- resting HR against its own baseline, sleep duration and
-stage composition, body battery at wake, stress, and computed training load.
-Every readiness score carries the list of inputs that were actually available,
-so a score built from three signals is never mistaken for one built from five.
+Probed directly against the account: ``get_hrv_data`` and ``get_hrv_data_range``
+both return ``{}``, and ``get_training_readiness``, ``get_morning_training_readiness``
+and ``get_endurance_score`` are all empty too. Garmin's sleep response carries no
+sleep score either. These come back *empty rather than errored*, which is how they
+quietly become a chart of zeros if nobody checks.
+
+So there is no HRV here, and no amount of pipeline work will produce it. What the
+sleep response *does* carry, and the old pipeline was throwing away, is a
+full overnight time series: heart rate every ~2 minutes, plus overnight stress and
+body battery. That gives a defensible stand-in for the autonomic signal HRV would
+have provided -- the **nocturnal heart-rate drop**, the difference between heart
+rate at sleep onset and the night's minimum. A big drop is parasympathetic rebound;
+a shallow one is a body still working. It is not HRV and is never labelled as HRV,
+but it moves for the same reasons.
+
+Readiness is therefore composed from: resting HR against its own baseline, the
+nocturnal drop against its own baseline, sleep duration and stage composition,
+body battery at wake, stress, and computed training load. Every score carries the
+list of inputs actually available, so a score built from three signals is never
+mistaken for one built from five.
 
 Usage:
   python3 signals.py            # write web/data.json
@@ -35,6 +49,7 @@ import argparse
 import json
 import math
 import statistics
+from collections import defaultdict
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
@@ -153,6 +168,7 @@ def extract_day_metrics(day_str: str, payload: dict) -> dict:
     sleep_seconds = sleep_dto.get("sleepTimeSeconds")
     deep = sleep_dto.get("deepSleepSeconds")
     rem = sleep_dto.get("remSleepSeconds")
+    night = overnight_hr(payload)
 
     return {
         "date": day_str,
@@ -179,6 +195,53 @@ def extract_day_metrics(day_str: str, payload: dict) -> dict:
         "hrv_last_night": hrv_summary.get("lastNightAvg"),
         "hrv_status": hrv_summary.get("status"),
         "garmin_readiness": readiness.get("score"),
+        # Derived from the overnight series -- the stand-in for HRV.
+        "overnight_hr_min": night["min"],
+        "overnight_hr_mean": night["mean"],
+        "nocturnal_drop": night["drop"],
+        "nocturnal_drop_timing": night["drop_timing"],
+        "overnight_samples": night["samples"],
+    }
+
+
+def overnight_hr(payload: dict) -> dict:
+    """Derive the nocturnal heart-rate picture from the overnight series.
+
+    Garmin's sleep response includes ``sleepHeartRate`` -- roughly one sample
+    every two minutes through the night. Three things come out of it:
+
+      minimum     the night's lowest heart rate. A cleaner recovery signal than
+                  the daily resting-HR figure, which is a whole-day statistic.
+      drop        heart rate at sleep onset minus that minimum. This is the
+                  stand-in for HRV: a deep drop means the parasympathetic system
+                  took over properly, a shallow one means it didn't.
+      drop_timing where in the night the minimum fell, 0 to 1. Well-recovered
+                  nights bottom out early; a body still digesting a hard session
+                  or a late meal bottoms out late, if at all.
+
+    Returns empty values rather than guesses when the series is absent -- the
+    legacy markdown-recovered days have no series at all.
+    """
+    series = (payload.get("sleep") or {}).get("sleepHeartRate") or []
+    values = [p.get("value") for p in series if isinstance(p, dict) and p.get("value")]
+    if len(values) < 10:
+        return {"min": None, "mean": None, "spread": None, "drop": None,
+                "drop_timing": None, "samples": len(values)}
+
+    minimum = min(values)
+    # Average the first ~30 minutes as the sleep-onset level; a single first
+    # sample is too noisy to subtract from.
+    onset_window = max(3, len(values) // 20)
+    onset = sum(values[:onset_window]) / onset_window
+    index_of_min = values.index(minimum)
+
+    return {
+        "min": minimum,
+        "mean": round(sum(values) / len(values), 1),
+        "spread": max(values) - minimum,
+        "drop": round(onset - minimum, 1),
+        "drop_timing": round(index_of_min / (len(values) - 1), 2),
+        "samples": len(values),
     }
 
 
@@ -205,7 +268,36 @@ def estimate_hr_max(activities: list, configured=None) -> dict:
     return {"value": 190, "method": "generic default (no HR data available)"}
 
 
-def activity_load(activity: dict, hr_max: float, resting_hr: float) -> dict:
+def sport_load_rates(activities: list, hr_max: float, resting_hr: float) -> dict:
+    """Load-per-minute for each sport, measured from this athlete's own sessions.
+
+    The fixed constants in SPORT_LOAD_PER_MIN are a reasonable prior, but they're
+    a guess about a generic athlete. Where there are enough HR-carrying sessions
+    in a sport to measure it, the athlete's own median load per minute is a
+    better estimate -- his easy rides really do sit where they sit. Sports with
+    fewer than three measured sessions keep the prior.
+    """
+    by_sport = defaultdict(list)
+    for activity in activities:
+        if not activity.get("averageHR"):
+            continue
+        minutes = (activity.get("duration") or 0) / 60
+        if minutes < 5:
+            continue
+        type_key = (activity.get("activityType") or {}).get("typeKey") or "other"
+        result = activity_load(activity, hr_max, resting_hr, rates=None)
+        if not result["estimated"] and result["minutes"] > 0:
+            by_sport[type_key].append(result["load"] / result["minutes"])
+
+    rates, measured = dict(SPORT_LOAD_PER_MIN), {}
+    for type_key, samples in by_sport.items():
+        if len(samples) >= 3:
+            rates[type_key] = round(statistics.median(samples), 3)
+            measured[type_key] = {"rate": rates[type_key], "sessions": len(samples)}
+    return {"rates": rates, "measured": measured}
+
+
+def activity_load(activity: dict, hr_max: float, resting_hr: float, rates: dict = None) -> dict:
     """Training load for one session, as Banister TRIMP where HR allows.
 
         TRIMP = minutes x HRr x 0.64 x e^(1.92 x HRr)
@@ -230,12 +322,16 @@ def activity_load(activity: dict, hr_max: float, resting_hr: float) -> dict:
         return {"load": round(load, 1), "estimated": False, "minutes": round(minutes, 1),
                 "hr_reserve": round(hr_reserve, 3)}
 
-    rate = SPORT_LOAD_PER_MIN.get(type_key, DEFAULT_LOAD_PER_MIN)
-    return {"load": round(minutes * rate, 1), "estimated": True, "minutes": round(minutes, 1)}
+    table = rates if rates is not None else SPORT_LOAD_PER_MIN
+    rate = table.get(type_key, DEFAULT_LOAD_PER_MIN)
+    return {"load": round(minutes * rate, 1), "estimated": True, "minutes": round(minutes, 1),
+            "rate_source": "measured" if (rates and type_key in rates
+                                          and rates[type_key] != SPORT_LOAD_PER_MIN.get(type_key))
+                           else "prior"}
 
 
 def daily_loads(activities: list, hr_max: float, resting_hr: float,
-                start: date, end: date) -> dict:
+                start: date, end: date, rates: dict = None) -> dict:
     """{date_iso: total load} for every day in the window, zeros included.
 
     The zeros matter: rest days are real data for monotony and for a rolling
@@ -246,7 +342,7 @@ def daily_loads(activities: list, hr_max: float, resting_hr: float,
         day = store.activity_date(activity)
         if day is None or not (start <= day <= end):
             continue
-        totals[day.isoformat()] += activity_load(activity, hr_max, resting_hr)["load"]
+        totals[day.isoformat()] += activity_load(activity, hr_max, resting_hr, rates)["load"]
     return {k: round(v, 1) for k, v in totals.items()}
 
 
@@ -318,6 +414,87 @@ def acwr(loads_by_date: dict, as_of: date) -> dict:
     }
 
 
+def fitness_fatigue_form(loads_by_date: dict, as_of: date,
+                         ctl_days=42, atl_days=7, seed_weeks=6) -> dict:
+    """The impulse-response model: fitness, fatigue and form.
+
+        CTL (fitness) = exponentially weighted mean of daily load, 42-day constant
+        ATL (fatigue) = the same with a 7-day constant
+        TSB (form)    = CTL - ATL
+
+    This answers a different question from the workload ratio. ACWR asks "am I
+    ramping faster than I can absorb" -- an injury-risk question. CTL/ATL/TSB
+    asks "am I fit, and am I fresh enough to express it" -- a peaking question.
+    A marathon block needs both: the ratio keeps you healthy through the build,
+    form tells you whether the taper is working.
+
+    Form reads negative through a build (fatigue outpaces fitness), climbs
+    through a taper, and wants to be somewhere around +5 to +15 on race day.
+
+    Seeded from the mean of the first `seed_weeks` of available load rather than
+    from zero, because this history starts when the watch does. Starting at zero
+    would draw a fake 6-week "fitness ramp" that is really just the model
+    catching up to where he already was.
+    """
+    dates = sorted(loads_by_date)
+    if not dates:
+        return {"fitness": None, "fatigue": None, "form": None, "series": {},
+                "label": "No training load recorded."}
+
+    seed_window = dates[: seed_weeks * 7]
+    seed = mean([loads_by_date[d] for d in seed_window]) or 0.0
+
+    ctl, atl = seed, seed
+    series = {}
+    for day in dates:
+        load = loads_by_date[day]
+        ctl += (load - ctl) / ctl_days
+        atl += (load - atl) / atl_days
+        series[day] = {"fitness": round(ctl, 1), "fatigue": round(atl, 1),
+                       "form": round(ctl - atl, 1)}
+        if day == as_of.isoformat():
+            break
+
+    latest = series.get(as_of.isoformat()) or series[sorted(series)[-1]]
+    form = latest["form"]
+
+    # Form is judged as a share of fitness, not as an absolute number. The usual
+    # published thresholds (+5 to +15 "fresh", -10 to -30 "building") come from
+    # TSS, where fitness typically lands between 50 and 100. This pipeline
+    # measures load in TRIMP, which has a different scale entirely, so borrowing
+    # those cutoffs unchanged would mislabel a normal training week as a crisis.
+    # Expressed as a percentage of fitness, the bands hold whatever the units are.
+    form_pct = (form / latest["fitness"] * 100) if latest["fitness"] else None
+
+    if form_pct is None:
+        zone, label = "unknown", "Not enough load history to judge form."
+    elif form_pct >= 15:
+        zone, label = "fresh", "Very fresh — fitness well clear of fatigue. Race-ready, or under-trained."
+    elif form_pct >= 5:
+        zone, label = "tapered", "Fresh and fit — this is the window you want to race in."
+    elif form_pct >= -15:
+        zone, label = "building", "Productive training: carrying fatigue but absorbing it."
+    elif form_pct >= -30:
+        zone, label = "loaded", "Deep in the work. Right for a peak week, not for a month."
+    else:
+        zone, label = "overloaded", "Fatigue is a long way ahead of fitness — a recovery week is overdue."
+
+    return {
+        "fitness": latest["fitness"],
+        "fatigue": latest["fatigue"],
+        "form": form,
+        "form_pct": round_or_none(form_pct, 1),
+        "zone": zone,
+        "label": label,
+        "seeded_from": round(seed, 1),
+        "series": {k: v for k, v in series.items()
+                   if k >= (as_of - timedelta(days=55)).isoformat()},
+        "method": f"EWMA, {ctl_days}-day fitness / {atl_days}-day fatigue, seeded from the "
+                  f"first {seed_weeks} weeks of available load. Form is judged as a share of "
+                  f"fitness so the bands don't depend on the load unit.",
+    }
+
+
 # --------------------------------------------------------------------------
 # baselines and readiness
 # --------------------------------------------------------------------------
@@ -352,6 +529,39 @@ def rhr_baseline(history: list, as_of: str) -> dict:
     }
 
 
+def nocturnal_baseline(history: list, as_of: str) -> dict:
+    """Tonight's nocturnal heart-rate drop against its own 28-night baseline.
+
+    Same shape as the resting-HR baseline, but the sign is inverted: a *bigger*
+    drop is better, so a negative delta is the warning. This series only starts
+    where the overnight data starts, so it reports how many nights it actually
+    has -- a baseline off four nights is not a baseline, and the dashboard says so.
+    """
+    prior = [h for h in history if h["date"] < as_of][-28:]
+    values = [h.get("nocturnal_drop") for h in prior if h.get("nocturnal_drop") is not None]
+    today = next((h.get("nocturnal_drop") for h in history if h["date"] == as_of), None)
+    timing = next((h.get("nocturnal_drop_timing") for h in history if h["date"] == as_of), None)
+
+    if not values:
+        return {"today": today, "baseline": None, "delta": None, "n": 0, "timing": timing,
+                "note": "Overnight heart-rate history starts here — the baseline builds from now."}
+
+    baseline = statistics.median(values)
+    stdev = statistics.pstdev(values) if len(values) > 1 else 0.0
+    delta = (today - baseline) if today is not None else None
+
+    return {
+        "today": today,
+        "baseline": round(baseline, 1),
+        "delta": round_or_none(delta, 1),
+        "stdev": round(stdev, 2),
+        "n": len(values),
+        "timing": timing,
+        "note": None if len(values) >= 14 else
+                f"Baseline is still thin ({len(values)} of 28 nights) — treat it loosely.",
+    }
+
+
 def sleep_summary(history: list, as_of: str, target_hours: float) -> dict:
     """Last night plus a 7-night rolling picture and a running sleep debt."""
     last_night = next((h for h in history if h["date"] == as_of), None) or {}
@@ -378,6 +588,15 @@ def _score_rhr(delta):
     if delta is None:
         return None
     return clamp(1 - (delta + 2) / 7, 0.0, 1.0)
+
+
+def _score_nocturnal(delta, baseline):
+    """A deeper-than-usual nocturnal drop is good; a shallower one is the warning."""
+    if delta is None or baseline in (None, 0):
+        return None
+    # Scale against the baseline itself: losing half your usual drop is a
+    # meaningful signal whether your usual drop is 6 bpm or 14.
+    return clamp(0.5 + (delta / max(baseline, 4.0)), 0.0, 1.0)
 
 
 def _score_sleep(hours, target):
@@ -411,7 +630,8 @@ def _score_load(ratio):
     return clamp(1 - (ratio - 1.3) / 0.7, 0.0, 1.0)
 
 
-def readiness(rhr: dict, sleep: dict, day: dict, load: dict, weights: dict) -> dict:
+def readiness(rhr: dict, sleep: dict, day: dict, load: dict, weights: dict,
+              nocturnal: dict = None) -> dict:
     """A 0-100 composite of the recovery signals this device actually reports.
 
     Each component scores 0-1, then contributes its configured weight. Missing
@@ -423,8 +643,12 @@ def readiness(rhr: dict, sleep: dict, day: dict, load: dict, weights: dict) -> d
     This is a heuristic, not a validated physiological model, and the dashboard
     says so.
     """
+    nocturnal = nocturnal or {}
     components = {
         "resting_hr": _score_rhr(rhr.get("delta")),
+        # The stand-in for HRV: how far heart rate fell overnight, against how
+        # far it usually falls.
+        "nocturnal_drop": _score_nocturnal(nocturnal.get("delta"), nocturnal.get("baseline")),
         "sleep": _score_sleep(sleep.get("last_night_hours") or sleep.get("avg_7day_hours"),
                               sleep.get("target_hours", 7.5)),
         # Wake value is the cleanest read, but it's absent on a partially
@@ -576,7 +800,7 @@ def riegel_prediction(runs: list, target_miles=MARATHON_MILES, exponent=1.06) ->
     }
 
 
-def fitness_summary(activities: list, as_of: date) -> dict:
+def fitness_summary(activities: list, as_of: date, match_window_days=120) -> dict:
     window_start = as_of - timedelta(days=41)
     runs = [run_summary(a) for a in activities
             if is_run(a) and (store.activity_date(a) or date.min) >= window_start
@@ -603,7 +827,113 @@ def fitness_summary(activities: list, as_of: date) -> dict:
         "efficiency_index_latest": efficiencies[-1] if efficiencies else None,
         "efficiency_trend_pct": trend,
         "recent_runs": runs[-10:],
+        # Every run in a wider window, so the plan matcher can reconcile the
+        # whole block rather than just the last six weeks.
+        "all_runs": [
+            {"date": r["date"], "miles": r["miles"], "pace": r["pace"], "avg_hr": r["avg_hr"]}
+            for r in sorted(
+                (run_summary(a) for a in activities
+                 if is_run(a)
+                 and (store.activity_date(a) or date.min) >= as_of - timedelta(days=match_window_days)
+                 and (store.activity_date(a) or date.min) <= as_of),
+                key=lambda r: r["date"],
+            )
+        ],
         "projection": riegel_prediction(runs),
+    }
+
+
+def readiness_series(history: list, loads_by_date: dict, weights: dict,
+                     sleep_target: float) -> dict:
+    """Readiness recomputed for every day in the history.
+
+    Needed for two things: a trend, and the "three of the last four days below
+    55" trigger in the adaptive layer, which can't work off a single day's score.
+    Each day is scored using only the data available up to that day, so the
+    series is what the dashboard would have said at the time rather than a
+    hindsight rescoring.
+    """
+    out = {}
+    for index, day in enumerate(history):
+        as_of_iso = day["date"]
+        window = history[: index + 1]
+        rhr = rhr_baseline(window, as_of_iso)
+        nocturnal = nocturnal_baseline(window, as_of_iso)
+        sleep = sleep_summary(window, as_of_iso, sleep_target)
+        try:
+            load = acwr(loads_by_date, datetime.fromisoformat(as_of_iso).date())
+        except Exception:
+            load = {}
+        score = readiness(rhr, sleep, day, load, weights, nocturnal=nocturnal)
+        out[as_of_iso] = {"score": score["score"], "band": score["band"]}
+    return out
+
+
+def garmin_metrics(vo2_snapshots: dict, prediction_snapshots: dict,
+                   fitness_age_snapshots: dict) -> dict:
+    """Garmin's own modelled numbers, kept as a trend.
+
+    These endpoints hand back only the current value, so the pipeline stores each
+    observation and the trend is the store's. Two are genuinely useful:
+
+    VO2 max -- the device's aerobic-capacity estimate, and the direction it is
+    moving matters more than the number.
+
+    Race predictions -- Garmin models these from every run on the watch, where
+    our Riegel projection extrapolates from one. They disagree, and that is the
+    point: showing both brackets the honest range instead of picking whichever
+    number flatters the goal.
+    """
+    vo2_series = {}
+    for day, payload in vo2_snapshots.items():
+        entries = payload if isinstance(payload, list) else [payload]
+        for entry in entries:
+            generic = (entry or {}).get("generic") or {}
+            value = generic.get("vo2MaxPreciseValue") or generic.get("vo2MaxValue")
+            observed = generic.get("calendarDate") or day
+            if value:
+                vo2_series[observed] = value
+
+    vo2_sorted = sorted(vo2_series.items())
+    vo2_trend = None
+    if len(vo2_sorted) >= 4:
+        half = len(vo2_sorted) // 2
+        first = mean([v for _, v in vo2_sorted[:half]])
+        second = mean([v for _, v in vo2_sorted[half:]])
+        if first:
+            vo2_trend = round(second - first, 2)
+
+    latest_prediction = None
+    if prediction_snapshots:
+        payload = prediction_snapshots[sorted(prediction_snapshots)[-1]]
+        if isinstance(payload, dict):
+            latest_prediction = {
+                "observed": payload.get("calendarDate"),
+                "5k": fmt_duration(payload.get("time5K")),
+                "10k": fmt_duration(payload.get("time10K")),
+                "half": fmt_duration(payload.get("timeHalfMarathon")),
+                "marathon": fmt_duration(payload.get("timeMarathon")),
+                "marathon_seconds": payload.get("timeMarathon"),
+                "marathon_pace": fmt_pace(payload["timeMarathon"] / MARATHON_MILES)
+                                 if payload.get("timeMarathon") else None,
+            }
+
+    fitness_age = None
+    if fitness_age_snapshots:
+        payload = fitness_age_snapshots[sorted(fitness_age_snapshots)[-1]]
+        if isinstance(payload, dict):
+            fitness_age = {"fitness_age": payload.get("fitnessAge"),
+                           "chronological_age": payload.get("chronologicalAge")}
+
+    return {
+        "vo2_max": vo2_sorted[-1][1] if vo2_sorted else None,
+        "vo2_observed": vo2_sorted[-1][0] if vo2_sorted else None,
+        "vo2_trend": vo2_trend,
+        "vo2_series": dict(vo2_sorted),
+        "race_prediction": latest_prediction,
+        "fitness_age": fitness_age,
+        "note": "VO2 max and race predictions are Garmin's own models, stored each "
+                "sync so they build a trend the API won't give you.",
     }
 
 
@@ -726,15 +1056,26 @@ def fuel_targets(plan: dict, today_entry: dict, weight_kg) -> dict:
 # assembly
 # --------------------------------------------------------------------------
 
-def build(as_of: date = None, days=None, activities=None, plan=None, config=None) -> dict:
+def build(as_of: date = None, days=None, activities=None, plan=None, config=None,
+          snapshots=None) -> dict:
+    """Compute every signal. Every input can be injected.
+
+    Nothing here reaches for the store unless it wasn't given the data, which is
+    what lets the tests run on synthetic fixtures and the demo build run on a
+    fabricated athlete without any real data leaking into it.
+    """
     as_of = as_of or date.today()
     days = days if days is not None else store.all_days()
     activities = activities if activities is not None else store.all_activities()
     plan = plan if plan is not None else load_json(PLAN_JSON, {"days": {}, "race": {}})
     config = config if config is not None else load_json(CONFIG_JSON, {})
+    if snapshots is None:
+        snapshots = {name: store.snapshots(name)
+                     for name in ("max_metrics", "race_predictions", "fitness_age")}
 
     weights = config.get("readiness_weights") or {
-        "resting_hr": 30, "sleep": 30, "body_battery": 15, "stress": 10, "training_load": 15}
+        "resting_hr": 25, "nocturnal_drop": 20, "sleep": 25,
+        "body_battery": 15, "stress": 5, "training_load": 10}
     sleep_target = config.get("sleep_target_hours") or 7.5
     weight_kg = config.get("weight_kg")
 
@@ -750,13 +1091,41 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
     rhr_info = rhr_baseline(history, latest["date"])
     resting_for_trimp = rhr_info.get("baseline") or latest.get("rhr") or 55
 
+    # Measure this athlete's own load-per-minute per sport before computing any
+    # load, so HR-less sessions are scored against his sessions and not a prior.
+    rate_info = sport_load_rates(activities, hr_max_info["value"], resting_for_trimp)
+
+    # The load window starts where the data starts -- never earlier. Padding it
+    # back to a fixed 120 days fills the gap before the watch existed with zeros,
+    # and since the fitness curve is seeded from the earliest weeks it then seeds
+    # from nothing and spends months catching up to a fitness he already had.
+    # That understates fitness and so overstates fatigue for the whole series.
+    first_dates = []
+    if history:
+        first_dates.append(datetime.fromisoformat(history[0]["date"]).date())
+    activity_dates = [d for d in (store.activity_date(a) for a in activities) if d]
+    if activity_dates:
+        first_dates.append(min(activity_dates))
+    load_start = min(first_dates) if first_dates else as_of - timedelta(days=41)
     loads = daily_loads(activities, hr_max_info["value"], resting_for_trimp,
-                        as_of - timedelta(days=55), as_of)
+                        load_start, as_of, rates=rate_info["rates"])
     load_info = acwr(loads, as_of)
+    form_info = fitness_fatigue_form(loads, as_of)
     sleep_info = sleep_summary(history, latest["date"], sleep_target)
-    readiness_info = readiness(rhr_info, sleep_info, latest, load_info, weights)
+    nocturnal_info = nocturnal_baseline(history, latest["date"])
+    readiness_info = readiness(rhr_info, sleep_info, latest, load_info, weights,
+                               nocturnal=nocturnal_info)
+    garmin_info = garmin_metrics(snapshots.get("max_metrics") or {},
+                                 snapshots.get("race_predictions") or {},
+                                 snapshots.get("fitness_age") or {})
     fitness = fitness_summary(activities, as_of)
     adherence_info = adherence(plan, activities, as_of)
+
+    readiness_by_day = readiness_series(history, loads, weights, sleep_target)
+    for day in history:
+        entry = readiness_by_day.get(day["date"]) or {}
+        day["readiness_score"] = entry.get("score")
+        day["readiness_band"] = entry.get("band")
 
     race = plan.get("race", {})
     days_to_race = None
@@ -786,6 +1155,7 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
             },
             "hr_max": hr_max_info,
             "unavailable_signals": _unavailable(history),
+            "available_signals": _available(history),
             "schema_version": 2,
         },
         "race": {**race, "days_to_race": days_to_race},
@@ -800,23 +1170,23 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
         "recovery": {
             "latest": latest,
             "resting_hr": rhr_info,
+            "nocturnal": nocturnal_info,
             "sleep": sleep_info,
             "history": history[-28:],
+            "readiness_series": {k: v for k, v in readiness_by_day.items()
+                                 if k >= (as_of - timedelta(days=41)).isoformat()},
         },
         "load": {
             **load_info,
-            "daily": {k: v for k, v in sorted(loads.items()) if k >= (as_of - timedelta(days=41)).isoformat()},
+            "daily": {k: v for k, v in sorted(loads.items())
+                      if k >= (as_of - timedelta(days=41)).isoformat()},
             "method": "Banister TRIMP from average HR where available, per-sport rate otherwise.",
+            "measured_sport_rates": rate_info["measured"],
         },
+        "form": form_info,
+        "garmin": garmin_info,
         "fitness": fitness,
-        "projection": {
-            **fitness["projection"],
-            "goal_seconds": goal_seconds,
-            "goal": race.get("goal"),
-            "gap_seconds": gap,
-            "gap": (("+" if gap > 0 else "−") + fmt_duration(abs(gap))) if gap else None,
-            "on_track": (gap is not None and gap <= 0),
-        },
+        "projection": _projection(fitness["projection"], garmin_info, race, goal_seconds),
         "adherence": adherence_info,
         # Dates with any recorded activity, so the plan view can mark a session
         # done without the browser re-deriving it from the activity list.
@@ -828,12 +1198,77 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
     }
 
 
+def _available(history: list) -> list:
+    """Signals that are present and doing work, stated so the page can say so.
+
+    Worth surfacing alongside the unavailable list: the interesting story is not
+    just that HRV is missing, it's what is being used in its place.
+    """
+    recent = history[-14:]
+    out = []
+    nights = sum(1 for h in recent if h.get("overnight_samples"))
+    if nights:
+        out.append({"signal": "Overnight heart-rate series",
+                    "reason": f"In use on {nights} of the last {len(recent)} nights — "
+                              "roughly one sample every two minutes. This is where the "
+                              "nocturnal-drop signal comes from, standing in for HRV."})
+    if any(h.get("deep_pct") for h in recent):
+        out.append({"signal": "Sleep stages",
+                    "reason": "Deep, light, REM and awake durations are all reported, so sleep "
+                              "is scored here from duration and composition rather than from "
+                              "Garmin's missing sleep score."})
+    return out
+
+
+def _projection(riegel: dict, garmin_info: dict, race: dict, goal_seconds) -> dict:
+    """Bracket the goal with both models rather than picking one.
+
+    Riegel extrapolates one training run and reads pessimistic, because it
+    assumes the input was a maximal effort. Garmin models every run on the watch
+    and tends to read optimistic. The truth is usually between them, and showing
+    the bracket is more honest than showing whichever number is kinder.
+    """
+    garmin_prediction = garmin_info.get("race_prediction") or {}
+    garmin_seconds = garmin_prediction.get("marathon_seconds")
+    riegel_seconds = riegel.get("predicted_seconds")
+
+    candidates = [s for s in (garmin_seconds, riegel_seconds) if s]
+    best = min(candidates) if candidates else None
+    gap = (best - goal_seconds) if (best and goal_seconds) else None
+
+    out = {
+        **riegel,
+        "goal_seconds": goal_seconds,
+        "goal": race.get("goal"),
+        "garmin": garmin_prediction or None,
+        "best_seconds": best,
+        "best": fmt_duration(best) if best else None,
+        "gap_seconds": gap,
+        "gap": (("+" if gap > 0 else "−") + fmt_duration(abs(gap))) if gap else None,
+        "on_track": (gap is not None and gap <= 0),
+    }
+    if garmin_seconds and riegel_seconds:
+        low, high = sorted((garmin_seconds, riegel_seconds))
+        out["bracket"] = [fmt_duration(low), fmt_duration(high)]
+        out["bracket_note"] = (
+            f"Garmin's model says {fmt_duration(garmin_seconds)}; extrapolating your training "
+            f"runs says {fmt_duration(riegel_seconds)}. Garmin models every run and reads "
+            "optimistic; Riegel assumes a maximal effort it never got and reads pessimistic. "
+            "The real number is somewhere in between."
+        )
+    return out
+
+
 def _unavailable(history: list) -> list:
     """Signals the schema supports but this device never actually fills in."""
     recent = history[-14:]
     out = []
     if recent and not any(h["hrv_last_night"] for h in recent):
-        out.append({"signal": "HRV", "reason": "Garmin returns no HRV data for this device — readiness is composed without it."})
+        out.append({"signal": "HRV", "reason":
+                    "Both get_hrv_data and get_hrv_data_range return empty for this account — "
+                    "this watch does not record it. The nocturnal heart-rate drop, derived from "
+                    "the overnight series, stands in for it."})
+
     if recent and not any(h["garmin_readiness"] for h in recent):
         out.append({"signal": "Garmin Training Readiness", "reason": "Not reported for this device — this dashboard computes its own readiness score instead."})
     if recent and not any(h["sleep_score"] for h in recent):
@@ -862,6 +1297,15 @@ def main() -> None:
               f"{signals['recovery']['resting_hr']['baseline']} (delta {signals['recovery']['resting_hr']['delta']})")
         print(f"  sleep 7d avg   {signals['recovery']['sleep']['avg_7day_hours']}h")
         print(f"  ACWR           {l['ratio']} [{l['zone']}] acute {l['acute_7day']} / chronic {l['chronic_28day_weekly']}")
+        f_ = signals.get("form", {})
+        print(f"  form           fitness {f_.get('fitness')} / fatigue {f_.get('fatigue')} "
+              f"= form {f_.get('form')} [{f_.get('zone')}]")
+        n_ = signals["recovery"]["nocturnal"]
+        print(f"  nocturnal drop {n_.get('today')} vs baseline {n_.get('baseline')} (n={n_.get('n')})")
+        g_ = signals.get("garmin", {})
+        print(f"  VO2 max        {g_.get('vo2_max')} (trend {g_.get('vo2_trend')})")
+        if g_.get("race_prediction"):
+            print(f"  Garmin says    {g_['race_prediction'].get('marathon')} marathon")
         print(f"  28d run miles  {signals['fitness']['miles_28day']} (longest {signals['fitness']['longest_run_28day']})")
         print(f"  projection     {p.get('predicted')} vs goal {p.get('goal')} (gap {p.get('gap')})")
         print(f"  adherence      {signals['adherence']['key_sessions_done_to_date']}/"

@@ -131,27 +131,42 @@ def build_rules_note(d: dict) -> dict:
     # calendar rather than by the gap alone.
     gap = projection.get("gap_seconds")
     days_out = race.get("days_to_race")
-    if gap is not None and projection.get("predicted"):
+    best = projection.get("best") or projection.get("predicted")
+    if gap is not None and best:
+        garmin_time = (projection.get("garmin") or {}).get("marathon")
+        riegel_time = projection.get("predicted")
+        # Name whichever model produced the headline number, and show the other
+        # one alongside it -- quoting one model's time next to the other's gap is
+        # how a dashboard starts lying quietly.
+        if garmin_time and riegel_time and garmin_time != riegel_time:
+            sources = (f"Garmin's model says {garmin_time} and extrapolating your training runs "
+                       f"says {riegel_time}")
+        elif garmin_time:
+            sources = f"Garmin's model says {garmin_time}"
+        else:
+            sources = f"Extrapolating your training runs says {riegel_time}"
+
         if gap <= 0:
             severities.append("good")
-            notes.append(f"Recent runs project to {projection['predicted']}, at or inside the goal.")
+            notes.append(f"{sources} — at or inside {race.get('goal', 'the goal')}.")
         else:
             minutes = gap / 60
             if days_out is None or days_out > 42:
-                severity, framing = ("good" if minutes <= 25 else "warning"), (
-                    f"with {days_out} days of block left, that is a normal place to be starting from"
-                    if days_out else "early in the block")
+                severity = "good" if minutes <= 25 else "warning"
+                framing = (f"with {days_out} days of block left, that is a normal place to be "
+                           "starting from" if days_out else "early in the block")
             elif days_out > 21:
-                severity, framing = ("warning" if minutes <= 20 else "serious"), (
-                    f"{days_out} days out, the marathon-pace work should be closing this now")
+                severity = "warning" if minutes <= 20 else "serious"
+                framing = f"{days_out} days out, the marathon-pace work should be closing this now"
             else:
-                severity, framing = ("warning" if minutes <= 10 else "serious"), (
-                    f"only {days_out} days out — at this point the projection is close to the verdict")
+                severity = "warning" if minutes <= 10 else "serious"
+                framing = f"only {days_out} days out — the projection is close to the verdict now"
             severities.append(severity)
             notes.append(
-                f"Recent runs project to {projection['predicted']}, about {minutes:.0f} minutes off "
-                f"{race.get('goal', 'the goal')} — {framing}. Riegel reads training runs pessimistically, "
-                "so treat it as a floor rather than a forecast."
+                f"{sources}. The nearer of the two is {minutes:.0f} minutes off "
+                f"{race.get('goal', 'the goal')} — {framing}. Garmin models every run and reads "
+                "optimistic; Riegel assumes a maximal effort it never got and reads pessimistic, "
+                "so the truth sits between them."
             )
 
     # --- today's session, reconciled with readiness ---

@@ -26,6 +26,7 @@ import random
 from datetime import date, timedelta
 from pathlib import Path
 
+import adapt
 import coach
 import signals
 
@@ -55,9 +56,9 @@ def session_for(weekday, week_miles):
     Returns (type_key, minutes, miles, avg_hr) or None for a rest day.
     Long run lands on Sunday, quality on Tuesday, medium-long on Thursday.
     """
-    long_miles = round(week_miles * 0.42, 1)
-    if weekday == 0:      # Mon -- recovery cross-train
-        return ("lap_swimming", 32, None, 132)
+    long_miles = round(week_miles * 0.38, 1)
+    if weekday == 0:      # Mon -- recovery cross-train, or a true day off
+        return ("lap_swimming", 32, None, 132) if RNG.random() < 0.6 else None
     if weekday == 1:      # Tue -- quality
         miles = round(week_miles * 0.21, 1)
         return ("running", int(miles * 8.4), miles, 163)
@@ -67,8 +68,8 @@ def session_for(weekday, week_miles):
     if weekday == 3:      # Thu -- medium-long with marathon pace
         miles = round(week_miles * 0.25, 1)
         return ("running", int(miles * 9.1), miles, 156)
-    if weekday == 4:      # Fri -- rest or spin
-        return ("cycling", 45, None, 121) if RNG.random() < 0.55 else None
+    if weekday == 4:      # Fri -- mostly rest
+        return ("cycling", 45, None, 121) if RNG.random() < 0.35 else None
     if weekday == 5:      # Sat -- shakeout
         miles = round(week_miles * 0.10, 1)
         return ("running", int(miles * 10.0), miles, 141)
@@ -80,7 +81,7 @@ def week_miles_for(day: date, plan_days: dict) -> float:
     entry = plan_days.get(day.isoformat())
     if entry and entry.get("week_miles_target"):
         return float(entry["week_miles_target"])
-    return 26.0   # before the block starts, a modest base week
+    return 34.0   # before the block starts: an established base, not a standing start
 
 
 def build_dataset():
@@ -134,6 +135,27 @@ def build_dataset():
         bb_wake = 82 - (9 if prev_hard else 0) + jitter(6)
 
         sleep_seconds = int(sleep_hours * 3600)
+
+        # A synthetic overnight heart-rate series, so the nocturnal-drop signal
+        # has something to read. Shaped like the real thing: starts near waking
+        # rate, falls to a minimum partway through, drifts back up before waking.
+        # A hard previous day gives a shallower drop that bottoms out later,
+        # which is the pattern the real data shows.
+        onset = rhr + (7 if prev_hard else 11) + jitter(1.5)
+        trough = rhr - 1 + jitter(1.0)
+        trough_at = (0.72 if prev_hard else 0.42) + jitter(0.08)
+        samples = max(30, int(sleep_seconds / 120))
+        series = []
+        for s in range(samples):
+            position = s / (samples - 1)
+            if position <= trough_at:
+                value = onset + (trough - onset) * (position / max(trough_at, 0.05))
+            else:
+                rise = (position - trough_at) / max(1 - trough_at, 0.05)
+                value = trough + (onset - trough) * 0.55 * rise
+            series.append({"value": int(round(value + jitter(1.2))),
+                           "startGMT": s * 120000})
+
         days[iso] = {
             "stats": {
                 "restingHeartRate": int(round(rhr)),
@@ -145,31 +167,53 @@ def build_dataset():
                 "totalSteps": int(9000 + jitter(2600) + (3200 if session else 0)),
                 "avgWakingRespirationValue": round(13.6 + jitter(0.9), 1),
             },
-            "sleep": {"dailySleepDTO": {
-                "sleepTimeSeconds": sleep_seconds,
-                "deepSleepSeconds": int(sleep_seconds * (0.19 + jitter(0.02))),
-                "remSleepSeconds": int(sleep_seconds * (0.21 + jitter(0.02))),
-                "lightSleepSeconds": int(sleep_seconds * 0.52),
-                "awakeSleepSeconds": int(sleep_seconds * 0.06),
-            }},
+            "sleep": {
+                "dailySleepDTO": {
+                    "sleepTimeSeconds": sleep_seconds,
+                    "deepSleepSeconds": int(sleep_seconds * (0.19 + jitter(0.02))),
+                    "remSleepSeconds": int(sleep_seconds * (0.21 + jitter(0.02))),
+                    "lightSleepSeconds": int(sleep_seconds * 0.52),
+                    "awakeSleepSeconds": int(sleep_seconds * 0.06),
+                },
+                "sleepHeartRate": series,
+            },
             # Left empty on purpose: the real device reports neither, and the
             # demo should show the model this project actually ships.
             "hrv": {},
             "training_readiness": [],
         }
 
-    return days, activities, plan
+    # Fabricated Garmin snapshots. These must be injected rather than read from
+    # the store: the real ones are this athlete's actual VO2 max and race
+    # predictions, and the demo is published.
+    snapshots = {"max_metrics": {}, "race_predictions": {}, "fitness_age": {}}
+    for weeks_back in range(9):
+        observed = (AS_OF - timedelta(weeks=weeks_back)).isoformat()
+        snapshots["max_metrics"][observed] = [{
+            "generic": {"calendarDate": observed,
+                        "vo2MaxPreciseValue": round(52.0 + (8 - weeks_back) * 0.22, 1),
+                        "vo2MaxValue": round(52.0 + (8 - weeks_back) * 0.22)}
+        }]
+    snapshots["race_predictions"][AS_OF.isoformat()] = {
+        "calendarDate": AS_OF.isoformat(),
+        "time5K": 1205, "time10K": 2530, "timeHalfMarathon": 5820, "timeMarathon": 13620,
+    }
+    snapshots["fitness_age"][AS_OF.isoformat()] = {"chronologicalAge": 32, "fitnessAge": 26.0}
+
+    return days, activities, plan, snapshots
 
 
 def main() -> None:
-    days, activities, plan = build_dataset()
+    days, activities, plan, snapshots = build_dataset()
 
     data = signals.build(as_of=AS_OF, days=days, activities=activities, plan=plan,
+                         snapshots=snapshots,
                          config={"weight_kg": 72, "sleep_target_hours": 7.5,
                                  "hr_max": HR_MAX,
-                                 "readiness_weights": {"resting_hr": 30, "sleep": 30,
-                                                        "body_battery": 15, "stress": 10,
-                                                        "training_load": 15}})
+                                 "readiness_weights": {"resting_hr": 25, "nocturnal_drop": 20,
+                                                        "sleep": 25, "body_battery": 15,
+                                                        "stress": 5, "training_load": 10}})
+    data = adapt.annotate(data)
     data["coach"] = coach.build_rules_note(data)
     data["demo"] = True
     data["meta"]["demo_note"] = (
@@ -187,6 +231,14 @@ def main() -> None:
     print(f"  projection {data['projection']['predicted']} vs goal {data['projection']['goal']}")
     print(f"  adherence {data['adherence']['key_sessions_done_to_date']}/"
           f"{data['adherence']['key_sessions_due_to_date']}")
+    print(f"  form {data['form']['fitness']}/{data['form']['fatigue']} = "
+          f"{data['form']['form']} [{data['form']['zone']}]")
+    print(f"  nocturnal drop {data['recovery']['nocturnal']['today']} "
+          f"vs baseline {data['recovery']['nocturnal']['baseline']}")
+    print(f"  Garmin (synthetic) says {data['garmin']['race_prediction']['marathon']}, "
+          f"VO2 {data['garmin']['vo2_max']}")
+    print(f"  adaptation: {data['adaptation']['level']} — "
+          f"{len(data['adaptation']['triggers'])} trigger(s)")
 
 
 if __name__ == "__main__":

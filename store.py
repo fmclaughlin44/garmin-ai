@@ -14,6 +14,12 @@ The store fixes that by keeping one small JSON file per day and per activity:
 
     garmin/store/days/YYYY-MM-DD.json      one day of wellness payloads
     garmin/store/activities/<id>.json      one activity, keyed by Garmin's id
+    garmin/store/snapshots/<metric>/<date>.json
+                                           account-wide metrics that aren't
+                                           per-day (VO2 max, Garmin's own race
+                                           predictions, fitness age), stamped
+                                           with the date they were observed so
+                                           they build into a trend
 
 A sync overwrites only the days it actually fetched (fresh data wins, because
 Garmin backfills sleep and stress for a day or two) and never touches anything
@@ -33,11 +39,13 @@ BASE = Path(__file__).resolve().parent
 STORE = BASE / "garmin" / "store"
 DAYS_DIR = STORE / "days"
 ACTIVITIES_DIR = STORE / "activities"
+SNAPSHOTS_DIR = STORE / "snapshots"
 
 
 def ensure_dirs() -> None:
     DAYS_DIR.mkdir(parents=True, exist_ok=True)
     ACTIVITIES_DIR.mkdir(parents=True, exist_ok=True)
+    SNAPSHOTS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def _read_json(path: Path):
@@ -149,6 +157,60 @@ def activity_date(activity: dict):
             return None
 
 
+# --------------------------------------------------------------------------
+# Snapshots
+# --------------------------------------------------------------------------
+# Some Garmin metrics aren't per-day facts, they're "where you stand right now":
+# VO2 max, Garmin's own race predictions, fitness age. The API hands back the
+# current value with no history, so the only way to build a trend is to keep
+# every observation. Each is filed under the date it was observed.
+
+def put_snapshot(metric: str, day_str: str, payload) -> None:
+    if payload in (None, {}, [], ""):
+        return
+    ensure_dirs()
+    directory = SNAPSHOTS_DIR / metric
+    directory.mkdir(parents=True, exist_ok=True)
+    _write_json(directory / f"{day_str}.json", payload)
+
+
+def snapshots(metric: str) -> dict:
+    """Every observation of one metric, as {'YYYY-MM-DD': payload}, ascending."""
+    directory = SNAPSHOTS_DIR / metric
+    if not directory.exists():
+        return {}
+    out = {}
+    for path in sorted(directory.glob("*.json")):
+        payload = _read_json(path)
+        if payload is not None:
+            out[path.stem] = payload
+    return out
+
+
+def latest_snapshot(metric: str):
+    """The most recent observation of one metric, or None."""
+    all_of_them = snapshots(metric)
+    if not all_of_them:
+        return None
+    return all_of_them[sorted(all_of_them)[-1]]
+
+
+def has_day(day_str: str) -> bool:
+    """Whether a day is already cached with real content.
+
+    The sync uses this to skip days it already holds, which keeps a long
+    backfill from re-requesting a month of data it already has.
+    """
+    payload = get_day(day_str)
+    if payload is None:
+        return False
+    if payload.get("_failed"):
+        # A day Garmin had nothing for. Cached deliberately so it isn't retried
+        # on every run for the rest of time.
+        return True
+    return _has_content(payload)
+
+
 def coverage() -> dict:
     """A quick summary of what the store holds -- used by the CLI and README."""
     days = all_days()
@@ -156,6 +218,12 @@ def coverage() -> dict:
     day_keys = sorted(days.keys())
     act_dates = [activity_date(a) for a in acts]
     act_dates = sorted(d for d in act_dates if d)
+    snapshot_counts = {}
+    if SNAPSHOTS_DIR.exists():
+        for directory in sorted(SNAPSHOTS_DIR.iterdir()):
+            if directory.is_dir():
+                snapshot_counts[directory.name] = len(list(directory.glob("*.json")))
+
     return {
         "day_count": len(day_keys),
         "first_day": day_keys[0] if day_keys else None,
@@ -163,6 +231,7 @@ def coverage() -> dict:
         "activity_count": len(acts),
         "first_activity": act_dates[0].isoformat() if act_dates else None,
         "last_activity": act_dates[-1].isoformat() if act_dates else None,
+        "snapshots": snapshot_counts,
     }
 
 

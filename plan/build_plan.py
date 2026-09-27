@@ -76,117 +76,183 @@ INT = PACES["interval"]
 # Weekday keys are 0=Mon .. 6=Sun. Long run lands on Sunday to rehearse
 # race-day timing, since the race is a Sunday morning.
 
+# Each week: phase label, headline, and seven days keyed 0=Mon .. 6=Sun.
+#
+# Every day carries machine-readable fields alongside the prose, because the
+# adaptive layer has to reason about sessions rather than parse sentences:
+#
+#   kind   rest | cross | easy | quality | medium_long | long | race
+#   miles  planned run mileage (0 for rest and cross-training days)
+#   key    whether this is a session the block actually depends on
+#   lift   upper_push | upper_pull | legs | mobility | None
+#
+# Long runs land on Sunday to rehearse race-day timing, since the race is a
+# Sunday morning. Lifting sits on easy or no-run days and never the day before a
+# key run; leg days are placed to protect against running injury, not to chase
+# strength numbers.
+
 WEEKS = [
     {
         "phase": "Week 1 — Re-entry",
         "headline": "Post-70.3 transition. Legs back under you, no quality yet.",
-        "miles": 24,
         "days": {
-            0: ("Rest or 30min easy spin. Nothing hard.", "Full recovery"),
-            1: (f"Easy 5mi + 4×20s strides", f"{EASY}/mi · strides relaxed"),
-            2: ("Swim 1500m easy + Upper Pull lift", "Easy · flush the legs"),
-            3: (f"Easy 6mi steady", f"{EASY}/mi · HR <150"),
-            4: ("Rest or 40min easy spin", "Recovery"),
-            5: (f"Easy 4mi + 6×20s strides", f"{EASY}/mi"),
-            6: (f"Long run 9mi easy — first real long run back", f"{LONG}/mi · HR <155"),
+            0: {"session": "Rest or 30min easy spin. Nothing hard.", "target": "Full recovery",
+                "kind": "rest", "miles": 0, "key": False, "lift": None},
+            1: {"session": "Easy 5mi + 4×20s strides", "target": f"{EASY}/mi · strides relaxed",
+                "kind": "easy", "miles": 5, "key": False, "lift": None},
+            2: {"session": "Swim 1500m easy + Upper Pull lift", "target": "Easy · flush the legs",
+                "kind": "cross", "miles": 0, "key": False, "lift": "upper_pull"},
+            3: {"session": "Easy 6mi steady", "target": f"{EASY}/mi · HR <150",
+                "kind": "easy", "miles": 6, "key": False, "lift": None},
+            4: {"session": "Rest or 40min easy spin", "target": "Recovery",
+                "kind": "rest", "miles": 0, "key": False, "lift": None},
+            5: {"session": "Easy 4mi + 6×20s strides", "target": f"{EASY}/mi",
+                "kind": "easy", "miles": 4, "key": False, "lift": "upper_push"},
+            6: {"session": "Long run 9mi easy — first real long run back",
+                "target": f"{LONG}/mi · HR <155", "kind": "long", "miles": 9, "key": True, "lift": None},
         },
     },
     {
         "phase": "Week 2 — Build 1",
         "headline": "Volume returns. First structured quality session of the block.",
-        "miles": 31,
         "days": {
-            0: ("Recovery: 30min easy spin or swim 1500m + Upper Push lift", "Easy"),
-            1: (f"Quality — Intervals: 1.5 WU / 5×1000m @ {INT} (2min jog) / 1 CD", f"{INT}/mi reps · Z4"),
-            2: (f"Easy 5mi + Legs (moderate)", f"{EASY}/mi"),
-            3: (f"Medium-long 8mi, last 2mi @ {MP}", f"Finish at MP {MP}/mi"),
-            4: ("Rest or swim 1800m easy", "Recovery"),
-            5: (f"Easy 4mi + 6×20s strides", f"{EASY}/mi"),
-            6: (f"Long run 12mi easy", f"{LONG}/mi · HR <155"),
+            0: {"session": "Recovery: 30min easy spin or swim 1500m + Upper Push lift",
+                "target": "Easy", "kind": "cross", "miles": 0, "key": False, "lift": "upper_push"},
+            1: {"session": f"Quality — Intervals: 1.5 WU / 5×1000m @ {INT} (2min jog) / 1 CD",
+                "target": f"{INT}/mi reps · Z4", "kind": "quality", "miles": 6, "key": True, "lift": None},
+            2: {"session": "Easy 4mi + Legs (moderate)", "target": f"{EASY}/mi",
+                "kind": "easy", "miles": 4, "key": False, "lift": "legs"},
+            3: {"session": f"Medium-long 7mi, last 2mi @ {MP}", "target": f"Finish at MP {MP}/mi",
+                "kind": "medium_long", "miles": 7, "key": True, "lift": None},
+            4: {"session": "Rest or swim 1800m easy", "target": "Recovery",
+                "kind": "rest", "miles": 0, "key": False, "lift": None},
+            5: {"session": "Easy 3mi + 6×20s strides", "target": f"{EASY}/mi",
+                "kind": "easy", "miles": 3, "key": False, "lift": "upper_pull"},
+            6: {"session": "Long run 11mi easy", "target": f"{LONG}/mi · HR <155",
+                "kind": "long", "miles": 11, "key": True, "lift": None},
         },
     },
     {
         "phase": "Week 3 — Build 2",
-        "headline": "Threshold block. This is where the 8:35 starts feeling cheap.",
-        "miles": 35,
+        "headline": "Threshold block. This is where goal pace starts feeling cheap.",
         "days": {
-            0: ("Recovery: 30min spin + Upper Pull lift", "Easy"),
-            1: (f"Quality — Tempo: 1.5 WU / 5mi @ {THR} / 1 CD", f"{THR}/mi · Z3–low Z4"),
-            2: (f"Easy 6mi + Legs (moderate)", f"{EASY}/mi"),
-            3: (f"Medium-long 9mi, middle 3mi @ {MP}", f"MP {MP}/mi"),
-            4: ("Rest or swim 1800m", "Recovery"),
-            5: (f"Easy 4mi + strides", f"{EASY}/mi"),
-            6: (f"Long run 14mi easy", f"{LONG}/mi · HR <155"),
+            0: {"session": "Recovery: 30min spin + Upper Pull lift", "target": "Easy",
+                "kind": "cross", "miles": 0, "key": False, "lift": "upper_pull"},
+            1: {"session": f"Quality — Tempo: 1.5 WU / 5mi @ {THR} / 1 CD",
+                "target": f"{THR}/mi · Z3–low Z4", "kind": "quality", "miles": 7, "key": True, "lift": None},
+            2: {"session": "Easy 4mi + Legs (moderate)", "target": f"{EASY}/mi",
+                "kind": "easy", "miles": 4, "key": False, "lift": "legs"},
+            3: {"session": f"Medium-long 8mi, middle 3mi @ {MP}", "target": f"MP {MP}/mi",
+                "kind": "medium_long", "miles": 8, "key": True, "lift": None},
+            4: {"session": "Rest or swim 1800m", "target": "Recovery",
+                "kind": "rest", "miles": 0, "key": False, "lift": None},
+            5: {"session": "Easy 3mi + strides", "target": f"{EASY}/mi",
+                "kind": "easy", "miles": 3, "key": False, "lift": "upper_push"},
+            6: {"session": "Long run 13mi easy", "target": f"{LONG}/mi · HR <155",
+                "kind": "long", "miles": 13, "key": True, "lift": None},
         },
     },
     {
         "phase": "Week 4 — Build 3",
-        "headline": "Marathon pace goes into the long run. Fueling rehearsal starts.",
-        "miles": 37,
+        "headline": "Marathon pace goes into the long run. Fuelling rehearsal starts.",
         "days": {
-            0: ("Recovery: swim 1500m + Upper Push lift", "Easy"),
-            1: (f"Quality — Intervals: 1.5 WU / 6×1mi @ {THR} (90s jog) / 1 CD", f"{THR}/mi · controlled"),
-            2: (f"Easy 6mi + Legs", f"{EASY}/mi"),
-            3: (f"Medium-long 10mi, 2×2mi @ {MP} (1mi easy between)", f"MP {MP}/mi"),
-            4: ("Rest or 45min easy spin", "Recovery"),
-            5: (f"Easy 4mi + strides", f"{EASY}/mi"),
-            6: (f"LONG RUN 16mi — last 4mi @ {MP}. Practice race fueling: 60g carbs/hr from mile 4.", f"Easy → MP {MP}/mi"),
+            0: {"session": "Recovery: swim 1500m + Upper Push lift", "target": "Easy",
+                "kind": "cross", "miles": 0, "key": False, "lift": "upper_push"},
+            1: {"session": f"Quality — Intervals: 1.5 WU / 6×1mi @ {THR} (90s jog) / 1 CD",
+                "target": f"{THR}/mi · controlled", "kind": "quality", "miles": 8, "key": True, "lift": None},
+            2: {"session": "Easy 4mi + Legs", "target": f"{EASY}/mi",
+                "kind": "easy", "miles": 4, "key": False, "lift": "legs"},
+            3: {"session": f"Medium-long 9mi, 2×2mi @ {MP} (1mi easy between)",
+                "target": f"MP {MP}/mi", "kind": "medium_long", "miles": 9, "key": True, "lift": None},
+            4: {"session": "Rest or 45min easy spin", "target": "Recovery",
+                "kind": "rest", "miles": 0, "key": False, "lift": None},
+            5: {"session": "Easy 3mi + strides", "target": f"{EASY}/mi",
+                "kind": "easy", "miles": 3, "key": False, "lift": "upper_pull"},
+            6: {"session": f"LONG RUN 15mi — last 4mi @ {MP}. Practice race fuelling: 60g carbs/hr from mile 4.",
+                "target": f"Easy → MP {MP}/mi", "kind": "long", "miles": 15, "key": True, "lift": None},
         },
     },
     {
         "phase": "Week 5 — Peak 1",
         "headline": "Biggest aerobic week. Bank the volume, stay off the red line.",
-        "miles": 41,
         "days": {
-            0: ("Recovery: 30min spin + Upper Pull lift", "Easy"),
-            1: (f"Quality — Tempo: 1.5 WU / 6mi @ {THR} / 1 CD", f"{THR}/mi"),
-            2: (f"Easy 7mi + Legs (lighter)", f"{EASY}/mi"),
-            3: (f"Medium-long 11mi, middle 5mi @ {MP}", f"MP {MP}/mi"),
-            4: ("Rest or swim 2000m easy", "Recovery"),
-            5: (f"Easy 4mi + strides", f"{EASY}/mi"),
-            6: (f"LONG RUN 18mi steady. Full fueling rehearsal: 60–75g carbs/hr, drink every 20min.", f"{LONG}/mi · HR <155"),
+            0: {"session": "Recovery: 30min spin + Upper Pull lift", "target": "Easy",
+                "kind": "cross", "miles": 0, "key": False, "lift": "upper_pull"},
+            1: {"session": f"Quality — Tempo: 1.5 WU / 6mi @ {THR} / 1 CD", "target": f"{THR}/mi",
+                "kind": "quality", "miles": 8, "key": True, "lift": None},
+            2: {"session": "Easy 5mi + Legs (lighter)", "target": f"{EASY}/mi",
+                "kind": "easy", "miles": 5, "key": False, "lift": "legs"},
+            3: {"session": f"Medium-long 10mi, middle 5mi @ {MP}", "target": f"MP {MP}/mi",
+                "kind": "medium_long", "miles": 10, "key": True, "lift": None},
+            4: {"session": "Rest or swim 2000m easy", "target": "Recovery",
+                "kind": "rest", "miles": 0, "key": False, "lift": None},
+            5: {"session": "Easy 3mi + strides", "target": f"{EASY}/mi",
+                "kind": "easy", "miles": 3, "key": False, "lift": "upper_push"},
+            6: {"session": "LONG RUN 18mi steady. Full fuelling rehearsal: 60–75g carbs/hr, drink every 20min.",
+                "target": f"{LONG}/mi · HR <155", "kind": "long", "miles": 18, "key": True, "lift": None},
         },
     },
     {
         "phase": "Week 6 — Peak 2",
         "headline": "Race simulation week. The 20-miler is the whole block in one session.",
-        "miles": 43,
         "days": {
-            0: ("Recovery: swim 1500m + Upper Push lift", "Easy"),
-            1: (f"Quality — Intervals: 1.5 WU / 3×2mi @ {THR} (2min jog) / 1 CD", f"{THR}/mi"),
-            2: (f"Easy 6mi + Legs (light)", f"{EASY}/mi"),
-            3: (f"Medium-long 10mi, 6mi @ {MP} — dress rehearsal pace feel", f"MP {MP}/mi · should feel repeatable"),
-            4: ("Rest — full day off legs", "Rest"),
-            5: (f"Easy 4mi + strides", f"{EASY}/mi"),
-            6: (f"LONG RUN 20mi — race kit, race shoes, race breakfast, race fueling. Last 5mi @ {MP}.", f"Easy → MP {MP}/mi · the key session"),
+            0: {"session": "Recovery: swim 1500m + Upper Push lift", "target": "Easy",
+                "kind": "cross", "miles": 0, "key": False, "lift": "upper_push"},
+            1: {"session": f"Quality — Intervals: 1.5 WU / 3×2mi @ {THR} (2min jog) / 1 CD",
+                "target": f"{THR}/mi", "kind": "quality", "miles": 8, "key": True, "lift": None},
+            2: {"session": "Easy 5mi + Legs (light)", "target": f"{EASY}/mi",
+                "kind": "easy", "miles": 5, "key": False, "lift": "legs"},
+            3: {"session": f"Medium-long 10mi, 6mi @ {MP} — dress rehearsal pace feel",
+                "target": f"MP {MP}/mi · should feel repeatable", "kind": "medium_long",
+                "miles": 10, "key": True, "lift": None},
+            4: {"session": "Rest — full day off legs", "target": "Rest",
+                "kind": "rest", "miles": 0, "key": False, "lift": None},
+            5: {"session": "Easy 3mi + strides", "target": f"{EASY}/mi",
+                "kind": "easy", "miles": 3, "key": False, "lift": None},
+            6: {"session": f"LONG RUN 20mi — race kit, race shoes, race breakfast, race fuelling. Last 5mi @ {MP}.",
+                "target": f"Easy → MP {MP}/mi · the key session", "kind": "long",
+                "miles": 20, "key": True, "lift": None},
         },
     },
     {
         "phase": "Week 7 — Taper 1",
-        "headline": "Volume drops ~30%, intensity stays. You should start feeling springy.",
-        "miles": 30,
+        "headline": "Volume drops ~25%, intensity stays. You should start feeling springy.",
         "days": {
-            0: ("Recovery: 30min spin + Upper Pull (70% load)", "Easy"),
-            1: (f"Quality — 1.5 WU / 4mi @ {THR} / 1 CD", f"{THR}/mi · sharp not deep"),
-            2: (f"Easy 5mi (skip heavy legs from here)", f"{EASY}/mi"),
-            3: (f"Medium-long 8mi, 4mi @ {MP}", f"MP {MP}/mi"),
-            4: ("Rest or swim 1500m easy", "Recovery"),
-            5: (f"Easy 4mi + 6×20s strides", f"{EASY}/mi"),
-            6: (f"Long run 13mi, last 3mi @ {MP}", f"{LONG} → MP {MP}/mi"),
+            0: {"session": "Recovery: 30min spin + Upper Pull (70% load)", "target": "Easy",
+                "kind": "cross", "miles": 0, "key": False, "lift": "upper_pull"},
+            1: {"session": f"Quality — 1.5 WU / 4mi @ {THR} / 1 CD", "target": f"{THR}/mi · sharp not deep",
+                "kind": "quality", "miles": 6, "key": True, "lift": None},
+            2: {"session": "Easy 4mi (no heavy legs from here)", "target": f"{EASY}/mi",
+                "kind": "easy", "miles": 4, "key": False, "lift": "mobility"},
+            3: {"session": f"Medium-long 8mi, 4mi @ {MP}", "target": f"MP {MP}/mi",
+                "kind": "medium_long", "miles": 8, "key": True, "lift": None},
+            4: {"session": "Rest or swim 1500m easy", "target": "Recovery",
+                "kind": "rest", "miles": 0, "key": False, "lift": None},
+            5: {"session": "Easy 3mi + 6×20s strides", "target": f"{EASY}/mi",
+                "kind": "easy", "miles": 3, "key": False, "lift": None},
+            6: {"session": f"Long run 13mi, last 3mi @ {MP}", "target": f"{LONG} → MP {MP}/mi",
+                "kind": "long", "miles": 13, "key": True, "lift": None},
         },
     },
     {
         "phase": "Week 8 — Race Week",
-        "headline": "Deep taper. Nothing you do this week makes you fitter — only fresher.",
-        "miles": 18,
+        "headline": "Deep taper. Nothing this week makes you fitter — only fresher.",
         "days": {
-            0: (f"Easy 5mi relaxed + 4×20s strides", f"{EASY}/mi"),
-            1: (f"Sharpener: 1 WU / 3×1mi @ {MP} (2min jog) / 1 CD", f"MP {MP}/mi · locks in rhythm"),
-            2: (f"Easy 4mi. Carb-load begins — ramp to 8–10g/kg/day.", f"{EASY}/mi · hydrate"),
-            3: (f"Easy 3mi + 4 strides. Lay out race kit.", "Very easy"),
-            4: ("Rest or 20min shakeout jog. Travel / packet pickup. Off legs by evening.", "Rest"),
-            5: ("20min easy jog + 3 strides. Final carb-load day. Early night.", "Prime · rest"),
-            6: (f"RACE DAY · MARATHON · goal {GOAL_TIME} ({MP}/mi). Fuel 60–75g carbs/hr from mile 4.", "EXECUTE THE PLAN"),
+            0: {"session": "Easy 5mi relaxed + 4×20s strides", "target": f"{EASY}/mi",
+                "kind": "easy", "miles": 5, "key": False, "lift": "mobility"},
+            1: {"session": f"Sharpener: 1 WU / 3×1mi @ {MP} (2min jog) / 1 CD",
+                "target": f"MP {MP}/mi · locks in rhythm", "kind": "quality", "miles": 5,
+                "key": True, "lift": None},
+            2: {"session": "Easy 4mi. Carb-load begins — ramp to 8–10g/kg/day.",
+                "target": f"{EASY}/mi · hydrate", "kind": "easy", "miles": 4, "key": False, "lift": None},
+            3: {"session": "Easy 3mi + 4 strides. Lay out race kit.", "target": "Very easy",
+                "kind": "easy", "miles": 3, "key": False, "lift": None},
+            4: {"session": "Rest or 20min shakeout jog. Travel / packet pickup. Off legs by evening.",
+                "target": "Rest", "kind": "rest", "miles": 0, "key": False, "lift": None},
+            5: {"session": "20min easy jog + 3 strides. Final carb-load day. Early night.",
+                "target": "Prime · rest", "kind": "easy", "miles": 2, "key": False, "lift": None},
+            6: {"session": f"RACE DAY · MARATHON · goal {GOAL_TIME} ({MP}/mi). Fuel 60–75g carbs/hr from mile 4.",
+                "target": "EXECUTE THE PLAN", "kind": "race", "miles": 26.2, "key": True, "lift": None},
         },
     },
 ]
@@ -219,16 +285,19 @@ FUEL = {
 
 def build() -> dict:
     days = {}
+    # Weekly volume is the sum of the week's days rather than a number typed in
+    # beside them, so the target can never drift out of step with the sessions.
+    week_totals = [round(sum(d["miles"] for d in w["days"].values()), 1) for w in WEEKS]
+
     for week_index, week in enumerate(WEEKS):
         week_start = BLOCK_START + timedelta(weeks=week_index)
-        for weekday, (session, target) in week["days"].items():
+        for weekday, spec in week["days"].items():
             day = week_start + timedelta(days=weekday)
             days[day.isoformat()] = {
-                "session": session,
-                "target": target,
+                **spec,
                 "phase": week["phase"],
                 "week": week_index + 1,
-                "week_miles_target": week["miles"],
+                "week_miles_target": week_totals[week_index],
             }
 
     weeks_meta = [
@@ -236,7 +305,7 @@ def build() -> dict:
             "week": i + 1,
             "phase": w["phase"],
             "headline": w["headline"],
-            "miles_target": w["miles"],
+            "miles_target": week_totals[i],
             "start": (BLOCK_START + timedelta(weeks=i)).isoformat(),
             "end": (BLOCK_START + timedelta(weeks=i, days=6)).isoformat(),
         }
@@ -264,7 +333,7 @@ def build() -> dict:
         },
         "paces": PACES,
         "weeks": weeks_meta,
-        "key_session_keywords": KEY_SESSION_KEYWORDS,
+        "key_session_keywords": KEY_SESSION_KEYWORDS,  # kept for older consumers
         "fuel": FUEL,
         "days": days,
         "generated_at": datetime.now().isoformat(timespec="seconds"),
@@ -277,6 +346,7 @@ if __name__ == "__main__":
     OUT.write_text(json.dumps(plan, indent=2))
     print(f"Wrote {OUT} — {len(plan['days'])} days, {plan['block']['weeks']} weeks")
     print(f"Goal {GOAL_TIME} -> marathon pace {MP}/mi")
+    print("  weekly volume: " + " → ".join(str(w["miles_target"]) for w in plan["weeks"]) + " mi")
     for key, value in PACES.items():
         if not key.endswith("_seconds"):
             print(f"  {key:10s} {value}/mi")
