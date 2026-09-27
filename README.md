@@ -4,7 +4,7 @@ A nightly pipeline that pulls my Garmin Connect data, computes the training and
 recovery signals the watch doesn't give me, and renders a single self-contained
 dashboard for an 8-week marathon block.
 
-**[Live demo](https://claude.ai/artifact/Xa3zgqJ46qni6dcmnp593b)** (synthetic data) · Python 3.12 · no framework, no build step
+`demo/index.html` — the same dashboard on synthetic data · Python 3.12 · no framework, no build step
 
 ---
 
@@ -190,10 +190,30 @@ seeing today's numbers, the data ships inside the page. The separation is still
 real: swap `web/data.json` and you get a different dashboard, which is exactly
 how the demo build works.
 
-**Nutrition reports targets, not intake.** Garmin carries no food log, so
-inventing calorie tracking here would be fiction. What can be derived honestly is
-the carbohydrate target implied by the day's planned session, which is the number
-that actually matters in a marathon block.
+**Calorie targets are built from measured expenditure, not an estimated TDEE.**
+Garmin's daily summary reports `bmrKilocalories` and `activeKilocalories`, and
+their sum is measured total daily energy expenditure — which beats a
+Mifflin-St Jeor estimate that would need height and would ignore how much I
+actually moved. One catch that took a test to pin down: the current day's BMR is
+only accrued to the present moment, so today's total is always an undercount and
+has to be excluded. A day counts as complete when its BMR is at least 90% of the
+window's typical BMR.
+
+Macros are then assigned in a fixed order, and the periodisation falls out of it
+rather than needing its own rule:
+
+1. **Protein** is flat at 1g per lb of bodyweight whatever the day, because the
+   point of it is preserving muscle in a deficit.
+2. **Fat** gets a floor in g/lb that varies by day type, so it never drops to a
+   level that costs you hormonally just to make room for carbohydrate.
+3. **Carbohydrate** takes every calorie left.
+
+Because hard days have a bigger calorie budget *and* a lower fat floor,
+carbohydrate absorbs the whole difference automatically. A long-run day lands at
+maintenance with carbs above 50% of calories and fat near 20%; a rest day runs a
+450kcal deficit with carbs cut roughly in half and fat at its highest. Intake is
+still not tracked — Garmin carries no food log — so these are targets, never a
+record of what was eaten.
 
 **Everything is on one page.** No tabs, no accordions, no drawers. This week's
 plan is the first thing on screen because it is the thing I actually open the page
@@ -233,24 +253,52 @@ Individual stages:
 weights). Anything left `null` is either estimated from my own history or
 reported as unavailable — nothing is silently guessed.
 
-Scheduled nightly via launchd at 06:30 (`com.garminai.dailysync`). A failed
-Garmin pull doesn't take the run down: the store still holds yesterday, the
-remaining stages rebuild from it, and the page says which day the data runs
+### Automation
+
+Scheduled every morning at 06:30 via launchd (`com.garminai.dailysync`), which
+runs the whole pipeline so `dashboard.html` is current before I look at it. If the
+Mac is asleep at 06:30, launchd runs the job at the next wake. `refresh.command`
+is double-clickable for an on-demand run, and logs rotate at 512KB so they don't
+grow without bound.
+
+A failed Garmin pull doesn't take the run down: the store still holds yesterday,
+the remaining stages rebuild from it, and the page states which day the data runs
 through.
+
+```bash
+launchctl list | grep garminai                          # check it's loaded
+launchctl kickstart -k gui/$(id -u)/com.garminai.dailysync   # force a run
+tail -40 logs/daily_sync.log
+```
+
+The one thing the schedule can't do is refresh the phone copy. The dashboard is
+also published as a private claude.ai artifact for reading on a phone, and
+publishing needs an interactive session — a headless run has no way to do it. So
+the local file is always current and the phone copy is a snapshot that gets
+republished on request.
 
 ## Demo
 
 `demo/index.html` is the same dashboard against a synthetic dataset from
 `make_demo_data.py`. The repository is public; my resting heart rate, sleep and
-location-tagged workouts are not. The real store is gitignored, and the demo
-athlete is fabricated but shaped like real Garmin output — including the absent
-HRV, kept absent so the demo shows the readiness model this project actually
-ships rather than an idealised one. Seeded, so it's byte-identical on every run.
+location-tagged workouts are not. The real store is gitignored, and so is
+`dashboard.html`, because the build inlines the real data into the page.
+
+The demo athlete is fabricated but shaped like real Garmin output — including the
+absent HRV, kept absent so the demo shows the readiness model this project
+actually ships rather than an idealised one. Seeded, so it rebuilds identically.
+
+Every synthetic build carries `"demo": true` in its payload, which puts a warning
+banner at the very top of the page and prefixes the browser title with `DEMO`. That
+banner exists because it was learned the hard way: a footer note two screens below
+the charts was read straight past, and a fabricated VO₂ max and training week were
+briefly taken for real ones. A demo that can be mistaken for real data is worse
+than no demo.
 
 ## Tests
 
-57 tests over `signals.py` and `adapt.py`, covering the edge cases that would
-otherwise fail quietly rather than loudly:
+71 tests over `signals.py`, `adapt.py` and the nutrition layer, covering the edge
+cases that would otherwise fail quietly rather than loudly:
 
 - a workload ratio computed from 5 days of history would look plausible and mean
   nothing, so it refuses to produce one under 21 days
@@ -265,6 +313,11 @@ otherwise fail quietly rather than loudly:
 - a rescheduled key session never lands the day before another key session
 - adaptation never mutates the base plan, and always keeps the original beside
   the suggestion
+- today's partial BMR is excluded from maintenance, or the calorie target would
+  fall every morning
+- carbohydrate rises and fat falls monotonically with the day's demand, so the
+  periodisation is verified rather than just described
+- macros add back up to the calorie target, and carbs never go negative
 
 ```bash
 .venv/bin/pytest tests/ -q
@@ -276,7 +329,12 @@ otherwise fail quietly rather than loudly:
   mean a second OAuth flow and a deduplication problem for no new signal.
 - **Body composition.** `get_body_composition` and `get_weigh_ins` return empty
   lists on this account — there's no connected scale — so bodyweight stays a
-  config value and the fuel panel says so rather than inventing a number.
+  config value and the nutrition panel says so rather than inventing a number.
+- **Fitness age.** Garmin reports it, but it's a soft estimate that informs no
+  decision, and putting it on screen just invites arguing with it.
+- **Race-day and carb-loading guidance.** Dropped: it was static text that didn't
+  come from any measurement, which is exactly the kind of filler this dashboard
+  should not carry.
 - **Disposable data.** Tempting to treat the raw pull as a rebuildable cache, but
   Garmin's history only goes back to when the watch does, and this project already
   lost a month of history to exactly that assumption. The store is durable.

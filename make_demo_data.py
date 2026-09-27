@@ -165,6 +165,11 @@ def build_dataset():
                 "bodyBatteryHighestValue": int(round(min(100, max(35, bb_wake + 4)))),
                 "bodyBatteryLowestValue": int(round(max(8, bb_wake - 55))),
                 "totalSteps": int(9000 + jitter(2600) + (3200 if session else 0)),
+                # Calorie fields, so the nutrition panel has a measured
+                # maintenance figure to work from like the real build does.
+                "bmrKilocalories": 1980,
+                "activeKilocalories": int((session[1] * 7.4 if session else 0) + jitter(90) + 260),
+                "totalKilocalories": int(1980 + (session[1] * 7.4 if session else 0) + jitter(90) + 260),
                 "avgWakingRespirationValue": round(13.6 + jitter(0.9), 1),
             },
             "sleep": {
@@ -186,7 +191,7 @@ def build_dataset():
     # Fabricated Garmin snapshots. These must be injected rather than read from
     # the store: the real ones are this athlete's actual VO2 max and race
     # predictions, and the demo is published.
-    snapshots = {"max_metrics": {}, "race_predictions": {}, "fitness_age": {}}
+    snapshots = {"max_metrics": {}, "race_predictions": {}}
     for weeks_back in range(9):
         observed = (AS_OF - timedelta(weeks=weeks_back)).isoformat()
         snapshots["max_metrics"][observed] = [{
@@ -198,7 +203,6 @@ def build_dataset():
         "calendarDate": AS_OF.isoformat(),
         "time5K": 1205, "time10K": 2530, "timeHalfMarathon": 5820, "timeMarathon": 13620,
     }
-    snapshots["fitness_age"][AS_OF.isoformat()] = {"chronologicalAge": 32, "fitnessAge": 26.0}
 
     return days, activities, plan, snapshots
 
@@ -208,8 +212,13 @@ def main() -> None:
 
     data = signals.build(as_of=AS_OF, days=days, activities=activities, plan=plan,
                          snapshots=snapshots,
-                         config={"weight_kg": 72, "sleep_target_hours": 7.5,
+                         config={"sleep_target_hours": 7.5,
                                  "hr_max": HR_MAX,
+                                 "weight_lb": 168, "protein_per_lb": 1.0,
+                                 "deficit_by_day": {"big": 0, "quality": -200,
+                                                     "easy": -400, "recovery": -450},
+                                 "fat_g_per_lb_by_day": {"big": 0.35, "quality": 0.40,
+                                                          "easy": 0.50, "recovery": 0.55},
                                  "readiness_weights": {"resting_hr": 25, "nocturnal_drop": 20,
                                                         "sleep": 25, "body_battery": 15,
                                                         "stress": 5, "training_load": 10}})
@@ -237,6 +246,8 @@ def main() -> None:
           f"vs baseline {data['recovery']['nocturnal']['baseline']}")
     print(f"  Garmin (synthetic) says {data['garmin']['race_prediction']['marathon']}, "
           f"VO2 {data['garmin']['vo2_max']}")
+    n = data["nutrition"]
+    print(f"  nutrition: {n['target_kcal']}kcal C{n['carbs_g']} P{n['protein_g']} F{n['fat_g']} [{n['band']}]")
     print(f"  adaptation: {data['adaptation']['level']} — "
           f"{len(data['adaptation']['triggers'])} trigger(s)")
 

@@ -261,28 +261,6 @@ WEEKS = [
 # sessions -- the ones adherence and the coach layer actually care about.
 KEY_SESSION_KEYWORDS = ["long run", "race day", "quality", "tempo", "intervals", "sharpener"]
 
-FUEL = {
-    "race_day": {
-        "carbs_per_hour": "60–75g",
-        "fluid": "500–750ml/hr, more if warm",
-        "sodium": "300–600mg/hr",
-        "pre_race": "2–2.5g/kg carbs, 3hrs out; nothing new on race morning",
-        "notes": "You rehearsed 60–90g/hr on the 70.3 bike — running tolerates less than riding. Hold 60–75g/hr and practice it on every long run from Week 4.",
-    },
-    "carb_load": {
-        "window": "72hrs out (Thu–Sat of race week)",
-        "target": "8–10g carbs per kg bodyweight per day",
-        "notes": "Volume is already low in race week, so the extra carbs go to glycogen rather than fatigue.",
-    },
-    "daily_baseline": {
-        "protein": "1.6–2.0g/kg/day",
-        "carbs_easy_day": "4–5g/kg",
-        "carbs_quality_day": "6–7g/kg",
-        "carbs_long_run_day": "8g/kg",
-    },
-}
-
-
 def build() -> dict:
     days = {}
     # Weekly volume is the sum of the week's days rather than a number typed in
@@ -334,7 +312,6 @@ def build() -> dict:
         "paces": PACES,
         "weeks": weeks_meta,
         "key_session_keywords": KEY_SESSION_KEYWORDS,  # kept for older consumers
-        "fuel": FUEL,
         "days": days,
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "generated_by": "plan/build_plan.py",

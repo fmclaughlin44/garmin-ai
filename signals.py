@@ -869,8 +869,7 @@ def readiness_series(history: list, loads_by_date: dict, weights: dict,
     return out
 
 
-def garmin_metrics(vo2_snapshots: dict, prediction_snapshots: dict,
-                   fitness_age_snapshots: dict) -> dict:
+def garmin_metrics(vo2_snapshots: dict, prediction_snapshots: dict) -> dict:
     """Garmin's own modelled numbers, kept as a trend.
 
     These endpoints hand back only the current value, so the pipeline stores each
@@ -918,20 +917,12 @@ def garmin_metrics(vo2_snapshots: dict, prediction_snapshots: dict,
                                  if payload.get("timeMarathon") else None,
             }
 
-    fitness_age = None
-    if fitness_age_snapshots:
-        payload = fitness_age_snapshots[sorted(fitness_age_snapshots)[-1]]
-        if isinstance(payload, dict):
-            fitness_age = {"fitness_age": payload.get("fitnessAge"),
-                           "chronological_age": payload.get("chronologicalAge")}
-
     return {
         "vo2_max": vo2_sorted[-1][1] if vo2_sorted else None,
         "vo2_observed": vo2_sorted[-1][0] if vo2_sorted else None,
         "vo2_trend": vo2_trend,
         "vo2_series": dict(vo2_sorted),
         "race_prediction": latest_prediction,
-        "fitness_age": fitness_age,
         "note": "VO2 max and race predictions are Garmin's own models, stored each "
                 "sync so they build a trend the API won't give you.",
     }
@@ -1012,44 +1003,172 @@ def adherence(plan: dict, activities: list, as_of: date) -> dict:
 # fuel
 # --------------------------------------------------------------------------
 
-def fuel_targets(plan: dict, today_entry: dict, weight_kg) -> dict:
-    """Today's carb target, scaled by what today's session actually is.
+def energy_baseline(history: list, days: dict) -> dict:
+    """Maintenance calories, measured rather than estimated.
 
-    Deliberately scoped: Garmin carries no food logging, so inventing calorie
-    tracking here would be fiction. What *can* be derived honestly is the
-    carbohydrate target implied by the day's training, which is the number that
-    actually matters in a marathon block.
+    Garmin's daily summary reports ``bmrKilocalories`` and ``activeKilocalories``,
+    and their sum is measured total daily energy expenditure. That is a far better
+    basis for a calorie target than a Mifflin-St Jeor estimate, which would need
+    height and would ignore how much the athlete actually moved.
+
+    One catch: the current day is partial. Its BMR figure is only accrued to the
+    present moment, so today's total is always an undercount and must be excluded.
+    A day is treated as complete when its BMR is at least 90% of the typical BMR
+    seen across the window.
     """
-    fuel = plan.get("fuel", {})
-    baseline = fuel.get("daily_baseline", {})
-    session = (today_entry or {}).get("session", "").lower()
+    rows = []
+    for day_str, payload in days.items():
+        stats = (payload or {}).get("stats") or {}
+        bmr, active = stats.get("bmrKilocalories"), stats.get("activeKilocalories")
+        total = stats.get("totalKilocalories")
+        if bmr and total:
+            rows.append({"date": day_str, "bmr": bmr, "active": active or 0, "total": total})
+    if not rows:
+        return {"maintenance": None, "bmr": None, "days_used": 0,
+                "note": "Garmin has not reported calorie data for any stored day."}
 
-    if "race day" in session:
-        band, per_kg = "race day", 8.0
-    elif "long run" in session:
-        band, per_kg = "long run day", 8.0
-    elif any(k in session for k in ("quality", "tempo", "intervals", "sharpener", "medium-long")):
-        band, per_kg = "quality day", 6.5
-    elif "rest" in session and "easy" not in session:
-        band, per_kg = "rest day", 4.0
-    else:
-        band, per_kg = "easy day", 4.5
+    rows.sort(key=lambda r: r["date"])
+    typical_bmr = median([r["bmr"] for r in rows])
+    complete = [r for r in rows if r["bmr"] >= typical_bmr * 0.9]
+    recent = complete[-14:]
+    if not recent:
+        return {"maintenance": None, "bmr": round(typical_bmr), "days_used": 0,
+                "note": "No complete day of calorie data yet — today is still accruing."}
 
-    grams = round(per_kg * weight_kg) if weight_kg else None
+    maintenance = mean([r["total"] for r in recent])
+    return {
+        "maintenance": round(maintenance),
+        "bmr": round(typical_bmr),
+        "avg_active": round(mean([r["active"] for r in recent])),
+        "days_used": len(recent),
+        "range": [round(min(r["total"] for r in recent)), round(max(r["total"] for r in recent))],
+        "note": f"Measured from Garmin: BMR plus active calories, averaged over the last "
+                f"{len(recent)} complete days. Today is excluded because its BMR is still accruing.",
+    }
 
+
+NUTRITION_BANDS = {
+    "race": "big", "long": "big",
+    "quality": "quality", "medium_long": "quality",
+    "easy": "easy",
+    "cross": "recovery", "rest": "recovery",
+}
+
+BAND_INTENT = {
+    "big": "High carb, low fat, calories at maintenance. Today's session needs fuelling, "
+           "so this is not the day to run a deficit.",
+    "quality": "High carb, moderate fat, a small deficit. Enough carbohydrate to hit the "
+               "paces without giving up the deficit entirely.",
+    "easy": "Moderate carb, higher fat, a real deficit. Aerobic work runs fine on less "
+            "carbohydrate.",
+    "recovery": "Lower carb, highest fat, the largest deficit. Nothing today needs "
+                "glycogen, so this is where the weekly deficit comes from.",
+}
+
+
+def nutrition(plan_entry: dict, energy: dict, config: dict) -> dict:
+    """Today's calorie and macro targets, built in a fixed order.
+
+    1. Protein is held flat at ``protein_per_lb`` regardless of the day, because
+       the point of it is preserving muscle in a deficit.
+    2. Fat gets a floor in g/lb that varies by day type, so it never drops to a
+       level that costs you hormonally just to make room for carbohydrate.
+    3. Carbohydrate takes every calorie left over.
+
+    That ordering is what makes the periodisation fall out automatically: hard days
+    have a bigger calorie budget and a lower fat floor, so carbohydrate absorbs
+    the difference. No separate carb rule is needed.
+    """
+    weight_lb = config.get("weight_lb")
+    protein_per_lb = config.get("protein_per_lb", 1.0)
+    maintenance = energy.get("maintenance")
+
+    kind = (plan_entry or {}).get("kind") or "easy"
+    miles = (plan_entry or {}).get("miles") or 0
+    band = NUTRITION_BANDS.get(kind, "easy")
+    # A genuinely long run earns the big-day treatment even if the plan calls it
+    # something else.
+    if miles >= 13:
+        band = "big"
+
+    deficits = config.get("deficit_by_day") or {}
+    fat_floors = config.get("fat_g_per_lb_by_day") or {}
+    adjustment = deficits.get(band, -300)
+    fat_per_lb = fat_floors.get(band, 0.45)
+
+    if not weight_lb or not maintenance:
+        return {
+            "band": band, "session_kind": kind, "planned_miles": miles,
+            "intent": BAND_INTENT.get(band),
+            "maintenance_kcal": maintenance, "target_kcal": None,
+            "protein_g": round(weight_lb * protein_per_lb) if weight_lb else None,
+            "carbs_g": None, "fat_g": None, "weight_lb": weight_lb,
+            "energy": energy,
+            "note": "Set weight_lb in config.json, and let the sync collect a complete day "
+                    "of Garmin calorie data, for gram targets.",
+        }
+
+    protein_g = round(weight_lb * protein_per_lb)
+    target_kcal = round(maintenance + adjustment)
+    fat_g = round(weight_lb * fat_per_lb)
+
+    protein_kcal = protein_g * 4
+    fat_kcal = fat_g * 9
+    carb_kcal = max(target_kcal - protein_kcal - fat_kcal, 0)
+    carbs_g = round(carb_kcal / 4)
+
+    weight_kg = weight_lb / 2.20462
     return {
         "band": band,
-        "carbs_per_kg": per_kg,
-        "carbs_grams": grams,
-        "protein_per_kg": baseline.get("protein", "1.6–2.0g/kg/day"),
-        "weight_kg": weight_kg,
-        "weight_configured": weight_kg is not None,
-        "race_day": fuel.get("race_day", {}),
-        "carb_load": fuel.get("carb_load", {}),
-        "note": "Carbohydrate targets derived from the day's planned session. "
-                "Calorie and macro *intake* is not tracked — Garmin carries no food log, "
-                "so the dashboard reports targets rather than inventing consumption data.",
+        "session_kind": kind,
+        "planned_miles": miles,
+        "intent": BAND_INTENT.get(band),
+        "maintenance_kcal": maintenance,
+        "adjustment_kcal": adjustment,
+        "target_kcal": target_kcal,
+        "protein_g": protein_g,
+        "carbs_g": carbs_g,
+        "fat_g": fat_g,
+        "split_pct": {
+            "protein": round(100 * protein_kcal / target_kcal),
+            "carbs": round(100 * carb_kcal / target_kcal),
+            "fat": round(100 * fat_kcal / target_kcal),
+        },
+        "per_kg": {
+            "protein": round(protein_g / weight_kg, 1),
+            "carbs": round(carbs_g / weight_kg, 1),
+            "fat": round(fat_g / weight_kg, 1),
+        },
+        "weight_lb": weight_lb,
+        "protein_per_lb": protein_per_lb,
+        "energy": energy,
+        "note": "Protein held flat at "
+                f"{protein_per_lb:g}g per lb. Fat floored by day type so it never drops too "
+                "low; carbohydrate takes the remaining calories, which is what makes hard "
+                "days high-carb and easy days higher-fat. Intake is not tracked — Garmin "
+                "carries no food log — so these are targets, not a record of what you ate.",
     }
+
+
+def nutrition_week(plan_days: dict, week_start: str, energy: dict, config: dict) -> list:
+    """The week's nutrition pattern, so the periodisation is visible at a glance."""
+    out = []
+    for offset in range(7):
+        try:
+            day = (datetime.fromisoformat(week_start).date() + timedelta(days=offset)).isoformat()
+        except Exception:
+            continue
+        entry = plan_days.get(day)
+        if not entry:
+            continue
+        target = nutrition(entry, energy, config)
+        out.append({
+            "date": day, "band": target["band"], "kind": entry.get("kind"),
+            "miles": entry.get("miles"),
+            "kcal": target["target_kcal"], "carbs_g": target["carbs_g"],
+            "protein_g": target["protein_g"], "fat_g": target["fat_g"],
+        })
+    return out
 
 
 # --------------------------------------------------------------------------
@@ -1070,14 +1189,15 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
     plan = plan if plan is not None else load_json(PLAN_JSON, {"days": {}, "race": {}})
     config = config if config is not None else load_json(CONFIG_JSON, {})
     if snapshots is None:
+        # Fitness age is deliberately not consumed: it's a soft Garmin guess with
+        # no bearing on any decision, and showing it invites arguing with it.
         snapshots = {name: store.snapshots(name)
-                     for name in ("max_metrics", "race_predictions", "fitness_age")}
+                     for name in ("max_metrics", "race_predictions")}
 
     weights = config.get("readiness_weights") or {
         "resting_hr": 25, "nocturnal_drop": 20, "sleep": 25,
         "body_battery": 15, "stress": 5, "training_load": 10}
     sleep_target = config.get("sleep_target_hours") or 7.5
-    weight_kg = config.get("weight_kg")
 
     history = [extract_day_metrics(d, days[d]) for d in sorted(days.keys())]
     as_of_iso = as_of.isoformat()
@@ -1116,8 +1236,7 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
     readiness_info = readiness(rhr_info, sleep_info, latest, load_info, weights,
                                nocturnal=nocturnal_info)
     garmin_info = garmin_metrics(snapshots.get("max_metrics") or {},
-                                 snapshots.get("race_predictions") or {},
-                                 snapshots.get("fitness_age") or {})
+                                 snapshots.get("race_predictions") or {})
     fitness = fitness_summary(activities, as_of)
     adherence_info = adherence(plan, activities, as_of)
 
@@ -1141,6 +1260,7 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
 
     today_entry = plan.get("days", {}).get(as_of_iso)
     current_week = next((w for w in adherence_info["weeks"] if w["status"] == "current"), None)
+    energy_info = energy_baseline(history, days)
 
     return {
         "meta": {
@@ -1193,7 +1313,10 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
         "completed_days": sorted(
             {d.isoformat() for d in (store.activity_date(a) for a in activities) if d}
         ),
-        "fuel": fuel_targets(plan, today_entry, weight_kg),
+        "nutrition": nutrition(today_entry, energy_info, config),
+        "nutrition_week": nutrition_week(plan.get("days", {}),
+                                        (current_week or {}).get("start") or as_of_iso,
+                                        energy_info, config),
         "plan_days": plan.get("days", {}),
     }
 

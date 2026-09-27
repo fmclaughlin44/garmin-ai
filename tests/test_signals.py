@@ -356,39 +356,52 @@ def test_build_produces_a_complete_payload_from_synthetic_data():
         day = as_of - timedelta(days=i)
         days[day.isoformat()] = make_day(day.isoformat(), rhr=50, sleep_hours=7.6,
                                          stress=25, bb_wake=80)
+        days[day.isoformat()]["stats"].update(
+            {"bmrKilocalories": 2200, "activeKilocalories": 600, "totalKilocalories": 2800})
         if day.weekday() in (1, 3, 6):
             activities.append(make_activity(day.isoformat(), 55, avg_hr=150,
                                             miles=6.0, activity_id=1000 + i))
     plan = {
         "race": {"name": "Marathon", "date": "2026-11-15", "goal": "Sub-3:45:00",
                  "goal_seconds": 13500},
-        "days": {as_of.isoformat(): {"session": "Long run 12mi easy", "target": "9:30/mi"}},
+        # The structured fields are what the plan really carries now: the
+        # nutrition and adaptive layers reason about kind and miles, not prose.
+        "days": {as_of.isoformat(): {"session": "Long run 12mi easy", "target": "9:30/mi",
+                                     "kind": "long", "miles": 12, "key": True, "lift": None}},
         "weeks": [{"week": 1, "phase": "Week 1", "headline": "h", "miles_target": 30,
                    "start": "2026-09-21", "end": "2026-09-27"}],
         "key_session_keywords": ["long run"],
         "paces": {"marathon": "8:35"},
-        "fuel": {"daily_baseline": {"protein": "1.6–2.0g/kg/day"}},
     }
-    result = signals.build(as_of=as_of, days=days, activities=activities,
-                           plan=plan, config={"weight_kg": 70, "sleep_target_hours": 7.5})
+    result = signals.build(
+        as_of=as_of, days=days, activities=activities, plan=plan, snapshots={},
+        config={"weight_lb": 180, "protein_per_lb": 1.0, "sleep_target_hours": 7.5,
+                "deficit_by_day": {"big": 0, "quality": -200, "easy": -400, "recovery": -450},
+                "fat_g_per_lb_by_day": {"big": 0.35, "quality": 0.40, "easy": 0.50,
+                                         "recovery": 0.55}})
 
     assert result["readiness"]["score"] is not None
     assert result["load"]["ratio"] is not None
     assert result["load"]["zone"] == "optimal"
     assert result["race"]["days_to_race"] == 48
     assert result["projection"]["predicted_seconds"] is not None
-    assert result["fuel"]["carbs_grams"] == 560  # long run day: 8g/kg x 70kg
+    # A 12-mile long run is a "big" day: maintenance calories, 1g/lb protein.
+    assert result["nutrition"]["band"] == "big"
+    assert result["nutrition"]["target_kcal"] == 2800
+    assert result["nutrition"]["protein_g"] == 180
+    assert result["nutrition"]["energy"]["maintenance"] == 2800
     assert result["meta"]["schema_version"] == 2
 
 
 def test_build_survives_a_completely_empty_store():
     """A first run, or a totally failed sync, must render rather than crash."""
     result = signals.build(as_of=date(2026, 9, 28), days={}, activities=[],
-                           plan={"race": {}, "days": {}}, config={})
+                           plan={"race": {}, "days": {}}, config={}, snapshots={})
     assert result["readiness"]["score"] is None
     assert result["load"]["ratio"] is None
     assert result["fitness"]["miles_28day"] == 0
-    assert result["fuel"]["carbs_grams"] is None
+    assert result["nutrition"]["target_kcal"] is None
+    assert result["nutrition"]["energy"]["maintenance"] is None
 
 
 def test_build_reports_unavailable_device_signals():
@@ -398,7 +411,7 @@ def test_build_reports_unavailable_device_signals():
             make_day((as_of - timedelta(days=i)).isoformat(), rhr=50, sleep_hours=7.5)
             for i in range(14)}
     result = signals.build(as_of=as_of, days=days, activities=[],
-                           plan={"race": {}, "days": {}}, config={})
+                           plan={"race": {}, "days": {}}, config={}, snapshots={})
     flagged = {item["signal"] for item in result["meta"]["unavailable_signals"]}
     assert "HRV" in flagged
     assert "Garmin Training Readiness" in flagged

@@ -23,10 +23,30 @@ Usage:
 import argparse
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parent
 PY = str(BASE / ".venv" / "bin" / "python")
+LOG_DIR = BASE / "logs"
+MAX_LOG_BYTES = 512 * 1024
+
+
+def rotate_logs() -> None:
+    """Keep the launchd logs from growing without bound.
+
+    launchd appends to StandardOutPath forever, so after a few months of daily
+    runs the log is megabytes of mostly-identical output. Anything over the cap
+    is moved aside to a single .1 file, which is enough history to debug a
+    failure without keeping a year of successes.
+    """
+    for name in ("daily_sync.log", "daily_sync.err.log"):
+        path = LOG_DIR / name
+        try:
+            if path.exists() and path.stat().st_size > MAX_LOG_BYTES:
+                path.replace(path.with_suffix(path.suffix + ".1"))
+        except OSError:
+            pass  # a log we can't rotate is not a reason to skip the sync
 
 
 def step(name: str, args: list, required: bool = True) -> bool:
@@ -50,6 +70,10 @@ def main() -> None:
     parser.add_argument("--skip-sync", action="store_true",
                         help="Rebuild from the store without hitting Garmin")
     args = parser.parse_args()
+
+    rotate_logs()
+    print(f"\n{'=' * 62}\nDaily run — {datetime.now().strftime('%A %d %B %Y, %H:%M')}\n{'=' * 62}",
+          flush=True)
 
     if not args.skip_sync:
         step("Sync Garmin", ["sync_garmin.py", "--days", str(args.days)], required=False)

@@ -96,26 +96,6 @@
     "intervals",
     "sharpener"
   ],
-  "fuel": {
-    "race_day": {
-      "carbs_per_hour": "60\u201375g",
-      "fluid": "500\u2013750ml/hr, more if warm",
-      "sodium": "300\u2013600mg/hr",
-      "pre_race": "2\u20132.5g/kg carbs, 3hrs out; nothing new on race morning",
-      "notes": "You rehearsed 60\u201390g/hr on the 70.3 bike \u2014 running tolerates less than riding. Hold 60\u201375g/hr and practice it on every long run from Week 4."
-    },
-    "carb_load": {
-      "window": "72hrs out (Thu\u2013Sat of race week)",
-      "target": "8\u201310g carbs per kg bodyweight per day",
-      "notes": "Volume is already low in race week, so the extra carbs go to glycogen rather than fatigue."
-    },
-    "daily_baseline": {
-      "protein": "1.6\u20132.0g/kg/day",
-      "carbs_easy_day": "4\u20135g/kg",
-      "carbs_quality_day": "6\u20137g/kg",
-      "carbs_long_run_day": "8g/kg"
-    }
-  },
   "days": {
     "2026-09-21": {
       "session": "Rest or 30min easy spin. Nothing hard.",
@@ -734,6 +714,6 @@
       "week_miles_target": 45.2
     }
   },
-  "generated_at": "2026-09-27T14:38:04",
+  "generated_at": "2026-09-27T15:30:41",
   "generated_by": "plan/build_plan.py"
 }

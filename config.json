@@ -1,13 +1,31 @@
 {
-  "_comment": "Athlete parameters that can't be derived from Garmin data. Anything left null is either estimated from your own history or reported as unavailable -- nothing is silently guessed.",
-  "weight_kg": null,
+  "_comment": "Athlete parameters that can't be derived from Garmin data. Anything left null is either measured from your own history or reported as unavailable -- nothing is guessed.",
+
+  "weight_lb": 180,
+  "protein_per_lb": 1.0,
+
+  "_nutrition_comment": "Calorie targets are built from Garmin's MEASURED total daily energy expenditure (bmrKilocalories + activeKilocalories), not an estimated TDEE. Protein is held flat at protein_per_lb. Fat has a per-day floor in g/lb so it never drops to an unhealthy level; carbohydrate takes whatever calories are left, which is what makes hard days high-carb and easy days higher-fat automatically.",
+  "deficit_by_day": {
+    "big":      0,
+    "quality": -200,
+    "easy":    -400,
+    "recovery": -450
+  },
+  "fat_g_per_lb_by_day": {
+    "big":      0.35,
+    "quality":  0.40,
+    "easy":     0.50,
+    "recovery": 0.55
+  },
+
   "hr_max": null,
   "sleep_target_hours": 7.5,
   "readiness_weights": {
-    "resting_hr": 30,
-    "sleep": 30,
+    "resting_hr": 25,
+    "nocturnal_drop": 20,
+    "sleep": 25,
     "body_battery": 15,
-    "stress": 10,
-    "training_load": 15
+    "stress": 5,
+    "training_load": 10
   }
 }

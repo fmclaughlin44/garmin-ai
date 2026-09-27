@@ -331,10 +331,35 @@
   .minibar > i { display: block; height: 100%; background: var(--series-1); border-radius: 999px; }
   @media (max-width: 700px) { .blockrow { grid-template-columns: 30px 1fr 80px; } .blockrow .minibar-wrap { display: none; } }
 
+  .demo-banner {
+    background: color-mix(in srgb, var(--warning) 16%, var(--surface-1));
+    border: 1px solid var(--warning);
+    border-radius: 9px;
+    padding: 12px 15px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--text-primary);
+  }
+  .demo-banner code { font-family: var(--mono); font-size: 12.5px; }
+
+  .macros { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .macro { display: grid; grid-template-columns: 58px 1fr 76px; gap: 10px; align-items: center; }
+  .macro .m-lab { font-size: 12px; color: var(--text-secondary); }
+  .macro .m-track { height: 8px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+  .macro .m-track > i { display: block; height: 100%; border-radius: 999px; }
+  .macro .m-val { font-family: var(--mono); font-size: 13px; text-align: right; }
+  .macro .m-val span { color: var(--muted); font-size: 11px; }
+
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 
 <div class="page">
+
+  <div class="demo-banner" id="demo-banner" hidden>
+    <strong>Synthetic demo data.</strong> Every number on this page is fabricated by
+    <code>make_demo_data.py</code> for a made-up athlete. It is not anyone's real training
+    or health data. The real dashboard runs locally against a live Garmin sync.
+  </div>
 
   <header class="masthead">
     <div>
@@ -534,30 +559,49 @@
     </div>
   </section>
 
-  <!-- ============ 7. PACES & FUEL ============ -->
+  <!-- ============ 7. PACES & NUTRITION ============ -->
   <section class="section">
     <div class="section-head">
-      <h2>Paces and fuel</h2>
-      <span class="hint">Every pace derived from the one goal time</span>
+      <h2>Nutrition</h2>
+      <span class="hint" id="nut-hint"></span>
+    </div>
+    <div class="grid-side">
+      <div class="card">
+        <h2>Today's targets</h2>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:2px">
+          <div id="nut-kcal" style="font-family:var(--mono);font-size:38px;font-weight:500;letter-spacing:-0.02em"></div>
+          <div style="font-size:13px;color:var(--muted)">kcal</div>
+        </div>
+        <div id="nut-band"></div>
+        <div class="macros" id="nut-macros"></div>
+        <div class="verdict" id="nut-intent" style="margin-top:12px"></div>
+        <p class="note" id="nut-note" style="margin:12px 0 0"></p>
+      </div>
+      <div class="section" style="gap:14px">
+        <div class="card">
+          <h2>Where maintenance comes from</h2>
+          <dl class="kv" id="nut-energy"></dl>
+          <p class="note" id="nut-energy-note" style="margin:10px 0 0"></p>
+        </div>
+        <div class="card">
+          <div class="chart-head">
+            <div>
+              <h2 style="margin-bottom:2px">This week's pattern</h2>
+              <div class="chart-note">Carbohydrate follows the training. Protein is flat; fat fills the gap on easy days.</div>
+            </div>
+            <div class="legend">
+              <span><i class="swatch" style="background:var(--series-1)"></i>Carbs</span>
+              <span><i class="swatch" style="background:var(--series-3)"></i>Protein</span>
+              <span><i class="swatch" style="background:var(--series-2)"></i>Fat</span>
+            </div>
+          </div>
+          <div class="scroll-x" id="table-nutrition"></div>
+        </div>
+      </div>
     </div>
     <div class="card">
-      <h2>Training paces</h2>
+      <h2>Training paces — derived from the goal time</h2>
       <div class="pacegrid" id="pacegrid"></div>
-    </div>
-    <div class="grid-3">
-      <div class="card">
-        <h2>Today's carbohydrate</h2>
-        <div id="fuel-today"></div>
-        <p class="note" id="fuel-note" style="margin:12px 0 0"></p>
-      </div>
-      <div class="card">
-        <h2>Race-day fuelling</h2>
-        <dl class="kv" id="fuel-race"></dl>
-      </div>
-      <div class="card">
-        <h2>Carb load</h2>
-        <dl class="kv" id="fuel-load"></dl>
-      </div>
     </div>
   </section>
 
@@ -1133,8 +1177,9 @@ function renderStanding(d) {
   $("p-note").textContent = p.bracket_note || p.note || "";
 
   const tiles = $("fit-tiles"); tiles.replaceChildren();
-  tiles.appendChild(tile("VO₂ max", nn(g.vo2_max),
-    has(g.vo2_trend) ? `${g.vo2_trend > 0 ? "+" : ""}${g.vo2_trend} over the window` : "Garmin estimate",
+  tiles.appendChild(tile("VO₂ max (Garmin)", nn(g.vo2_max),
+    has(g.vo2_trend) ? `${g.vo2_trend > 0 ? "+" : ""}${g.vo2_trend} trend · Garmin's estimate`
+                     : "Garmin's own estimate",
     g.vo2_trend > 0 ? "good" : g.vo2_trend < 0 ? "warning" : null));
   tiles.appendChild(tile("28-day miles", nn(f.miles_28day), `${nn(f.runs_28day)} runs`));
   tiles.appendChild(tile("Longest run", has(f.longest_run_28day) ? f.longest_run_28day + " mi" : null, "last 28 days"));
@@ -1143,10 +1188,6 @@ function renderStanding(d) {
     has(f.efficiency_trend_pct) ? `${f.efficiency_trend_pct > 0 ? "+" : ""}${f.efficiency_trend_pct}% — speed per heartbeat`
       : "speed per heartbeat",
     f.efficiency_trend_pct > 0 ? "good" : f.efficiency_trend_pct < 0 ? "warning" : null));
-  if (g.fitness_age && has(g.fitness_age.fitness_age)) {
-    tiles.appendChild(tile("Fitness age", g.fitness_age.fitness_age,
-      `chronological ${g.fitness_age.chronological_age}`, "good"));
-  }
 
   table($("table-runs"),
     [{ key: "date", label: "Date" }, { key: "name", label: "Run" }, { key: "miles", label: "Miles", num: true },
@@ -1193,7 +1234,68 @@ function renderBlock(d) {
   });
 }
 
-function renderPacesFuel(d) {
+function renderNutrition(d) {
+  const n = d.nutrition || {}, e = n.energy || {};
+
+  $("nut-kcal").textContent = nn(n.target_kcal);
+  $("nut-hint").textContent = has(n.maintenance_kcal)
+    ? `Maintenance measured at ${n.maintenance_kcal} kcal from your own Garmin data`
+    : "Waiting on a complete day of Garmin calorie data";
+
+  const bandLabel = { big: "big training day", quality: "quality day",
+                      easy: "easy day", recovery: "recovery day" }[n.band] || n.band;
+  const bandTone = { big: "good", quality: "good", easy: "moderate", recovery: "moderate" }[n.band];
+  const bandWrap = $("nut-band"); bandWrap.replaceChildren();
+  bandWrap.appendChild(badge(bandTone || "unknown", bandLabel || "—"));
+  if (has(n.adjustment_kcal)) {
+    const delta = el("span", { class: "seg" },
+      n.adjustment_kcal === 0 ? "at maintenance" : `${n.adjustment_kcal} kcal deficit`);
+    delta.style.cssText = "margin-left:10px;font-family:var(--mono);font-size:12.5px;color:var(--text-secondary)";
+    bandWrap.appendChild(delta);
+  }
+
+  const macros = $("nut-macros"); macros.replaceChildren();
+  const split = n.split_pct || {}, perKg = n.per_kg || {};
+  [["Carbs", n.carbs_g, split.carbs, perKg.carbs, "var(--series-1)"],
+   ["Protein", n.protein_g, split.protein, perKg.protein, "var(--series-3)"],
+   ["Fat", n.fat_g, split.fat, perKg.fat, "var(--series-2)"]].forEach(([label, grams, pct, gkg, color]) => {
+    const row = el("div", { class: "macro" });
+    row.appendChild(el("div", { class: "m-lab" }, label));
+    const track = el("div", { class: "m-track" }), fill = el("i");
+    fill.style.width = (pct || 0) + "%"; fill.style.background = color;
+    track.appendChild(fill); row.appendChild(track);
+    const val = el("div", { class: "m-val" });
+    val.appendChild(el("span", {}, has(pct) ? pct + "%  " : ""));
+    val.appendChild(document.createTextNode(has(grams) ? grams + "g" : "—"));
+    row.appendChild(val);
+    macros.appendChild(row);
+  });
+
+  $("nut-intent").textContent = nn(n.intent, "");
+  $("nut-note").textContent = nn(n.note, "");
+
+  kv($("nut-energy"), [
+    ["Measured maintenance", has(e.maintenance) ? e.maintenance + " kcal/day" : null],
+    ["Resting (BMR)", has(e.bmr) ? e.bmr + " kcal" : null],
+    ["Average active", has(e.avg_active) ? e.avg_active + " kcal" : null],
+    ["Observed range", e.range ? `${e.range[0]} – ${e.range[1]} kcal` : null],
+    ["Complete days used", e.days_used || null],
+    ["Bodyweight", has(n.weight_lb) ? n.weight_lb + " lb" : null],
+    ["Protein rule", has(n.protein_per_lb) ? `${n.protein_per_lb}g per lb` : null],
+  ]);
+  $("nut-energy-note").textContent = nn(e.note, "");
+
+  const week = (d.nutrition_week || []).map((r) => ({
+    ...r,
+    day: `${dowName(r.date)} ${shortDate(r.date)}`,
+    session: `${r.kind}${r.miles ? " " + r.miles + "mi" : ""}`,
+  }));
+  table($("table-nutrition"),
+    [{ key: "day", label: "Day" }, { key: "session", label: "Session" },
+     { key: "band", label: "Band" }, { key: "kcal", label: "kcal", num: true },
+     { key: "carbs_g", label: "Carbs g", num: true }, { key: "protein_g", label: "Protein g", num: true },
+     { key: "fat_g", label: "Fat g", num: true }], week);
+
   const grid = $("pacegrid"); grid.replaceChildren();
   [["marathon", "Marathon pace"], ["threshold", "Threshold"], ["interval", "Interval"],
    ["long", "Long run"], ["easy", "Easy"], ["half", "Half pace"]].forEach(([key, label]) => {
@@ -1203,19 +1305,6 @@ function renderPacesFuel(d) {
     cell.appendChild(el("div", { class: "val" }, d.paces[key] + "/mi"));
     grid.appendChild(cell);
   });
-
-  const fuel = d.fuel || {};
-  const ft = $("fuel-today"); ft.replaceChildren();
-  const tiles = el("div", { class: "tiles" });
-  tiles.appendChild(tile("Session type", fuel.band || "—"));
-  tiles.appendChild(tile("Carbohydrate", fuel.carbs_per_kg ? fuel.carbs_per_kg + " g/kg" : null,
-    fuel.carbs_grams ? fuel.carbs_grams + " g total" : "set weight_kg in config.json for grams"));
-  tiles.appendChild(tile("Protein", fuel.protein_per_kg || null, "every day"));
-  ft.appendChild(tiles);
-  $("fuel-note").textContent = nn(fuel.note, "");
-
-  kv($("fuel-race"), Object.entries(fuel.race_day || {}).map(([k, v]) => [k.replace(/_/g, " "), v]));
-  kv($("fuel-load"), Object.entries(fuel.carb_load || {}).map(([k, v]) => [k.replace(/_/g, " "), v]));
 }
 
 function renderCoach(d) {
@@ -1265,6 +1354,13 @@ function renderProvenance(d) {
   }
 }
 
+function renderDemoBanner(d) {
+  // Hidden unless the payload says it is synthetic. A footer note was not enough:
+  // it sat below several screens of charts, so the page read as real data.
+  $("demo-banner").hidden = !d.demo;
+  if (d.demo) document.title = "DEMO — " + document.title;
+}
+
 function renderFooter(d) {
   const m = d.meta || {}, c = m.store_coverage || {};
   const parts = [
@@ -1279,9 +1375,9 @@ function renderFooter(d) {
 
 /* ------------------------------------------------------------------ boot */
 function render(d) {
-  renderHeader(d); renderWeek(d); renderReadiness(d); renderForm(d);
+  renderDemoBanner(d); renderHeader(d); renderWeek(d); renderReadiness(d); renderForm(d);
   renderRecoveryCharts(d); renderStanding(d); renderBlock(d);
-  renderPacesFuel(d); renderCoach(d); renderProvenance(d); renderFooter(d);
+  renderNutrition(d); renderCoach(d); renderProvenance(d); renderFooter(d);
 }
 if (DATA) {
   try { render(DATA); }
