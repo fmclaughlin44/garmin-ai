@@ -269,7 +269,7 @@
   /* ============ the week: the anchor of the page ============ */
 
   .week-card { background: var(--surface-1); border: 1px solid var(--border-strong); border-radius: 12px; padding: 20px 22px; }
-  .week-top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-start; justify-content: space-between; margin-bottom: 4px; }
+  .week-top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-start; justify-content: space-between; }
   .week-title { font-size: 20px; font-weight: 700; letter-spacing: -0.012em; margin: 0; }
   .week-sub { font-size: 13.5px; color: var(--text-secondary); margin-top: 3px; max-width: 62ch; }
   .week-progress { display: flex; gap: 22px; flex-wrap: wrap; }
@@ -277,31 +277,93 @@
   .wp .n { font-family: var(--mono); font-size: 21px; font-weight: 500; letter-spacing: -0.015em; }
   .wp .l { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
 
-  .week-days { margin-top: 16px; display: flex; flex-direction: column; }
-  .wd { display: grid; grid-template-columns: 74px 1fr 92px; gap: 14px; padding: 12px 0;
-        border-top: 1px solid var(--border); align-items: start; }
-  .wd:first-child { border-top: none; }
-  .wd.is-today { background: color-mix(in srgb, var(--series-1) 7%, transparent);
-                 margin-inline: -22px; padding-inline: 22px; border-radius: 8px; border-top-color: transparent; }
-  .wd-when { font-family: var(--mono); font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 7px; padding-top: 2px; }
-  .wd.is-today .wd-when { font-weight: 500; color: var(--series-1); }
-  .wd-session { font-size: 14.5px; line-height: 1.45; }
-  .wd-target { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin-top: 3px; }
-  .wd-metric { text-align: right; font-family: var(--mono); font-size: 12px; color: var(--text-secondary); padding-top: 2px; }
-  .wd-metric .pct { font-size: 10.5px; color: var(--muted); display: block; }
-  .wd-lift { display: inline-block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em;
-             padding: 1px 6px; border-radius: 3px; background: var(--surface-2); color: var(--text-secondary); margin-left: 7px; vertical-align: 1px; }
+  /* week navigation */
+  .week-nav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .week-nav .range-label { font-family: var(--mono); font-size: 12.5px; color: var(--text-secondary); }
+  .week-nav .spacer { flex: 1 1 auto; }
+  button.navbtn {
+    appearance: none; font-family: inherit; font-size: 13px; line-height: 1;
+    width: 30px; height: 30px; border-radius: 7px; cursor: pointer;
+    background: var(--surface-1); color: var(--text-primary);
+    border: 1px solid var(--border-strong);
+  }
+  button.navbtn:hover:not(:disabled) { background: var(--surface-2); }
+  button.navbtn:disabled { opacity: 0.35; cursor: default; }
+  button.navbtn:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
 
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
-  .s-done { background: var(--good); }
-  .s-moved { background: var(--series-2); }
-  .s-short { background: var(--warning); }
-  .s-missed { background: var(--border-strong); }
-  .s-today { background: var(--series-1); box-shadow: 0 0 0 3px color-mix(in srgb, var(--series-1) 22%, transparent); }
-  .s-rest, .s-upcoming { background: transparent; border: 1px solid var(--border-strong); }
+  /* the calendar itself: seven columns, Monday to Sunday */
+  .cal-scroll { overflow-x: auto; margin-inline: -22px; padding-inline: 22px; }
+  .cal {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 2px;                      /* 2px surface gap between cells */
+    min-width: 0;
+  }
+  @media (max-width: 860px) {
+    /* Keep the left-to-right calendar reading and let it scroll, rather than
+       collapsing into a list and losing the shape of the week. */
+    .cal { grid-template-columns: repeat(7, 132px); }
+  }
+  .cal-day {
+    background: var(--page);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 10px 11px 12px;
+    display: flex; flex-direction: column; gap: 6px;
+    min-height: 132px;
+  }
+  .cal-day.is-today {
+    background: color-mix(in srgb, var(--series-1) 8%, var(--surface-1));
+    border-color: var(--series-1);
+  }
+  .cal-day.is-past { opacity: 0.92; }
+  .cal-head { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+  .cal-dow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); }
+  .cal-day.is-today .cal-dow { color: var(--series-1); }
+  .cal-date { font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+
+  .cal-mark { display: flex; align-items: center; gap: 5px; font-size: 11px; }
+  .cal-mark .glyph { font-size: 13px; line-height: 1; }
+  .cal-mark .word { color: var(--text-secondary); }
+  /* Status is never colour alone: each state ships a glyph and a word. */
+  .m-done  .glyph, .m-done  .word { color: var(--good); }
+  .m-moved .glyph, .m-moved .word { color: var(--series-2); }
+  .m-short .glyph, .m-short .word { color: var(--warning); }
+  .m-missed .glyph, .m-missed .word { color: var(--muted); }
+  .m-today .glyph, .m-today .word { color: var(--series-1); font-weight: 600; }
+  .m-rest  .glyph, .m-rest  .word { color: var(--muted); }
+  .m-upcoming .glyph, .m-upcoming .word { color: var(--muted); }
+  .m-shifted .glyph, .m-shifted .word { color: var(--series-2); }
+
+  .cal-session { font-size: 12.5px; line-height: 1.4; flex: 1 1 auto; }
+  .cal-target { font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+  .cal-miles { font-family: var(--mono); font-size: 11.5px; color: var(--text-secondary); }
+  .cal-lift {
+    display: inline-block; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 1px 5px; border-radius: 3px; background: var(--surface-2); color: var(--text-secondary);
+  }
+  .cal-adjusted {
+    font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;
+    color: var(--warning);
+  }
+
+  /* coming up next, so a session never hides behind a week boundary */
+  .comingup { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 13px; }
+  .comingup h4 {
+    font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--muted); margin: 0 0 8px;
+  }
+  .cu-list { display: flex; gap: 10px; flex-wrap: wrap; }
+  .cu {
+    flex: 1 1 200px; background: var(--page); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 11px;
+  }
+  .cu .when { font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+  .cu.next .when { color: var(--series-1); font-weight: 500; }
+  .cu .what { font-size: 12.5px; line-height: 1.4; margin-top: 2px; }
 
   /* suggested vs original */
-  .swap { margin-top: 10px; border: 1px solid var(--warning); border-radius: 9px; overflow: hidden;
+  .swap { margin-top: 14px; border: 1px solid var(--warning); border-radius: 9px; overflow: hidden;
           background: color-mix(in srgb, var(--warning) 7%, transparent); }
   .swap-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 12px;
                font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary);
@@ -455,6 +517,14 @@
     </div>
 
     <div class="week-card">
+      <div class="week-nav">
+        <button type="button" class="navbtn" id="wk-prev" aria-label="Previous week">&#8249;</button>
+        <button type="button" class="navbtn" id="wk-next" aria-label="Next week">&#8250;</button>
+        <span class="range-label" id="wk-range"></span>
+        <span class="spacer"></span>
+        <button type="button" class="btn" id="wk-today" hidden>Back to this week</button>
+      </div>
+
       <div class="week-top">
         <div>
           <h3 class="week-title" id="wk-title">—</h3>
@@ -462,7 +532,17 @@
         </div>
         <div class="week-progress" id="wk-progress"></div>
       </div>
-      <div class="week-days" id="wk-days"></div>
+
+      <div class="cal-scroll">
+        <div class="cal" id="wk-cal"></div>
+      </div>
+
+      <div id="wk-swap"></div>
+
+      <div class="comingup" id="wk-comingup" hidden>
+        <h4>Coming up next</h4>
+        <div class="cu-list" id="cu-list"></div>
+      </div>
     </div>
 
     <div class="card" id="adapt-card">
@@ -1136,66 +1216,151 @@ const windowKeys = (obj) => Object.keys(obj || {}).sort().slice(-RANGE_DAYS);
 const windowRows = (rows) => (rows || []).slice(-RANGE_DAYS);
 
 /* ---- the week: front and centre ---- */
+/* ---- the week calendar: Monday to Sunday, left to right ---- */
+
+let WEEK_INDEX = 0;         // which plan week is on screen
+let CURRENT_WEEK_INDEX = 0; // the one containing today
+
+// Each status gets a glyph AND a word, so state never rests on colour alone.
+const MARK = {
+  done:     { glyph: "\u2713", word: "done" },
+  moved:    { glyph: "\u2197", word: "moved" },
+  short:    { glyph: "\u2248", word: "cut short" },
+  missed:   { glyph: "\u2715", word: "missed" },
+  today:    { glyph: "\u25CF", word: "today" },
+  rest:     { glyph: "\u00B7", word: "rest" },
+  upcoming: { glyph: "\u25CB", word: "" },
+  shifted:  { glyph: "\u2192", word: "shifted" },
+};
+
+function dayCell(d, iso, entry) {
+  const matching = d.matching || {}, today = d.meta.as_of;
+  const match = matching[iso] || {};
+  const isToday = iso === today;
+  const isPast = iso < today;
+
+  let state = match.status || "upcoming";
+  if (isToday && state !== "done") state = "today";
+  if (state === "rest" && match.actual_miles) state = "moved";
+  // A run whose mileage was credited to another day reads as "shifted", not as
+  // an extra session -- its distance is counted once, on the day it filled.
+  if (match.moved_to) state = "shifted";
+
+  const cell = el("div", { class: "cal-day"
+    + (isToday ? " is-today" : "") + (isPast ? " is-past" : "") });
+
+  const head = el("div", { class: "cal-head" });
+  head.appendChild(el("div", { class: "cal-dow" }, dowName(iso)));
+  head.appendChild(el("div", { class: "cal-date" }, shortDate(iso)));
+  cell.appendChild(head);
+
+  const mark = MARK[state] || MARK.upcoming;
+  const markRow = el("div", { class: "cal-mark m-" + state });
+  markRow.appendChild(el("span", { class: "glyph", "aria-hidden": "true" }, mark.glyph));
+  if (mark.word) markRow.appendChild(el("span", { class: "word" }, mark.word));
+  if (match.moved_from) markRow.title = `Filled by the run on ${match.moved_from}`;
+  if (match.moved_to) markRow.title = `Ran here; counted against ${match.moved_to}`;
+  cell.appendChild(markRow);
+
+  cell.appendChild(el("div", { class: "cal-session" }, entry.session));
+
+  if (entry.target) cell.appendChild(el("div", { class: "cal-target" }, entry.target));
+
+  const footer = el("div", { class: "cal-mark", style: "gap:7px;flex-wrap:wrap" });
+  if (entry.miles > 0) {
+    footer.appendChild(el("span", { class: "cal-miles" },
+      match.actual_miles ? `${match.actual_miles} / ${entry.miles}mi` : `${entry.miles} mi`));
+  } else if (match.moved_to) {
+    footer.appendChild(el("span", { class: "cal-miles" },
+      `ran ${match.moved_miles} mi \u2192 ${dowName(match.moved_to)}`));
+  } else if (match.actual_miles) {
+    footer.appendChild(el("span", { class: "cal-miles" }, `${match.actual_miles} mi unplanned`));
+  }
+  if (entry.lift) footer.appendChild(el("span", { class: "cal-lift" }, LIFT_LABEL[entry.lift] || entry.lift));
+  if (footer.children.length) cell.appendChild(footer);
+
+  // A day whose session was adjusted is flagged here; the full
+  // suggested-versus-original comparison sits below the calendar, where there is
+  // room to read both.
+  const suggestionKey = isToday ? "today" : iso === addDays(today, 1) ? "tomorrow" : null;
+  const suggestion = suggestionKey ? ((d.adaptation || {}).suggestions || {})[suggestionKey] : null;
+  if (suggestion && suggestion.changed) {
+    cell.appendChild(el("div", { class: "cal-adjusted" }, "adjusted \u2193"));
+  }
+  return cell;
+}
+
 function renderWeek(d) {
-  const week = (d.today && d.today.week) || null;
+  const weeks = (d.adherence || {}).weeks || [];
   const planDays = d.plan_days || {};
-  const matching = d.matching || {};
-  const adaptation = d.adaptation || {};
   const today = d.meta.as_of;
 
-  if (!week) {
-    $("wk-title").textContent = "No plan week covers today";
+  if (!weeks.length) {
+    $("wk-title").textContent = "No plan loaded";
     return;
   }
 
+  const currentIdx = weeks.findIndex((w) => w.status === "current");
+  CURRENT_WEEK_INDEX = currentIdx >= 0 ? currentIdx : 0;
+  if (!Number.isInteger(WEEK_INDEX) || WEEK_INDEX < 0 || WEEK_INDEX >= weeks.length) {
+    WEEK_INDEX = CURRENT_WEEK_INDEX;
+  }
+  const week = weeks[WEEK_INDEX];
+
+  $("week-hint").textContent =
+    `week ${week.week} of ${weeks.length} · block ${shortDate(weeks[0].start)} – ${shortDate(weeks[weeks.length - 1].end)}`;
+  $("wk-range").textContent =
+    `${shortDate(week.start)} – ${shortDate(week.end)}` +
+    (WEEK_INDEX === CURRENT_WEEK_INDEX ? " · this week"
+      : WEEK_INDEX === CURRENT_WEEK_INDEX + 1 ? " · next week"
+      : WEEK_INDEX < CURRENT_WEEK_INDEX ? " · past" : " · upcoming");
   $("wk-title").textContent = week.phase;
   $("wk-sub").textContent = week.headline || "";
-  $("week-hint").textContent =
-    `${shortDate(week.start)} – ${shortDate(week.end)} · week ${week.week} of ${(d.block || {}).weeks || 8}`;
 
-  const done = week.key_sessions_done, due = week.key_sessions_due;
+  const prev = $("wk-prev"), next = $("wk-next"), backToToday = $("wk-today");
+  prev.disabled = WEEK_INDEX === 0;
+  next.disabled = WEEK_INDEX === weeks.length - 1;
+  backToToday.hidden = WEEK_INDEX === CURRENT_WEEK_INDEX;
+
   const prog = $("wk-progress"); prog.replaceChildren();
   [[`${week.miles_actual}`, `of ${week.miles_target} mi`],
-   [`${done}/${due}`, "key sessions"]].forEach(([n, l]) => {
+   [`${week.key_sessions_done}/${week.key_sessions_due}`, "key sessions"]].forEach(([n, l]) => {
     const cell = el("div", { class: "wp" });
     cell.appendChild(el("div", { class: "n" }, n));
     cell.appendChild(el("div", { class: "l" }, l));
     prog.appendChild(cell);
   });
 
-  const mount = $("wk-days"); mount.replaceChildren();
+  const cal = $("wk-cal"); cal.replaceChildren();
   for (let i = 0; i < 7; i++) {
     const iso = addDays(week.start, i);
     const entry = planDays[iso];
-    if (!entry) continue;
-    const match = matching[iso] || {};
-    const isToday = iso === today;
+    if (!entry) {
+      const blank = el("div", { class: "cal-day" });
+      const head = el("div", { class: "cal-head" });
+      head.appendChild(el("div", { class: "cal-dow" }, dowName(iso)));
+      head.appendChild(el("div", { class: "cal-date" }, shortDate(iso)));
+      blank.appendChild(head);
+      blank.appendChild(el("div", { class: "cal-session note" }, "Outside the plan"));
+      cal.appendChild(blank);
+      continue;
+    }
+    cal.appendChild(dayCell(d, iso, entry));
+  }
 
-    const row = el("div", { class: "wd" + (isToday ? " is-today" : "") });
-
-    const when = el("div", { class: "wd-when" });
-    const state = isToday && match.status !== "done" ? "today" : (match.status || "upcoming");
-    when.appendChild(el("i", { class: "status-dot s-" + state }));
-    when.appendChild(el("span", {}, `${dowName(iso)} ${shortDate(iso)}`));
-    row.appendChild(when);
-
-    const body = el("div");
-    const session = el("div", { class: "wd-session" });
-    session.appendChild(el("span", {}, entry.session));
-    if (entry.lift) session.appendChild(el("span", { class: "wd-lift" }, LIFT_LABEL[entry.lift] || entry.lift));
-    body.appendChild(session);
-    if (entry.target) body.appendChild(el("div", { class: "wd-target" }, entry.target));
-
-    // The suggestion sits beside the original, never replacing it.
-    const suggestionKey = iso === today ? "today" : iso === addDays(today, 1) ? "tomorrow" : null;
-    const suggestion = suggestionKey ? (adaptation.suggestions || {})[suggestionKey] : null;
-    if (suggestion && suggestion.changed) {
+  // The adjusted-session comparison, only while the current week is on screen:
+  // adaptation covers today and tomorrow, so it is meaningless on other weeks.
+  const swapMount = $("wk-swap"); swapMount.replaceChildren();
+  if (WEEK_INDEX === CURRENT_WEEK_INDEX) {
+    ["today", "tomorrow"].forEach((key) => {
+      const suggestion = ((d.adaptation || {}).suggestions || {})[key];
+      if (!suggestion || !suggestion.changed) return;
       const swap = el("div", { class: "swap" });
       const head = el("div", { class: "swap-head" });
-      head.appendChild(el("span", {}, "Adjusted for today's recovery"));
+      head.appendChild(el("span", {}, `${key} \u00b7 ${dowName(suggestion.date)} ${shortDate(suggestion.date)} adjusted for recovery`));
       (suggestion.reasons || []).forEach((r) => head.appendChild(el("span", { class: "chip" }, r)));
       swap.appendChild(head);
-      const sbody = el("div", { class: "swap-body" });
+      const body = el("div", { class: "swap-body" });
       const orig = el("div");
       orig.appendChild(el("div", { class: "swap-label" }, "Original plan"));
       orig.appendChild(el("div", { class: "swap-session" }, suggestion.original.session));
@@ -1203,44 +1368,66 @@ function renderWeek(d) {
       sug.appendChild(el("div", { class: "swap-label" }, "Suggested"));
       sug.appendChild(el("div", { class: "swap-session" }, suggestion.suggested.session));
       if (suggestion.suggested.lift_note) {
-        sug.appendChild(el("div", { class: "wd-target" }, suggestion.suggested.lift_note));
+        sug.appendChild(el("div", { class: "cal-target" }, suggestion.suggested.lift_note));
       }
-      sbody.appendChild(orig); sbody.appendChild(sug);
-      swap.appendChild(sbody);
-      body.appendChild(swap);
-    }
-    row.appendChild(body);
-
-    const metric = el("div", { class: "wd-metric" });
-    if (entry.miles > 0) {
-      const word = STATUS_WORD[match.status] || "";
-      metric.appendChild(el("span", {}, match.actual_miles
-        ? `${match.actual_miles} / ${entry.miles}mi` : `${entry.miles} mi`));
-      if (word) metric.appendChild(el("span", { class: "pct" }, word));
-    } else if (match.actual_miles) {
-      metric.appendChild(el("span", {}, `${match.actual_miles} mi`));
-      metric.appendChild(el("span", { class: "pct" }, "unplanned"));
-    }
-    row.appendChild(metric);
-    mount.appendChild(row);
+      body.appendChild(orig); body.appendChild(sug);
+      swap.appendChild(body);
+      swapMount.appendChild(swap);
+    });
   }
+
+  renderComingUp(d);
 
   // Triggers
   const trig = $("adapt-triggers"); trig.replaceChildren();
-  (adaptation.triggers || []).forEach((t) => {
+  const adaptation = d.adaptation || {};
+  (adaptation.triggers || []).forEach((tr) => {
     const row = el("div", { class: "trig" });
-    const tag = el("span", { class: "trig-tag" }, t.trigger);
-    const color = STATUS[t.severity] || "var(--muted)";
+    const tag = el("span", { class: "trig-tag" }, tr.trigger);
+    const color = STATUS[tr.severity] || "var(--muted)";
     tag.style.background = `color-mix(in srgb, ${color} 15%, transparent)`;
     tag.style.color = color;
     row.appendChild(tag);
-    row.appendChild(el("span", { class: "trig-eff" }, t.effect));
+    row.appendChild(el("span", { class: "trig-eff" }, tr.effect));
     trig.appendChild(row);
   });
   if (!(adaptation.triggers || []).length) {
     trig.appendChild(el("div", { class: "note" }, "No adjustments triggered — the plan stands as written."));
   }
   $("adapt-note").textContent = adaptation.note || "";
+}
+
+/* The next few sessions, ignoring week boundaries. On the last day of a week the
+   calendar alone hides tomorrow behind a click; this makes sure it never does. */
+function renderComingUp(d) {
+  const planDays = d.plan_days || {}, today = d.meta.as_of;
+  const upcoming = Object.keys(planDays).filter((iso) => iso > today).sort().slice(0, 3);
+  const wrap = $("wk-comingup"), list = $("cu-list");
+  if (!upcoming.length) { wrap.hidden = true; return; }
+
+  list.replaceChildren();
+  upcoming.forEach((iso, i) => {
+    const entry = planDays[iso];
+    const card = el("div", { class: "cu" + (i === 0 ? " next" : "") });
+    const label = i === 0 ? "Tomorrow" : `${dowName(iso)} ${shortDate(iso)}`;
+    card.appendChild(el("div", { class: "when" },
+      i === 0 ? `${label} \u00b7 ${dowName(iso)} ${shortDate(iso)}` : label));
+    card.appendChild(el("div", { class: "what" }, entry.session));
+    if (entry.target) card.appendChild(el("div", { class: "cal-target" }, entry.target));
+    list.appendChild(card);
+  });
+  wrap.hidden = false;
+}
+
+function initWeekNav(d) {
+  const weeks = (d.adherence || {}).weeks || [];
+  const go = (index) => {
+    WEEK_INDEX = Math.max(0, Math.min(weeks.length - 1, index));
+    renderWeek(d);
+  };
+  $("wk-prev").addEventListener("click", () => go(WEEK_INDEX - 1));
+  $("wk-next").addEventListener("click", () => go(WEEK_INDEX + 1));
+  $("wk-today").addEventListener("click", () => go(CURRENT_WEEK_INDEX));
 }
 
 function renderReadiness(d) {
@@ -1697,6 +1884,7 @@ function render(d) {
   renderHeader(d);
   renderSync(d);
   renderWeek(d);
+  initWeekNav(d);
   renderReadiness(d);
   renderForm(d);
   renderMarathon(d);

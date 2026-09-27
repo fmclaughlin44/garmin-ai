@@ -85,6 +85,34 @@ def test_a_run_on_the_wrong_day_fills_the_nearest_miss():
     assert statuses[iso(1)]["moved_from"] == iso(0)
 
 
+def test_a_shifted_run_is_counted_once_not_twice():
+    """A run moved to fill another day must not also count where it was run.
+
+    Left unfixed this inflates the week's mileage by the distance of every
+    shifted run -- a 5-mile Monday run filling a missed Thursday reported the
+    week 5 miles heavier than it was.
+    """
+    plan = week_plan()
+    statuses = adapt.match_plan(plan, [run(0, 5.0)], WEEK_START + timedelta(days=6))
+    assert statuses[iso(1)]["status"] == "moved"
+    assert statuses[iso(1)]["actual_miles"] == 5.0
+    # The source day keeps a record of the run but contributes no mileage.
+    assert statuses[iso(0)]["actual_miles"] == 0.0
+    assert statuses[iso(0)]["moved_to"] == iso(1)
+    assert statuses[iso(0)]["moved_miles"] == 5.0
+    summary = adapt.week_summary(plan, statuses, WEEK_START.isoformat())
+    assert summary["actual_miles"] == 5.0        # not 10.0
+
+
+def test_week_mileage_equals_the_sum_of_the_runs():
+    """Whatever the matching decides, the week total is what was actually run."""
+    plan = week_plan()
+    runs = [run(0, 5.0), run(1, 6.1), run(6, 9.1)]
+    statuses = adapt.match_plan(plan, runs, WEEK_START + timedelta(days=6))
+    summary = adapt.week_summary(plan, statuses, WEEK_START.isoformat())
+    assert summary["actual_miles"] == pytest.approx(20.2, abs=0.05)
+
+
 def test_a_run_that_satisfied_its_own_day_is_not_reused():
     statuses = adapt.match_plan(week_plan(), [run(1, 6.0)], WEEK_START + timedelta(days=6))
     assert statuses[iso(1)]["status"] == "done"

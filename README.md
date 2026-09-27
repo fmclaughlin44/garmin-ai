@@ -144,6 +144,19 @@ is normal life and shouldn't read as a failure. A session planned for today is
 neither done nor missed — a dashboard that scolds you at breakfast for a run
 you're about to do gets ignored within a week.
 
+A shifted run is credited once, to the day it filled, and the day it was actually
+run reports it as shifted with no mileage of its own. Without that the week's total
+is inflated by the distance of every moved session: a 5-mile Monday run filling a
+missed Thursday reported the week 5 miles heavier than it was.
+
+**The week is a calendar, read left to right,** with the day's session, its target,
+planned against actual mileage, and a glyph plus a word for the status — never
+colour alone. Arrows step through the whole block week by week, so next week's plan
+is one click away rather than unavailable. And because the calendar alone hides
+tomorrow whenever today is the last day of a week, a "coming up next" strip under
+it always shows the next three sessions regardless of where the week boundary
+falls.
+
 **Garmin's own numbers are kept alongside mine, precisely because they disagree.**
 `get_race_predictions` and `get_max_metrics` both work on this account even though
 the readiness endpoints don't. Garmin models a marathon time from every run on the

@@ -145,6 +145,14 @@ def match_plan(plan_days: dict, runs: list, as_of: date) -> dict:
             "pct": round(100 * moved / planned) if planned else None,
             "moved_from": iso,
         }
+        # The mileage now belongs to the day it filled, so it must not also be
+        # counted where it was run -- otherwise a run shifted by a day inflates
+        # the week's total by its own distance.
+        source = statuses.get(iso)
+        if source is not None:
+            source["actual_miles"] = 0.0
+            source["moved_to"] = target
+            source["moved_miles"] = round(moved, 1)
         used_dates.add(iso)
 
     return statuses
