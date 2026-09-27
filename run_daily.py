@@ -1,0 +1,64 @@
+"""
+The full daily pipeline. This is what the 6:30am schedule calls.
+
+  sync_garmin.py   Garmin Connect  ->  garmin/store/  (additive)
+  signals.py       store + plan    ->  web/data.json  (the output contract)
+  coach.py         web/data.json   ->  + the coach's read
+  build_dashboard.py  data + template -> dashboard.html
+
+Each stage reads the previous stage's output from disk and nothing else, so any
+one of them can be run on its own while debugging.
+
+The sync stage is allowed to fail without taking the rest down. Garmin's API
+drops connections regularly, and a failed pull is not a reason to leave a stale
+dashboard on screen: the store still holds yesterday's data, so the remaining
+stages rebuild from that and the page says which day the data runs through.
+
+Usage:
+  python3 run_daily.py
+  python3 run_daily.py --days 14 --live-coach
+"""
+
+import argparse
+import subprocess
+import sys
+from pathlib import Path
+
+BASE = Path(__file__).resolve().parent
+PY = str(BASE / ".venv" / "bin" / "python")
+
+
+def step(name: str, args: list, required: bool = True) -> bool:
+    print(f"\n=== {name} ===", flush=True)
+    result = subprocess.run([PY, *args], cwd=str(BASE))
+    if result.returncode == 0:
+        return True
+    message = f"{name} failed (exit {result.returncode})"
+    if required:
+        print(message, file=sys.stderr)
+        sys.exit(result.returncode)
+    print(f"{message} — continuing with the data already in the store.", file=sys.stderr)
+    return False
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--days", type=int, default=10, help="How many days back to sync")
+    parser.add_argument("--live-coach", action="store_true",
+                        help="Ask Claude for the coach note instead of the rules engine")
+    parser.add_argument("--skip-sync", action="store_true",
+                        help="Rebuild from the store without hitting Garmin")
+    args = parser.parse_args()
+
+    if not args.skip_sync:
+        step("Sync Garmin", ["sync_garmin.py", "--days", str(args.days)], required=False)
+
+    step("Compute signals", ["signals.py", "--print"])
+    step("Coach", ["coach.py"] + (["--live"] if args.live_coach else []))
+    step("Build dashboard", ["build_dashboard.py"])
+
+    print(f"\nDone. Open {BASE / 'dashboard.html'}")
+
+
+if __name__ == "__main__":
+    main()

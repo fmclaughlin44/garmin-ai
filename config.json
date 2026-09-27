@@ -1,0 +1,13 @@
+{
+  "_comment": "Athlete parameters that can't be derived from Garmin data. Anything left null is either estimated from your own history or reported as unavailable -- nothing is silently guessed.",
+  "weight_kg": null,
+  "hr_max": null,
+  "sleep_target_hours": 7.5,
+  "readiness_weights": {
+    "resting_hr": 30,
+    "sleep": 30,
+    "body_battery": 15,
+    "stress": 10,
+    "training_load": 15
+  }
+}

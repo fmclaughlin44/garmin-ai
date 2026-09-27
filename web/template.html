@@ -1,0 +1,1000 @@
+<title>Road to Sub-3:45</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+
+    --page:            #f7f7f4;
+    --surface-1:       #fcfcfb;
+    --surface-2:       #f1f0ec;
+    --text-primary:    #0b0b0b;
+    --text-secondary:  #52514e;
+    --muted:           #898781;
+    --border:          rgba(11,11,11,0.10);
+    --border-strong:   rgba(11,11,11,0.18);
+
+    --series-1:        #2a78d6;
+    --series-1-soft:   #cde2fb;
+    --series-2:        #eb6834;
+
+    --good:            #0ca30c;
+    --warning:         #fab219;
+    --serious:         #ec835a;
+    --critical:        #d03b3b;
+
+    --grid:            rgba(11,11,11,0.08);
+
+    --sans: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page:           #0d0d0d;
+      --surface-1:      #1a1a19;
+      --surface-2:      #232322;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --muted:          #898781;
+      --border:         rgba(255,255,255,0.10);
+      --border-strong:  rgba(255,255,255,0.20);
+      --series-1:       #3987e5;
+      --series-1-soft:  #184f95;
+      --series-2:       #d95926;
+      --grid:           rgba(255,255,255,0.08);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page:           #0d0d0d;
+    --surface-1:      #1a1a19;
+    --surface-2:      #232322;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --muted:          #898781;
+    --border:         rgba(255,255,255,0.10);
+    --border-strong:  rgba(255,255,255,0.20);
+    --series-1:       #3987e5;
+    --series-1-soft:  #184f95;
+    --series-2:       #d95926;
+    --grid:           rgba(255,255,255,0.08);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding-inline: 20px;
+    padding-block: 28px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ---------- header ---------- */
+
+  .masthead { display: flex; flex-wrap: wrap; gap: 16px 28px; align-items: flex-end; justify-content: space-between; }
+  .masthead h1 {
+    font-size: 27px; font-weight: 700; letter-spacing: -0.015em; margin: 0;
+    text-wrap: balance;
+  }
+  .masthead .race-meta { font-size: 14px; color: var(--text-secondary); margin-top: 3px; }
+  .masthead .race-meta strong { color: var(--text-primary); font-weight: 600; }
+  .countdown { text-align: right; }
+  .countdown .n { font-family: var(--mono); font-size: 34px; font-weight: 500; line-height: 1; letter-spacing: -0.02em; }
+  .countdown .u { font-size: 11px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin-top: 4px; }
+
+  /* ---------- cards ---------- */
+
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .card > h2, .panel > .card > h2 {
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--muted); margin: 0 0 14px;
+  }
+  h3 { font-size: 14px; font-weight: 600; margin: 0 0 6px; }
+
+  /* ---------- hero ---------- */
+
+  .hero { display: grid; grid-template-columns: minmax(260px, 340px) 1fr; gap: 20px; align-items: stretch; }
+  @media (max-width: 800px) { .hero { grid-template-columns: 1fr; } }
+
+  .readiness .figure { display: flex; align-items: baseline; gap: 10px; }
+  .readiness .n {
+    font-family: var(--mono); font-size: 58px; font-weight: 500; line-height: 0.95;
+    letter-spacing: -0.03em; font-variant-numeric: proportional-nums;
+  }
+  .readiness .of { font-size: 13px; color: var(--muted); }
+  .band {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px;
+    margin-top: 10px;
+  }
+  .band .ic { font-size: 11px; line-height: 1; }
+  .readiness .verdict { font-size: 13.5px; color: var(--text-secondary); margin-top: 10px; }
+
+  .meter { height: 7px; border-radius: 999px; background: var(--series-1-soft); overflow: hidden; margin-top: 14px; }
+  .meter > i { display: block; height: 100%; border-radius: 999px; }
+
+  .components { margin-top: 16px; display: flex; flex-direction: column; gap: 7px; }
+  .comp { display: grid; grid-template-columns: 96px 1fr 34px; gap: 9px; align-items: center; font-size: 12px; }
+  .comp .lab { color: var(--text-secondary); }
+  .comp .track { height: 5px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+  .comp .track > i { display: block; height: 100%; background: var(--series-1); border-radius: 999px; }
+  .comp .val { font-family: var(--mono); font-size: 11px; color: var(--muted); text-align: right; }
+  .comp.absent .lab, .comp.absent .val { color: var(--muted); font-style: italic; }
+
+  /* ---------- stat tiles ---------- */
+
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--border); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  .tile { background: var(--surface-1); padding: 15px 16px; display: flex; flex-direction: column; gap: 3px; }
+  .tile .lab { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .tile .val { font-family: var(--mono); font-size: 25px; font-weight: 500; line-height: 1.15; letter-spacing: -0.02em; }
+  .tile .sub { font-size: 12px; color: var(--text-secondary); }
+  .tile .sub.good { color: var(--good); } .tile .sub.warning { color: var(--warning); }
+  .tile .sub.serious { color: var(--serious); } .tile .sub.critical { color: var(--critical); }
+
+  /* ---------- tabs ---------- */
+
+  .tabs { display: flex; gap: 2px; flex-wrap: wrap; border-bottom: 1px solid var(--border); }
+  .tabs button {
+    appearance: none; background: none; border: none; cursor: pointer;
+    font-family: inherit; font-size: 13px; font-weight: 500; color: var(--text-secondary);
+    padding: 9px 13px; border-radius: 7px 7px 0 0; margin-bottom: -1px;
+    border-bottom: 2px solid transparent;
+  }
+  .tabs button:hover { color: var(--text-primary); background: var(--surface-2); }
+  .tabs button[aria-selected="true"] { color: var(--text-primary); font-weight: 600; border-bottom-color: var(--series-1); }
+  .tabs button:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
+
+  .panel { display: flex; flex-direction: column; gap: 18px; }
+
+  /* ---------- charts ---------- */
+
+  .chart-head { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
+  .chart-note { font-size: 12px; color: var(--muted); max-width: 60ch; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--text-secondary); }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .swatch { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+  .swatch.line { width: 13px; height: 2px; border-radius: 0; }
+  svg { display: block; width: 100%; height: auto; overflow: visible; }
+  svg text { font-family: var(--mono); fill: var(--text-secondary); }
+  .tick { font-size: 9.5px; fill: var(--muted); }
+  .axis-line { stroke: var(--border-strong); stroke-width: 1; }
+  .gridline { stroke: var(--grid); stroke-width: 1; }
+  .hit { fill: transparent; cursor: pointer; }
+
+  #tip {
+    position: fixed; z-index: 50; pointer-events: none; opacity: 0;
+    transition: opacity .1s;
+    background: var(--surface-1); border: 1px solid var(--border-strong);
+    border-radius: 7px; padding: 8px 10px; font-size: 12px; line-height: 1.45;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.13); max-width: 230px;
+  }
+  #tip .t-date { font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+  #tip .t-row { display: flex; gap: 8px; justify-content: space-between; }
+  #tip .t-row b { font-family: var(--mono); font-weight: 500; }
+
+  details.tableview { margin-top: 12px; }
+  details.tableview summary {
+    cursor: pointer; font-size: 12px; color: var(--text-secondary);
+    padding: 3px 0; list-style: none;
+  }
+  details.tableview summary::marker, details.tableview summary::-webkit-details-marker { display: none; }
+  details.tableview summary::before { content: "▸ "; color: var(--muted); }
+  details.tableview[open] summary::before { content: "▾ "; }
+  .scroll-x { overflow-x: auto; margin-top: 8px; }
+  table { border-collapse: collapse; font-size: 12.5px; width: 100%; }
+  th, td { text-align: left; padding: 6px 12px 6px 0; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); font-weight: 600; }
+  td.num, th.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  /* ---------- plan ---------- */
+
+  .weekrow { border-bottom: 1px solid var(--border); }
+  .weekrow:last-child { border-bottom: none; }
+  .weekrow > summary { cursor: pointer; list-style: none; padding: 12px 0; display: grid; grid-template-columns: 30px 1fr auto; gap: 12px; align-items: center; }
+  .weekrow > summary::marker, .weekrow > summary::-webkit-details-marker { display: none; }
+  .weekrow .wnum { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .weekrow .wphase { font-size: 14px; font-weight: 600; }
+  .weekrow .whead { font-size: 12px; color: var(--text-secondary); }
+  .weekrow .wmiles { font-family: var(--mono); font-size: 12px; color: var(--text-secondary); text-align: right; }
+  .weekrow[data-status="current"] .wphase { color: var(--series-1); }
+  .chip { display: inline-block; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; padding: 2px 7px; border-radius: 4px; background: var(--surface-2); color: var(--text-secondary); margin-left: 8px; vertical-align: 1px; }
+  .chip.current { background: color-mix(in srgb, var(--series-1) 15%, transparent); color: var(--series-1); }
+
+  .day { display: grid; grid-template-columns: 64px 1fr; gap: 12px; padding: 9px 0 9px 42px; border-top: 1px solid var(--border); font-size: 13.5px; }
+  .day.today { background: color-mix(in srgb, var(--series-1) 6%, transparent); margin-inline: -20px; padding-inline: 62px 20px; border-radius: 6px; }
+  .day .dow { font-family: var(--mono); font-size: 11.5px; color: var(--muted); display: flex; align-items: center; gap: 6px; padding-top: 2px; }
+  .day .target { font-size: 12px; color: var(--muted); margin-top: 2px; font-family: var(--mono); }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+  .dot.done { background: var(--good); } .dot.missed { background: var(--border-strong); }
+  .dot.today { background: var(--series-1); } .dot.future { background: transparent; border: 1px solid var(--border-strong); }
+
+  /* ---------- misc ---------- */
+
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-size: 13.5px; }
+  .kv dt { color: var(--muted); font-size: 12px; }
+  .kv dd { margin: 0; font-family: var(--mono); font-size: 13px; }
+  .pacegrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .pacegrid > div { background: var(--surface-1); padding: 11px 13px; }
+  .pacegrid .lab { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .pacegrid .val { font-family: var(--mono); font-size: 16px; margin-top: 2px; }
+
+  .note { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+  .prov { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--text-secondary); }
+  .prov .sig { font-weight: 600; color: var(--text-primary); }
+
+  .gap-bar { display: flex; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+  .gap-bar .seg { font-family: var(--mono); font-size: 13px; }
+
+  footer { font-size: 11.5px; color: var(--muted); text-align: center; border-top: 1px solid var(--border); padding-top: 16px; line-height: 1.7; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="page">
+
+  <header class="masthead">
+    <div>
+      <h1 id="race-title">Road to Sub-3:45</h1>
+      <div class="race-meta" id="race-meta"></div>
+    </div>
+    <div class="countdown">
+      <div class="n" id="cd-n">—</div>
+      <div class="u" id="cd-u">days to race</div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="card readiness">
+      <h2>Readiness today</h2>
+      <div class="figure"><div class="n" id="r-score">—</div><div class="of">/ 100</div></div>
+      <div id="r-band"></div>
+      <div class="meter"><i id="r-meter"></i></div>
+      <div class="verdict" id="r-verdict"></div>
+      <div class="components" id="r-components"></div>
+    </div>
+    <div>
+      <div class="tiles" id="tiles"></div>
+    </div>
+  </section>
+
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+
+  <!-- TODAY -->
+  <section class="panel" id="panel-today" role="tabpanel">
+    <div class="card">
+      <h2>Today's session</h2>
+      <h3 id="t-session">—</h3>
+      <div class="note" id="t-target"></div>
+      <div class="gap-bar" id="t-week"></div>
+    </div>
+    <div class="card">
+      <h2>Training paces — derived from the goal time</h2>
+      <div class="pacegrid" id="pacegrid"></div>
+      <p class="note" style="margin-bottom:0">Every pace here is computed from the single goal time in
+        <code>plan/build_plan.py</code>. Change the goal and the whole plan re-derives.</p>
+    </div>
+  </section>
+
+  <!-- TRAINING -->
+  <section class="panel" id="panel-training" role="tabpanel" hidden>
+    <div class="card">
+      <div class="chart-head">
+        <div>
+          <h2 style="margin-bottom:2px">Weekly volume — actual against target</h2>
+          <div class="chart-note">Run mileage only. The track is the week's target; the fill is what Garmin actually recorded.</div>
+        </div>
+        <div class="legend">
+          <span><i class="swatch" style="background:var(--series-1)"></i>Actual</span>
+          <span><i class="swatch" style="background:var(--series-1-soft)"></i>Target</span>
+        </div>
+      </div>
+      <div id="chart-mileage"></div>
+      <details class="tableview"><summary>Table view</summary><div class="scroll-x" id="table-mileage"></div></details>
+    </div>
+    <div class="card">
+      <h2>The block — 8 weeks</h2>
+      <div id="plan"></div>
+      <p class="note" style="margin-top:14px;margin-bottom:0">A session counts as completed when Garmin
+        recorded an activity that day. Nothing is ticked off by hand, so the adherence number can't flatter itself.</p>
+    </div>
+  </section>
+
+  <!-- LOAD -->
+  <section class="panel" id="panel-load" role="tabpanel" hidden>
+    <div class="card">
+      <h2>Workload</h2>
+      <div class="tiles" id="load-tiles"></div>
+      <p class="note" id="load-label" style="margin-top:14px;margin-bottom:0"></p>
+    </div>
+    <div class="card">
+      <div class="chart-head">
+        <div>
+          <h2 style="margin-bottom:2px">Daily training load</h2>
+          <div class="chart-note">Banister TRIMP per session, summed by day. The line is the 7-day rolling mean.</div>
+        </div>
+        <div class="legend">
+          <span><i class="swatch" style="background:var(--series-1)"></i>Daily load</span>
+          <span><i class="swatch line" style="background:var(--series-2)"></i>7-day mean</span>
+        </div>
+      </div>
+      <div id="chart-load"></div>
+      <details class="tableview"><summary>Table view</summary><div class="scroll-x" id="table-load"></div></details>
+    </div>
+  </section>
+
+  <!-- RECOVERY -->
+  <section class="panel" id="panel-recovery" role="tabpanel" hidden>
+    <div class="card">
+      <div class="chart-head">
+        <div>
+          <h2 style="margin-bottom:2px">Resting heart rate against its own baseline</h2>
+          <div class="chart-note">The band is the 28-day median plus or minus one standard deviation. A morning outside it is the signal worth reading.</div>
+        </div>
+      </div>
+      <div id="chart-rhr"></div>
+      <details class="tableview"><summary>Table view</summary><div class="scroll-x" id="table-rhr"></div></details>
+    </div>
+    <div class="card">
+      <div class="chart-head">
+        <div>
+          <h2 style="margin-bottom:2px">Sleep</h2>
+          <div class="chart-note">Hours per night. The rule marks the configured target.</div>
+        </div>
+      </div>
+      <div id="chart-sleep"></div>
+      <details class="tableview"><summary>Table view</summary><div class="scroll-x" id="table-sleep"></div></details>
+    </div>
+    <div class="card">
+      <h2>What this watch does and doesn't report</h2>
+      <div class="prov" id="prov"></div>
+    </div>
+  </section>
+
+  <!-- FITNESS -->
+  <section class="panel" id="panel-fitness" role="tabpanel" hidden>
+    <div class="card">
+      <h2>Projected marathon time</h2>
+      <div class="figure" style="display:flex;align-items:baseline;gap:10px">
+        <div class="n" id="p-time" style="font-family:var(--mono);font-size:44px;font-weight:500;letter-spacing:-0.02em"></div>
+        <div class="of" style="font-size:13px;color:var(--muted)" id="p-pace"></div>
+      </div>
+      <div id="p-band"></div>
+      <div class="gap-bar" id="p-gap"></div>
+      <dl class="kv" style="margin-top:16px" id="p-reads"></dl>
+      <p class="note" id="p-note" style="margin-top:14px;margin-bottom:0"></p>
+    </div>
+    <div class="card">
+      <h2>Running — last 28 days</h2>
+      <div class="tiles" id="fit-tiles"></div>
+      <details class="tableview" open><summary>Recent runs</summary><div class="scroll-x" id="table-runs"></div></details>
+    </div>
+  </section>
+
+  <!-- FUEL -->
+  <section class="panel" id="panel-fuel" role="tabpanel" hidden>
+    <div class="card">
+      <h2>Today's carbohydrate target</h2>
+      <div class="tiles" id="fuel-tiles"></div>
+      <p class="note" id="fuel-note" style="margin-top:14px;margin-bottom:0"></p>
+    </div>
+    <div class="card">
+      <h2>Race-day fuelling</h2>
+      <dl class="kv" id="fuel-race"></dl>
+    </div>
+    <div class="card">
+      <h2>Carb load</h2>
+      <dl class="kv" id="fuel-load"></dl>
+    </div>
+  </section>
+
+  <!-- COACH -->
+  <section class="panel" id="panel-coach" role="tabpanel" hidden>
+    <div class="card">
+      <h2>Coach's read</h2>
+      <div id="coach-band"></div>
+      <div id="coach-body" style="margin-top:10px"></div>
+      <p class="note" id="coach-prov" style="margin-top:14px;margin-bottom:0"></p>
+    </div>
+  </section>
+
+  <footer id="footer"></footer>
+</div>
+
+<div id="tip" role="status" aria-live="polite"></div>
+
+<script>
+const DATA = /*__DATA__*/ null;
+
+/* ------------------------------------------------------------------ utils */
+const $ = (id) => document.getElementById(id);
+const SVG_NS = "http://www.w3.org/2000/svg";
+const STATUS = { good: "var(--good)", moderate: "var(--warning)", warning: "var(--warning)",
+                 low: "var(--serious)", serious: "var(--serious)", poor: "var(--critical)",
+                 critical: "var(--critical)", optimal: "var(--good)", detraining: "var(--warning)",
+                 high_risk: "var(--critical)", insufficient_history: "var(--muted)", unknown: "var(--muted)" };
+const ICON = { good: "●", optimal: "●", moderate: "◐", warning: "◐", detraining: "◐",
+               low: "◔", serious: "◔", poor: "○", critical: "○", high_risk: "○",
+               insufficient_history: "○", unknown: "○" };
+
+function el(tag, attrs = {}, text) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") node.className = v; else node.setAttribute(k, v);
+  }
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+function svgEl(tag, attrs = {}) {
+  const node = document.createElementNS(SVG_NS, tag);
+  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+  return node;
+}
+const nn = (v, fallback = "—") => (v === null || v === undefined || v === "" ? fallback : v);
+const shortDate = (iso) => {
+  const [, m, d] = iso.split("-");
+  return `${Number(m)}/${Number(d)}`;
+};
+// All date maths is done in UTC and formatted from the ISO string. Using a
+// local Date plus toISOString() would shift every date by one day for any
+// viewer east of UTC, which silently misaligns the whole training plan.
+const utcDate = (iso) => new Date(iso + "T00:00:00Z");
+const dowName = (iso) => ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][utcDate(iso).getUTCDay()];
+const addDays = (iso, n) => {
+  const d = utcDate(iso);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+};
+
+function badge(band, label) {
+  const wrap = el("div", { class: "band" });
+  wrap.style.background = `color-mix(in srgb, ${STATUS[band] || "var(--muted)"} 15%, transparent)`;
+  wrap.style.color = STATUS[band] || "var(--muted)";
+  wrap.appendChild(el("i", { class: "ic", "aria-hidden": "true" }, ICON[band] || "○"));
+  wrap.appendChild(el("span", {}, label));
+  return wrap;
+}
+
+function tile(label, value, sub, subClass) {
+  const node = el("div", { class: "tile" });
+  node.appendChild(el("div", { class: "lab" }, label));
+  node.appendChild(el("div", { class: "val" }, nn(value)));
+  if (sub) node.appendChild(el("div", { class: "sub" + (subClass ? " " + subClass : "") }, sub));
+  return node;
+}
+
+function table(container, columns, rows) {
+  container.replaceChildren();
+  const t = el("table");
+  const thead = el("thead"), tr = el("tr");
+  columns.forEach((c) => tr.appendChild(el("th", { class: c.num ? "num" : "" }, c.label)));
+  thead.appendChild(tr); t.appendChild(thead);
+  const tbody = el("tbody");
+  rows.forEach((r) => {
+    const row = el("tr");
+    columns.forEach((c) => row.appendChild(el("td", { class: c.num ? "num" : "" }, nn(r[c.key]))));
+    tbody.appendChild(row);
+  });
+  t.appendChild(tbody); container.appendChild(t);
+}
+
+/* ------------------------------------------------------------------ tooltip */
+const tip = $("tip");
+function showTip(evt, html) {
+  tip.innerHTML = html;
+  tip.style.opacity = "1";
+  const pad = 14, box = tip.getBoundingClientRect();
+  let x = evt.clientX + pad, y = evt.clientY - box.height - pad;
+  if (x + box.width > window.innerWidth - 8) x = evt.clientX - box.width - pad;
+  if (y < 8) y = evt.clientY + pad;
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+}
+function hideTip() { tip.style.opacity = "0"; }
+function attachTip(node, htmlFn) {
+  node.addEventListener("mousemove", (e) => showTip(e, htmlFn()));
+  node.addEventListener("mouseleave", hideTip);
+  node.addEventListener("focus", (e) => {
+    const r = node.getBoundingClientRect();
+    showTip({ clientX: r.left + r.width / 2, clientY: r.top }, htmlFn());
+  });
+  node.addEventListener("blur", hideTip);
+}
+const tipRow = (label, value) => `<div class="t-row"><span>${label}</span><b>${value}</b></div>`;
+
+/* ------------------------------------------------------------------ charts */
+// Every chart draws into a fixed viewBox and scales with the container, so the
+// axis band is always inside the box and labels can't be clipped.
+
+function barChart(mount, { points, height = 150, pad = { t: 10, r: 8, b: 22, l: 34 },
+                           color = "var(--series-1)", trackColor = null, rule = null,
+                           tipFn, yLabel = (v) => String(v), tickEvery = 7 }) {
+  const W = 760, H = height;
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" });
+  const plotW = W - pad.l - pad.r, plotH = H - pad.t - pad.b;
+  const maxRaw = Math.max(...points.map((p) => Math.max(p.value || 0, p.track || 0)), rule || 0, 1);
+  const max = maxRaw * 1.12;
+  const y = (v) => pad.t + plotH - (v / max) * plotH;
+  const bandW = plotW / points.length;
+  const barW = Math.max(2, Math.min(bandW - 2, bandW * 0.72));   // 2px surface gap
+
+  [0, max / 2, max].forEach((v) => {
+    svg.appendChild(svgEl("line", { class: "gridline", x1: pad.l, x2: W - pad.r, y1: y(v), y2: y(v) }));
+    const label = svgEl("text", { class: "tick", x: pad.l - 6, y: y(v) + 3, "text-anchor": "end" });
+    label.textContent = yLabel(v);
+    svg.appendChild(label);
+  });
+
+  points.forEach((p, i) => {
+    const cx = pad.l + bandW * i + bandW / 2;
+    if (trackColor && p.track) {
+      const h = plotH - (y(p.track) - pad.t);
+      svg.appendChild(svgEl("rect", { x: cx - barW / 2, y: y(p.track), width: barW, height: Math.max(h, 0),
+                                      rx: 4, fill: trackColor }));
+    }
+    const value = p.value || 0;
+    if (value > 0) {
+      const h = plotH - (y(value) - pad.t);
+      svg.appendChild(svgEl("rect", { x: cx - barW / 2, y: y(value), width: barW, height: Math.max(h, 1),
+                                      rx: 4, fill: p.color || color }));
+    }
+    if (i % tickEvery === 0) {
+      const t = svgEl("text", { class: "tick", x: cx, y: H - pad.b + 13, "text-anchor": "middle" });
+      t.textContent = p.label; svg.appendChild(t);
+    }
+    if (tipFn) {
+      const hit = svgEl("rect", { class: "hit", x: pad.l + bandW * i, y: pad.t,
+                                  width: bandW, height: plotH, tabindex: "0" });
+      attachTip(hit, () => tipFn(p));
+      svg.appendChild(hit);
+    }
+  });
+
+  if (rule !== null) {
+    svg.appendChild(svgEl("line", { x1: pad.l, x2: W - pad.r, y1: y(rule), y2: y(rule),
+                                    stroke: "var(--series-2)", "stroke-width": 1.5 }));
+  }
+  svg.appendChild(svgEl("line", { class: "axis-line", x1: pad.l, x2: W - pad.r, y1: y(0), y2: y(0) }));
+  mount.replaceChildren(svg);
+  return { svg, x: (i) => pad.l + bandW * i + bandW / 2, y, pad, W, H, plotH };
+}
+
+function overlayLine(ctx, values, color) {
+  const pts = values.map((v, i) => (v === null ? null : [ctx.x(i), ctx.y(v)])).filter(Boolean);
+  if (pts.length < 2) return;
+  ctx.svg.appendChild(svgEl("path", {
+    d: "M" + pts.map((p) => p.join(",")).join("L"),
+    fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round",
+  }));
+}
+
+function lineChart(mount, { points, height = 165, pad = { t: 12, r: 40, b: 22, l: 34 },
+                            band = null, color = "var(--series-1)", tipFn, yLabel = (v) => String(v) }) {
+  const W = 760, H = height;
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" });
+  const plotW = W - pad.l - pad.r, plotH = H - pad.t - pad.b;
+  const values = points.map((p) => p.value).filter((v) => v !== null && v !== undefined);
+  const extras = band ? [band.low, band.high, band.mid] : [];
+  const lo = Math.min(...values, ...extras) - 2, hi = Math.max(...values, ...extras) + 2;
+  const y = (v) => pad.t + plotH - ((v - lo) / (hi - lo || 1)) * plotH;
+  const x = (i) => pad.l + (points.length === 1 ? plotW / 2 : (plotW / (points.length - 1)) * i);
+
+  [lo, (lo + hi) / 2, hi].forEach((v) => {
+    svg.appendChild(svgEl("line", { class: "gridline", x1: pad.l, x2: W - pad.r, y1: y(v), y2: y(v) }));
+    const t = svgEl("text", { class: "tick", x: pad.l - 6, y: y(v) + 3, "text-anchor": "end" });
+    t.textContent = yLabel(v); svg.appendChild(t);
+  });
+
+  if (band) {
+    svg.appendChild(svgEl("rect", { x: pad.l, y: y(band.high), width: plotW,
+                                    height: Math.max(y(band.low) - y(band.high), 1),
+                                    fill: "var(--series-1)", opacity: 0.10 }));
+    svg.appendChild(svgEl("line", { x1: pad.l, x2: W - pad.r, y1: y(band.mid), y2: y(band.mid),
+                                    stroke: "var(--series-1)", "stroke-width": 1, opacity: 0.55 }));
+    const t = svgEl("text", { class: "tick", x: W - pad.r + 5, y: y(band.mid) + 3 });
+    t.textContent = "baseline"; svg.appendChild(t);
+  }
+
+  const segs = []; let cur = [];
+  points.forEach((p, i) => {
+    if (p.value === null || p.value === undefined) { if (cur.length) segs.push(cur); cur = []; }
+    else cur.push([x(i), y(p.value)]);
+  });
+  if (cur.length) segs.push(cur);
+  segs.forEach((seg) => {
+    if (seg.length === 1) {
+      svg.appendChild(svgEl("circle", { cx: seg[0][0], cy: seg[0][1], r: 2.5, fill: color }));
+    } else {
+      svg.appendChild(svgEl("path", { d: "M" + seg.map((p) => p.join(",")).join("L"),
+                                      fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round" }));
+    }
+  });
+
+  // emphasise the endpoint and label it directly
+  const lastIdx = [...points].reverse().findIndex((p) => p.value !== null && p.value !== undefined);
+  if (lastIdx !== -1) {
+    const i = points.length - 1 - lastIdx, p = points[i];
+    svg.appendChild(svgEl("circle", { cx: x(i), cy: y(p.value), r: 4.5, fill: color,
+                                      stroke: "var(--surface-1)", "stroke-width": 2 }));
+    const t = svgEl("text", { x: x(i) + 9, y: y(p.value) + 4, "font-size": "11" });
+    t.setAttribute("fill", "var(--text-primary)");
+    t.textContent = yLabel(p.value); svg.appendChild(t);
+  }
+
+  points.forEach((p, i) => {
+    if (i % 7 === 0) {
+      const t = svgEl("text", { class: "tick", x: x(i), y: H - pad.b + 13, "text-anchor": "middle" });
+      t.textContent = p.label; svg.appendChild(t);
+    }
+    if (tipFn && p.value !== null && p.value !== undefined) {
+      const bw = plotW / points.length;
+      const hit = svgEl("rect", { class: "hit", x: x(i) - bw / 2, y: pad.t, width: bw, height: plotH, tabindex: "0" });
+      attachTip(hit, () => tipFn(p));
+      svg.appendChild(hit);
+    }
+  });
+
+  svg.appendChild(svgEl("line", { class: "axis-line", x1: pad.l, x2: W - pad.r, y1: pad.t + plotH, y2: pad.t + plotH }));
+  mount.replaceChildren(svg);
+}
+
+/* ------------------------------------------------------------------ render */
+
+const COMPONENT_LABELS = {
+  resting_hr: "Resting HR", sleep: "Sleep", body_battery: "Body battery",
+  stress: "Stress", training_load: "Training load",
+};
+
+function renderHeader(d) {
+  const race = d.race || {};
+  const goalShort = race.goal ? String(race.goal).split(" ")[0].replace(/:00$/, "") : null;
+  $("race-title").textContent = goalShort ? `Road to ${goalShort}` : "Training dashboard";
+  const bits = [];
+  if (race.name) bits.push(`<strong>${race.name}</strong>`);
+  if (race.distance) bits.push(race.distance);
+  if (race.goal) bits.push(`goal ${race.goal}`);
+  if (race.date) bits.push(utcDate(race.date).toLocaleDateString(undefined,
+    { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" }));
+  $("race-meta").innerHTML = bits.join(" · ");
+  const days = race.days_to_race;
+  $("cd-n").textContent = days === null || days === undefined ? "—" : days;
+  $("cd-u").textContent = days === 1 ? "day to race" : "days to race";
+}
+
+function renderReadiness(d) {
+  const r = d.readiness || {};
+  $("r-score").textContent = nn(r.score);
+  $("r-band").replaceChildren(badge(r.band, (r.band || "unknown").replace("_", " ")));
+  const meter = $("r-meter");
+  meter.style.width = (r.score || 0) + "%";
+  meter.style.background = STATUS[r.band] || "var(--muted)";
+  $("r-verdict").textContent = nn(r.label, "");
+
+  const wrap = $("r-components"); wrap.replaceChildren();
+  Object.entries(COMPONENT_LABELS).forEach(([key, label]) => {
+    const score = (r.components || {})[key];
+    const row = el("div", { class: "comp" + (score === null || score === undefined ? " absent" : "") });
+    row.appendChild(el("div", { class: "lab" }, label));
+    const track = el("div", { class: "track" });
+    const fill = el("i");
+    fill.style.width = score === null || score === undefined ? "0%" : Math.round(score * 100) + "%";
+    track.appendChild(fill); row.appendChild(track);
+    row.appendChild(el("div", { class: "val" }, score === null || score === undefined ? "n/a" : Math.round(score * 100)));
+    wrap.appendChild(row);
+  });
+}
+
+function renderTiles(d) {
+  const rhr = d.recovery.resting_hr || {}, sleep = d.recovery.sleep || {}, load = d.load || {};
+  const latest = d.recovery.latest || {};
+  const deltaText = rhr.delta === null || rhr.delta === undefined ? null
+    : `${rhr.delta > 0 ? "+" : ""}${rhr.delta} vs ${rhr.baseline} baseline`;
+  const deltaClass = rhr.delta === null || rhr.delta === undefined ? null
+    : rhr.delta >= 5 ? "serious" : rhr.delta >= 3 ? "warning" : "good";
+
+  const wrap = $("tiles"); wrap.replaceChildren();
+  wrap.appendChild(tile("Resting HR", rhr.today ? rhr.today + " bpm" : null, deltaText, deltaClass));
+  wrap.appendChild(tile("Sleep last night", sleep.last_night_hours ? sleep.last_night_hours + " h" : null,
+    sleep.avg_7day_hours ? sleep.avg_7day_hours + " h 7-day average" : null));
+  wrap.appendChild(tile("Workload ratio", nn(load.ratio),
+    load.zone ? load.zone.replace("_", " ") : null,
+    load.zone === "optimal" ? "good" : load.zone === "high_risk" ? "critical" : load.zone === "caution" ? "serious" : "warning"));
+  wrap.appendChild(tile("7-day load", nn(load.acute_7day),
+    load.chronic_28day_weekly ? `${load.chronic_28day_weekly} chronic` : null));
+  wrap.appendChild(tile("28-day run miles", nn(d.fitness.miles_28day),
+    d.fitness.longest_run_28day ? `longest ${d.fitness.longest_run_28day} mi` : null));
+  wrap.appendChild(tile("Body battery", nn(latest.bb_wake || latest.bb_high),
+    latest.bb_wake ? "at wake" : latest.bb_high ? "day peak" : null));
+}
+
+function renderToday(d) {
+  const plan = d.today.plan || {};
+  $("t-session").textContent = nn(plan.session, "No session planned for today.");
+  $("t-target").textContent = nn(plan.target, "");
+  const week = d.today.week;
+  const wrap = $("t-week"); wrap.replaceChildren();
+  if (week) {
+    wrap.appendChild(badge("good", `Week ${week.week}`));
+    wrap.appendChild(el("span", { class: "seg" }, `${week.phase} — ${week.miles_actual} of ${week.miles_target} mi`));
+  }
+  const grid = $("pacegrid"); grid.replaceChildren();
+  const order = [["marathon", "Marathon pace"], ["threshold", "Threshold"], ["interval", "Interval"],
+                 ["long", "Long run"], ["easy", "Easy"], ["half", "Half pace"]];
+  order.forEach(([key, label]) => {
+    if (!d.paces || !d.paces[key]) return;
+    const cell = el("div");
+    cell.appendChild(el("div", { class: "lab" }, label));
+    cell.appendChild(el("div", { class: "val" }, d.paces[key] + "/mi"));
+    grid.appendChild(cell);
+  });
+}
+
+function renderTraining(d) {
+  const weeks = d.adherence.weeks || [];
+  const points = weeks.map((w) => ({
+    label: "W" + w.week, value: w.miles_actual, track: w.miles_target, week: w,
+    color: w.status === "current" ? "var(--series-1)" : undefined,
+  }));
+  barChart($("chart-mileage"), {
+    points, height: 168, trackColor: "var(--series-1-soft)", tickEvery: 1,
+    yLabel: (v) => String(Math.round(v)),
+    tipFn: (p) => `<div class="t-date">Week ${p.week.week} · ${shortDate(p.week.start)}–${shortDate(p.week.end)}</div>`
+      + `<div style="margin:3px 0 4px">${p.week.phase}</div>`
+      + tipRow("Actual", p.week.miles_actual + " mi") + tipRow("Target", p.week.miles_target + " mi")
+      + tipRow("Key sessions", `${p.week.key_sessions_done}/${p.week.key_sessions_due}`),
+  });
+  table($("table-mileage"),
+    [{ key: "week", label: "Week" }, { key: "phase", label: "Phase" },
+     { key: "miles_actual", label: "Actual mi", num: true }, { key: "miles_target", label: "Target mi", num: true },
+     { key: "key", label: "Key sessions", num: true }, { key: "status", label: "Status" }],
+    weeks.map((w) => ({ ...w, key: `${w.key_sessions_done}/${w.key_sessions_due}` })));
+
+  const mount = $("plan"); mount.replaceChildren();
+  const today = d.meta.as_of;
+  weeks.forEach((w) => {
+    const det = el("details", { class: "weekrow", "data-status": w.status });
+    if (w.status === "current") det.setAttribute("open", "");
+    const sum = el("summary");
+    sum.appendChild(el("div", { class: "wnum" }, "W" + w.week));
+    const mid = el("div");
+    const phase = el("div", { class: "wphase" }, w.phase.replace(/^Week \d+ — /, ""));
+    if (w.status === "current") phase.appendChild(el("span", { class: "chip current" }, "this week"));
+    mid.appendChild(phase);
+    mid.appendChild(el("div", { class: "whead" }, w.headline));
+    sum.appendChild(mid);
+    sum.appendChild(el("div", { class: "wmiles" }, `${w.miles_actual} / ${w.miles_target} mi`));
+    det.appendChild(sum);
+
+    for (let i = 0; i < 7; i++) {
+      const iso = addDays(w.start, i);
+      const entry = (d.plan_days || {})[iso];
+      if (!entry) continue;
+      const row = el("div", { class: "day" + (iso === today ? " today" : "") });
+      const state = iso === today ? "today" : iso < today ? (d.completed_days || []).includes(iso) ? "done" : "missed" : "future";
+      const dow = el("div", { class: "dow" });
+      dow.appendChild(el("i", { class: "dot " + state }));
+      dow.appendChild(el("span", {}, `${dowName(iso)} ${shortDate(iso)}`));
+      row.appendChild(dow);
+      const body = el("div");
+      body.appendChild(el("div", {}, entry.session));
+      if (entry.target) body.appendChild(el("div", { class: "target" }, entry.target));
+      row.appendChild(body);
+      det.appendChild(row);
+    }
+    mount.appendChild(det);
+  });
+}
+
+function renderLoad(d) {
+  const load = d.load || {};
+  const wrap = $("load-tiles"); wrap.replaceChildren();
+  wrap.appendChild(tile("Acute (7-day)", nn(load.acute_7day)));
+  wrap.appendChild(tile("Chronic (weekly)", nn(load.chronic_28day_weekly)));
+  wrap.appendChild(tile("Ratio", nn(load.ratio), load.zone ? load.zone.replace("_", " ") : null,
+    load.zone === "optimal" ? "good" : load.zone === "high_risk" ? "critical" : "warning"));
+  wrap.appendChild(tile("Monotony", nn(load.monotony), "same-ness of the week"));
+  wrap.appendChild(tile("Strain", nn(load.strain), "load × monotony"));
+  $("load-label").textContent = nn(load.label, "");
+
+  const daily = Object.entries(load.daily || {}).sort();
+  const points = daily.map(([date, value]) => ({ label: shortDate(date), value, date }));
+  const rolling = points.map((_, i) => {
+    const slice = points.slice(Math.max(0, i - 6), i + 1).map((p) => p.value);
+    return slice.length ? slice.reduce((a, b) => a + b, 0) / slice.length : null;
+  });
+  const ctx = barChart($("chart-load"), {
+    points, height: 175, yLabel: (v) => Math.round(v),
+    tipFn: (p) => `<div class="t-date">${p.date}</div>` + tipRow("Load", Math.round(p.value)),
+  });
+  overlayLine(ctx, rolling, "var(--series-2)");
+  table($("table-load"), [{ key: "date", label: "Date" }, { key: "value", label: "Load", num: true }],
+    [...points].reverse());
+}
+
+function renderRecovery(d) {
+  const history = d.recovery.history || [], rhr = d.recovery.resting_hr || {};
+  const points = history.map((h) => ({ label: shortDate(h.date), value: h.rhr, date: h.date, h }));
+  const band = rhr.baseline !== null && rhr.baseline !== undefined
+    ? { mid: rhr.baseline, low: rhr.baseline - (rhr.stdev || 1), high: rhr.baseline + (rhr.stdev || 1) } : null;
+  lineChart($("chart-rhr"), {
+    points, band, yLabel: (v) => Math.round(v),
+    tipFn: (p) => `<div class="t-date">${p.date}</div>` + tipRow("Resting HR", p.value + " bpm")
+      + (band ? tipRow("vs baseline", `${(p.value - band.mid) > 0 ? "+" : ""}${(p.value - band.mid).toFixed(1)}`) : ""),
+  });
+  table($("table-rhr"), [{ key: "date", label: "Date" }, { key: "rhr", label: "Resting HR", num: true },
+                         { key: "sleep_hours", label: "Sleep h", num: true },
+                         { key: "stress_avg", label: "Stress", num: true },
+                         { key: "steps", label: "Steps", num: true }], [...history].reverse());
+
+  const nights = history.slice(-14).map((h) => ({ label: shortDate(h.date), value: h.sleep_hours, h, date: h.date }));
+  barChart($("chart-sleep"), {
+    points: nights, height: 150, tickEvery: 2, rule: d.recovery.sleep.target_hours,
+    yLabel: (v) => v.toFixed(0) + "h",
+    tipFn: (p) => `<div class="t-date">${p.date}</div>`
+      + tipRow("Sleep", p.value ? p.value + " h" : "no data")
+      + (p.h.deep_pct ? tipRow("Deep", p.h.deep_pct + "%") : "")
+      + (p.h.rem_pct ? tipRow("REM", p.h.rem_pct + "%") : ""),
+  });
+  table($("table-sleep"), [{ key: "date", label: "Date" }, { key: "sleep_hours", label: "Hours", num: true },
+                           { key: "deep_pct", label: "Deep %", num: true }, { key: "rem_pct", label: "REM %", num: true }],
+    [...history].reverse());
+
+  const prov = $("prov"); prov.replaceChildren();
+  (d.meta.unavailable_signals || []).forEach((item) => {
+    const row = el("div");
+    row.appendChild(el("span", { class: "sig" }, item.signal + ": "));
+    row.appendChild(el("span", {}, item.reason));
+    prov.appendChild(row);
+  });
+  if (!(d.meta.unavailable_signals || []).length) {
+    prov.appendChild(el("div", {}, "Every signal the readiness model uses is reporting normally."));
+  }
+  const hrmax = d.meta.hr_max || {};
+  prov.appendChild(el("div", {}, `HRmax used for training load: ${hrmax.value} bpm (${hrmax.method}).`));
+}
+
+function renderFitness(d) {
+  const p = d.projection || {}, f = d.fitness || {};
+  $("p-time").textContent = nn(p.predicted);
+  $("p-pace").textContent = p.predicted_pace ? p.predicted_pace + "/mi" : "";
+  $("p-band").replaceChildren(badge(p.on_track ? "good" : "warning",
+    p.on_track ? "at or ahead of goal" : "behind goal"));
+  const gap = $("p-gap"); gap.replaceChildren();
+  if (p.gap) {
+    gap.appendChild(el("span", { class: "seg" }, `${p.gap} versus goal ${nn(p.goal, "")}`));
+  }
+  const reads = $("p-reads"); reads.replaceChildren();
+  const rows = [];
+  if (p.basis) rows.push(["Fastest-projecting run", `${p.predicted} — from ${p.basis.miles} mi @ ${p.basis.pace}/mi on ${p.basis.date}`]);
+  if (p.from_longest) rows.push(["From the longest run", `${p.from_longest.time} — from ${p.from_longest.basis.miles} mi @ ${p.from_longest.basis.pace}/mi on ${p.from_longest.basis.date}`]);
+  if (p.conservative) rows.push(["Slowest-projecting run", `${p.conservative.time} — from ${p.conservative.basis.miles} mi @ ${p.conservative.basis.pace}/mi`]);
+  rows.forEach(([k, v]) => { reads.appendChild(el("dt", {}, k)); reads.appendChild(el("dd", {}, v)); });
+  $("p-note").textContent = nn(p.note, "");
+
+  const wrap = $("fit-tiles"); wrap.replaceChildren();
+  wrap.appendChild(tile("Runs", nn(f.runs_28day)));
+  wrap.appendChild(tile("Miles", nn(f.miles_28day)));
+  wrap.appendChild(tile("Longest", f.longest_run_28day ? f.longest_run_28day + " mi" : null));
+  wrap.appendChild(tile("Average pace", f.avg_pace_28day ? f.avg_pace_28day + "/mi" : null));
+  wrap.appendChild(tile("Efficiency index", nn(f.efficiency_index_latest),
+    f.efficiency_trend_pct === null || f.efficiency_trend_pct === undefined ? "speed per heartbeat"
+      : `${f.efficiency_trend_pct > 0 ? "+" : ""}${f.efficiency_trend_pct}% over the window`,
+    f.efficiency_trend_pct > 0 ? "good" : f.efficiency_trend_pct < 0 ? "warning" : null));
+
+  table($("table-runs"),
+    [{ key: "date", label: "Date" }, { key: "name", label: "Run" }, { key: "miles", label: "Miles", num: true },
+     { key: "pace", label: "Pace", num: true }, { key: "avg_hr", label: "Avg HR", num: true },
+     { key: "efficiency_index", label: "Efficiency", num: true }],
+    [...(f.recent_runs || [])].reverse());
+}
+
+function renderFuel(d) {
+  const fuel = d.fuel || {};
+  const wrap = $("fuel-tiles"); wrap.replaceChildren();
+  wrap.appendChild(tile("Today", fuel.band || "—", "session type"));
+  wrap.appendChild(tile("Carbohydrate", fuel.carbs_per_kg ? fuel.carbs_per_kg + " g/kg" : null,
+    fuel.carbs_grams ? fuel.carbs_grams + " g total" : "set weight_kg in config.json for grams"));
+  wrap.appendChild(tile("Protein", fuel.protein_per_kg || null, "every day"));
+  $("fuel-note").textContent = nn(fuel.note, "");
+
+  const race = $("fuel-race"); race.replaceChildren();
+  Object.entries(fuel.race_day || {}).forEach(([k, v]) => {
+    race.appendChild(el("dt", {}, k.replace(/_/g, " ")));
+    race.appendChild(el("dd", {}, v));
+  });
+  const cl = $("fuel-load"); cl.replaceChildren();
+  Object.entries(fuel.carb_load || {}).forEach(([k, v]) => {
+    cl.appendChild(el("dt", {}, k.replace(/_/g, " ")));
+    cl.appendChild(el("dd", {}, v));
+  });
+}
+
+function renderCoach(d) {
+  const coach = d.coach || {};
+  $("coach-band").replaceChildren(badge(coach.band || "unknown", (coach.band || "unknown").replace("_", " ")));
+  const body = $("coach-body"); body.replaceChildren();
+  if (coach.headline) {
+    const h = el("div", {}, coach.headline);
+    h.style.fontSize = "15px"; h.style.marginBottom = "8px";
+    body.appendChild(h);
+  }
+  (coach.notes || []).forEach((line) => {
+    const row = el("div", {});
+    row.style.cssText = "font-size:13.5px;color:var(--text-secondary);padding:4px 0";
+    row.textContent = "— " + line;
+    body.appendChild(row);
+  });
+  if (!coach.headline && !(coach.notes || []).length) {
+    body.appendChild(el("div", { class: "note" }, "No coach note in this build. Run coach.py after signals.py."));
+  }
+  $("coach-prov").textContent = coach.source === "claude"
+    ? "Written by Claude from the computed signals above."
+    : "Deterministic rules engine over the computed signals — no model call, same input always gives the same read.";
+}
+
+function renderFooter(d) {
+  const m = d.meta || {}, c = m.store_coverage || {};
+  const parts = [
+    `Generated ${m.generated_at} · data through ${m.data_through}`,
+    `Store: ${c.day_count} days (${c.first_day} → ${c.last_day}), ${c.activity_count} activities`,
+  ];
+  if (d.demo) parts.push("DEMO DATA — synthetic, generated for the public demo. Not real health data.");
+  else parts.push("Local file · your data stays on this machine");
+  $("footer").innerHTML = parts.join("<br>");
+}
+
+/* ------------------------------------------------------------------ tabs */
+const TABS = [
+  ["today", "Today"], ["training", "Training"], ["load", "Load"],
+  ["recovery", "Recovery"], ["fitness", "Fitness"], ["fuel", "Fuel"], ["coach", "Coach"],
+];
+function initTabs() {
+  const bar = $("tabs");
+  TABS.forEach(([key, label], i) => {
+    const b = el("button", { type: "button", role: "tab", id: "tab-" + key,
+                             "aria-controls": "panel-" + key, "aria-selected": i === 0 ? "true" : "false" }, label);
+    b.addEventListener("click", () => selectTab(key));
+    bar.appendChild(b);
+  });
+  const fromHash = (location.hash || "").replace("#", "");
+  selectTab(TABS.some(([k]) => k === fromHash) ? fromHash : TABS[0][0]);
+}
+function selectTab(key) {
+  TABS.forEach(([k]) => {
+    $("panel-" + k).hidden = k !== key;
+    $("tab-" + k).setAttribute("aria-selected", k === key ? "true" : "false");
+  });
+  try { history.replaceState(null, "", "#" + key); } catch (e) { /* file:// refuses this */ }
+}
+
+/* ------------------------------------------------------------------ boot */
+function render(d) {
+  renderHeader(d); renderReadiness(d); renderTiles(d);
+  renderToday(d); renderTraining(d); renderLoad(d);
+  renderRecovery(d); renderFitness(d); renderFuel(d); renderCoach(d); renderFooter(d);
+  initTabs();
+}
+if (DATA) render(DATA);
+else document.querySelector(".page").prepend(
+  Object.assign(document.createElement("div"),
+    { className: "card", textContent: "No data. Run: python3 signals.py && python3 build_dashboard.py" }));
+</script>

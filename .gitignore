@@ -1,0 +1,23 @@
+# --- Secrets: never commit ---
+.tokens/
+*.cred*
+.env
+
+# --- Real personal health data (public repo uses generated demo data) ---
+garmin/store/
+garmin/wellness/
+garmin/workouts/
+garmin/data.json
+web/data.json
+
+# The built dashboard has the real data inlined into the page -- only the
+# synthetic demo build (demo/index.html) is safe to commit.
+dashboard.html
+
+# --- Local environment / noise ---
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+logs/
+.DS_Store
