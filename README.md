@@ -341,10 +341,25 @@ the charts was read straight past, and a fabricated VO₂ max and training week 
 briefly taken for real ones. A demo that can be mistaken for real data is worse
 than no demo.
 
+**Every renderer runs inside its own guard.** A thrown error used to take down
+every section after it. One duplicate element id lost the charts, the nutrition
+panel, the coach note and the jump bar — none of which had anything to do with
+the bug. Now a broken section reports itself in place and the rest of the page
+still draws.
+
+**The build refuses to ship a page that can't render.** Two checks run before the
+HTML is written: no duplicate element ids, and every `$("id")` the script
+references exists in the markup. Both of these shipped once. A duplicate id is
+legal HTML and silently wrong in JavaScript — `getElementById` returns the first
+match, so when a section anchor and an inner mount both answered to `block`, the
+renderer called `replaceChildren` on the entire section, destroyed a chart's
+mount, and everything downstream stopped. No syntax error, no browser warning,
+nothing in a lint pass. Only checking for it catches it.
+
 ## Tests
 
-82 tests over `signals.py`, `adapt.py`, the nutrition layer and the triathlon
-extrapolation, covering the edge cases that would otherwise fail quietly rather
+87 tests over `signals.py`, `adapt.py`, the nutrition layer, the triathlon
+extrapolation and the rendered page itself, covering the edge cases that would otherwise fail quietly rather
 than loudly:
 
 - a workload ratio computed from 5 days of history would look plausible and mean
@@ -369,6 +384,10 @@ than loudly:
   rather than silently treated as a clean split
 - no leg of the full distance ever projects faster per mile than the half it was
   extrapolated from
+- the built page actually renders, with all 22 mounts populated — executed under
+  a minimal DOM in `tests/render_check/`, because a syntax check passes happily
+  on a page that draws nothing
+- a duplicate element id is caught before it ships
 
 ```bash
 .venv/bin/pytest tests/ -q
