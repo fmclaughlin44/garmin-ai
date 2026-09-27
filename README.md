@@ -63,6 +63,9 @@ stage can be run or debugged on its own.
 | `run_daily.py` | runs the whole pipeline; called by a launchd job at 06:30 |
 | `tests/test_signals.py` | tests over the signal layer |
 | `tests/test_adapt.py` | tests over matching and adaptation |
+| `tests/test_nutrition.py` | tests over measured energy and macro targets |
+| `tests/test_triathlon.py` | tests over race-split detection and extrapolation |
+| `launchd/` | the two scheduled jobs, kept in the repo alongside the code |
 
 ## The decisions worth explaining
 
@@ -218,7 +221,21 @@ record of what was eaten.
 **Everything is on one page.** No tabs, no accordions, no drawers. This week's
 plan is the first thing on screen because it is the thing I actually open the page
 to see; everything else is a scroll away rather than a click away. A dashboard you
-have to navigate is a dashboard you check less often.
+have to navigate is a dashboard you check less often. There is a sticky jump bar
+across the top, but it only scrolls — nothing is ever hidden behind it.
+
+**One range control for every chart, not one per chart.** A 30/90-day toggle in
+the jump bar re-renders every time series against the same slice, so 30 days shows
+the recent trend and the wider view shows whether it is progress or noise. When
+there isn't 90 days of history yet the wider button says what it actually has
+("All (47d)") rather than claiming 90 and drawing 47.
+
+**Two races, two sections.** The marathon block is the near work; Ironman 2027 is
+the reason the swim and bike volume dropping to zero right now is a plan rather
+than a problem. The Ironman projection extrapolates from the completed 70.3 by
+slowing each leg's own pace and applying it over the full distance, reported as a
+range because a first full distance has real spread. The fade factors are stated
+on the page, so they can be argued with instead of being buried in the arithmetic.
 
 **The coach's read is a rules engine by default.** It's deterministic, free,
 works offline, and can be unit-tested. `coach.py --live` instead hands the
@@ -255,11 +272,24 @@ reported as unavailable — nothing is silently guessed.
 
 ### Automation
 
-Scheduled every morning at 06:30 via launchd (`com.garminai.dailysync`), which
-runs the whole pipeline so `dashboard.html` is current before I look at it. If the
-Mac is asleep at 06:30, launchd runs the job at the next wake. `refresh.command`
-is double-clickable for an on-demand run, and logs rotate at 512KB so they don't
-grow without bound.
+Two launchd jobs, both in `launchd/`:
+
+| Job | When | What |
+|---|---|---|
+| `com.garminai.dailysync` | 06:30 | `--days 14`, so a few days away still backfill |
+| `com.garminai.topup` | every 2h, 08:30–22:30 | `--days 3`, a light top-up |
+
+The top-up exists so a session shows up on the dashboard within a couple of hours
+of finishing it rather than waiting for the next morning. It stays cheap because
+the sync skips days it already holds and only re-pulls the three Garmin is still
+revising — about two dozen API calls at 0.4s spacing, around 20 seconds end to
+end. If the Mac is asleep, launchd runs the job at the next wake.
+`refresh.command` is double-clickable for an on-demand run, and logs rotate at
+512KB so they don't grow without bound.
+
+**Knowing whether it's current.** The header shows how long ago the page was
+built, with a dot that goes amber past 36 hours and red past two days — so the
+question "is this stale?" is answered before reading any number below it.
 
 A failed Garmin pull doesn't take the run down: the store still holds yesterday,
 the remaining stages rebuild from it, and the page states which day the data runs
@@ -271,11 +301,14 @@ launchctl kickstart -k gui/$(id -u)/com.garminai.dailysync   # force a run
 tail -40 logs/daily_sync.log
 ```
 
-The one thing the schedule can't do is refresh the phone copy. The dashboard is
-also published as a private claude.ai artifact for reading on a phone, and
-publishing needs an interactive session — a headless run has no way to do it. So
-the local file is always current and the phone copy is a snapshot that gets
-republished on request.
+**The phone copy.** The dashboard is also published as a private claude.ai
+artifact for reading on a phone. This is the one thing the schedule can't refresh:
+publishing needs an interactive session, and a headless run has no way to do it.
+The page is honest about that rather than pretending otherwise — its "Sync now"
+button copies the refresh command to the clipboard and explains the schedule,
+because a button that silently does nothing is worse than no button. A cloud-drive
+copy (iCloud Drive, Dropbox) would let the phone pick up the local build
+automatically; neither is set up on this machine, so it isn't wired in.
 
 ## Demo
 
@@ -297,8 +330,9 @@ than no demo.
 
 ## Tests
 
-71 tests over `signals.py`, `adapt.py` and the nutrition layer, covering the edge
-cases that would otherwise fail quietly rather than loudly:
+82 tests over `signals.py`, `adapt.py`, the nutrition layer and the triathlon
+extrapolation, covering the edge cases that would otherwise fail quietly rather
+than loudly:
 
 - a workload ratio computed from 5 days of history would look plausible and mean
   nothing, so it refuses to produce one under 21 days
@@ -318,6 +352,10 @@ cases that would otherwise fail quietly rather than loudly:
 - carbohydrate rises and fat falls monotonically with the day's demand, so the
   periodisation is verified rather than just described
 - macros add back up to the calorie target, and carbs never go negative
+- the 70.3 swim leg logged as `indoor_cardio` is used but flagged as inferred,
+  rather than silently treated as a clean split
+- no leg of the full distance ever projects faster per mile than the half it was
+  extrapolated from
 
 ```bash
 .venv/bin/pytest tests/ -q

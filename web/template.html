@@ -1,4 +1,4 @@
-<title>Road to Sub-3:45</title>
+<title>Training Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -331,6 +331,68 @@
   .minibar > i { display: block; height: 100%; background: var(--series-1); border-radius: 999px; }
   @media (max-width: 700px) { .blockrow { grid-template-columns: 30px 1fr 80px; } .blockrow .minibar-wrap { display: none; } }
 
+  /* ---- header right: sync status ---- */
+  .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; }
+  .sync-status { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--text-secondary); }
+  .sync-status b { font-family: var(--mono); font-weight: 500; color: var(--text-primary); }
+  .sync-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .sync-actions { display: flex; gap: 7px; align-items: center; }
+  button.btn {
+    appearance: none; font-family: inherit; font-size: 12px; font-weight: 500;
+    padding: 5px 11px; border-radius: 6px; cursor: pointer;
+    background: var(--surface-1); color: var(--text-primary);
+    border: 1px solid var(--border-strong);
+  }
+  button.btn:hover { background: var(--surface-2); }
+  button.btn:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
+  button.btn.primary { background: var(--series-1); border-color: var(--series-1); color: #fff; }
+  button.btn.primary:hover { filter: brightness(1.08); }
+
+  .sync-panel {
+    margin-top: 8px; padding: 12px 14px; border: 1px solid var(--border-strong);
+    border-radius: 9px; background: var(--surface-1); font-size: 12.5px;
+    line-height: 1.55; max-width: 420px; text-align: left;
+  }
+  .sync-panel code {
+    display: block; font-family: var(--mono); font-size: 12px; margin: 7px 0;
+    padding: 7px 9px; background: var(--surface-2); border-radius: 5px;
+    user-select: all; word-break: break-all;
+  }
+  .sync-panel .ok { color: var(--good); font-weight: 600; }
+
+  /* ---- sticky jump nav + range toggle ---- */
+  .navbar {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+    display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center;
+    justify-content: space-between;
+    background: color-mix(in srgb, var(--page) 92%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 0; margin-inline: -20px; padding-inline: 20px;
+  }
+  .jump { display: flex; gap: 2px; flex-wrap: wrap; }
+  .jump a {
+    font-size: 12.5px; font-weight: 500; color: var(--text-secondary);
+    text-decoration: none; padding: 5px 9px; border-radius: 6px; white-space: nowrap;
+  }
+  .jump a:hover { background: var(--surface-2); color: var(--text-primary); }
+  .jump a.active { background: color-mix(in srgb, var(--series-1) 13%, transparent); color: var(--series-1); }
+  .jump a:focus-visible { outline: 2px solid var(--series-1); outline-offset: 1px; }
+
+  .range { display: flex; align-items: center; gap: 7px; }
+  .range .lab { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+  .range .group { display: flex; border: 1px solid var(--border-strong); border-radius: 6px; overflow: hidden; }
+  .range button {
+    appearance: none; border: none; background: var(--surface-1); cursor: pointer;
+    font-family: inherit; font-size: 12px; font-weight: 500; color: var(--text-secondary);
+    padding: 5px 11px;
+  }
+  .range button + button { border-left: 1px solid var(--border-strong); }
+  .range button[aria-pressed="true"] { background: var(--series-1); color: #fff; }
+  .range button:focus-visible { outline: 2px solid var(--series-1); outline-offset: -2px; }
+
+  section[id] { scroll-margin-top: 64px; }
+
   .demo-banner {
     background: color-mix(in srgb, var(--warning) 16%, var(--surface-1));
     border: 1px solid var(--warning);
@@ -363,17 +425,30 @@
 
   <header class="masthead">
     <div>
-      <h1 id="race-title">Road to Sub-3:45</h1>
+      <h1>Training Dashboard</h1>
       <div class="race-meta" id="race-meta"></div>
     </div>
-    <div class="countdown">
-      <div class="n" id="cd-n">—</div>
-      <div class="u" id="cd-u">days to race</div>
+    <div class="header-right">
+      <div class="sync-status">
+        <span>Last synced</span><b id="sync-when">—</b><i class="sync-dot" id="sync-dot"></i>
+      </div>
+      <div class="sync-actions">
+        <button type="button" class="btn primary" id="sync-btn">Sync now</button>
+      </div>
+      <div class="sync-panel" id="sync-panel" hidden></div>
     </div>
   </header>
 
+  <nav class="navbar">
+    <div class="jump" id="jump"></div>
+    <div class="range">
+      <span class="lab">Range</span>
+      <div class="group" id="range-group"></div>
+    </div>
+  </nav>
+
   <!-- ============ 1. THIS WEEK ============ -->
-  <section class="section">
+  <section class="section" id="week">
     <div class="section-head">
       <h2>This week</h2>
       <span class="hint" id="week-hint"></span>
@@ -398,7 +473,7 @@
   </section>
 
   <!-- ============ 2. READINESS ============ -->
-  <section class="section">
+  <section class="section" id="readiness">
     <div class="section-head">
       <h2>Readiness</h2>
       <span class="hint">Composed from the signals this watch actually reports</span>
@@ -427,7 +502,7 @@
   </section>
 
   <!-- ============ 3. FITNESS, FATIGUE, FORM ============ -->
-  <section class="section">
+  <section class="section" id="load">
     <div class="section-head">
       <h2>Fitness, fatigue and form</h2>
       <span class="hint" id="form-hint"></span>
@@ -470,7 +545,7 @@
   </section>
 
   <!-- ============ 4. RECOVERY DETAIL ============ -->
-  <section class="section">
+  <section class="section" id="recovery">
     <div class="section-head">
       <h2>Recovery signals</h2>
       <span class="hint">No HRV on this device — the nocturnal drop stands in for it</span>
@@ -507,15 +582,15 @@
     </div>
   </section>
 
-  <!-- ============ 5. WHERE YOU STAND ============ -->
-  <section class="section">
+  <!-- ============ 5. MARATHON ============ -->
+  <section class="section" id="marathon">
     <div class="section-head">
-      <h2>Where you stand</h2>
-      <span class="hint">Two models, deliberately shown together</span>
+      <h2>Marathon — Nov 15, 2026</h2>
+      <span class="hint" id="mar-countdown"></span>
     </div>
     <div class="grid-side">
       <div class="card">
-        <h2>Projected marathon</h2>
+        <h2>Projected finish</h2>
         <div style="display:flex;align-items:baseline;gap:10px">
           <div id="p-time" style="font-family:var(--mono);font-size:40px;font-weight:500;letter-spacing:-0.02em"></div>
           <div style="font-size:13px;color:var(--muted)" id="p-pace"></div>
@@ -535,8 +610,38 @@
     </div>
   </section>
 
+  <!-- ============ 5b. IRONMAN 2027 ============ -->
+  <section class="section" id="ironman">
+    <div class="section-head">
+      <h2 id="im-title">Ironman 2027</h2>
+      <span class="hint" id="im-countdown"></span>
+    </div>
+    <div class="grid-side">
+      <div class="card">
+        <h2>Projected finish — full distance</h2>
+        <div style="display:flex;align-items:baseline;gap:10px">
+          <div id="im-mid" style="font-family:var(--mono);font-size:38px;font-weight:500;letter-spacing:-0.02em"></div>
+          <div style="font-size:13px;color:var(--muted)">midpoint</div>
+        </div>
+        <div class="gap-bar" id="im-range"></div>
+        <p class="note" id="im-note" style="margin:14px 0 0"></p>
+      </div>
+      <div class="section" style="gap:14px">
+        <div class="card">
+          <h2>Your 70.3, and what it implies at 140.6</h2>
+          <div class="scroll-x" id="table-ironman"></div>
+          <p class="note" id="im-ref-note" style="margin:10px 0 0"></p>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>What the numbers say</h2>
+      <div id="im-insights"></div>
+    </div>
+  </section>
+
   <!-- ============ 6. THE BLOCK ============ -->
-  <section class="section">
+  <section class="section" id="block">
     <div class="section-head">
       <h2>The whole block</h2>
       <span class="hint">Eight weeks, Sep 21 to race day. Completion is measured, not ticked.</span>
@@ -560,7 +665,7 @@
   </section>
 
   <!-- ============ 7. PACES & NUTRITION ============ -->
-  <section class="section">
+  <section class="section" id="nutrition">
     <div class="section-head">
       <h2>Nutrition</h2>
       <span class="hint" id="nut-hint"></span>
@@ -606,7 +711,7 @@
   </section>
 
   <!-- ============ 8. COACH ============ -->
-  <section class="section">
+  <section class="section" id="coach">
     <div class="section-head">
       <h2>Coach's read</h2>
       <span class="hint" id="coach-source"></span>
@@ -618,7 +723,7 @@
   </section>
 
   <!-- ============ 9. PROVENANCE ============ -->
-  <section class="section">
+  <section class="section" id="data">
     <div class="section-head">
       <h2>What this watch reports</h2>
       <span class="hint">Probed, not assumed</span>
@@ -806,7 +911,7 @@ function overlayLine(ctx, values, color) {
 
 function lineChart(mount, { labels, series, height = 170, pad = { t: 12, r: 44, b: 22, l: 36 },
                             band = null, tipFn, yLabel = (v) => String(Math.round(v)),
-                            zeroLine = false }) {
+                            zeroLine = false, tickStep = 7 }) {
   const W = 760, H = height;
   const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" });
   const plotW = W - pad.l - pad.r, plotH = H - pad.t - pad.b;
@@ -861,7 +966,7 @@ function lineChart(mount, { labels, series, height = 170, pad = { t: 12, r: 44, 
   });
 
   labels.forEach((lab, i) => {
-    if (i % 7 === 0) {
+    if (i % tickStep === 0) {
       const t = svgEl("text", { class: "tick", x: x(i), y: H - pad.b + 13, "text-anchor": "middle" });
       t.textContent = lab; svg.appendChild(t);
     }
@@ -882,20 +987,153 @@ const LIFT_LABEL = { upper_push: "push", upper_pull: "pull", legs: "legs", mobil
 const STATUS_WORD = { done: "done", moved: "moved", short: "cut short", missed: "missed",
                       today: "today", rest: "rest", upcoming: "" };
 
+let RANGE_DAYS = 30;          // the window every time-series chart is drawn over
+let AVAILABLE_DAYS = 30;      // how much history actually exists
+
 function renderHeader(d) {
   const race = d.race || {};
-  const goalShort = race.goal ? String(race.goal).split(" ")[0].replace(/:00$/, "") : null;
-  $("race-title").textContent = goalShort ? `Road to ${goalShort}` : "Training dashboard";
   const bits = [];
   if (race.distance) bits.push(`<strong>${race.distance}</strong>`);
   if (race.goal) bits.push(`goal ${race.goal}`);
   if (race.date) bits.push(utcDate(race.date).toLocaleDateString(undefined,
     { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" }));
   $("race-meta").innerHTML = bits.join(" · ");
-  const days = race.days_to_race;
-  $("cd-n").textContent = has(days) ? days : "—";
-  $("cd-u").textContent = days === 1 ? "day to race" : "days to race";
 }
+
+/* ---- sync freshness ---- */
+function renderSync(d) {
+  const generated = (d.meta || {}).generated_at;
+  const through = (d.meta || {}).data_through;
+  const whenEl = $("sync-when"), dot = $("sync-dot");
+
+  let hours = null;
+  if (generated) {
+    const then = new Date(generated);          // local timestamp from the build
+    if (!isNaN(then)) hours = (Date.now() - then.getTime()) / 36e5;
+  }
+
+  if (hours === null) {
+    whenEl.textContent = "unknown";
+    dot.style.background = "var(--muted)";
+  } else {
+    whenEl.textContent =
+      hours < 1 ? `${Math.max(1, Math.round(hours * 60))} min ago`
+      : hours < 24 ? `${Math.round(hours)}h ago`
+      : `${Math.round(hours / 24)}d ago`;
+    // Green while the morning run still counts as current, amber past a day,
+    // red past two: the point is to answer "do I need to resync" at a glance.
+    dot.style.background = hours <= 12 ? "var(--good)"
+      : hours <= 36 ? "var(--warning)" : "var(--critical)";
+    dot.title = `Built ${generated}`;
+  }
+  if (through) whenEl.title = `Data runs through ${through}`;
+
+  const panel = $("sync-panel");
+  const command = "cd ~/Desktop/garmin-ai && ./refresh.command";
+  $("sync-btn").addEventListener("click", async () => {
+    if (!panel.hidden) { panel.hidden = true; return; }
+    let copied = false;
+    try {
+      await navigator.clipboard.writeText(command);
+      copied = true;
+    } catch (e) { /* refused in some app views — the command is shown either way */ }
+    panel.replaceChildren();
+    const line = el("div", {});
+    line.innerHTML = copied
+      ? '<span class="ok">Command copied.</span> Paste it into Terminal on the Mac:'
+      : "Run this in Terminal on the Mac:";
+    panel.appendChild(line);
+    const code = el("code", {}, command);
+    panel.appendChild(code);
+    panel.appendChild(el("div", { class: "note" },
+      "This page is a published snapshot, so it can't start a sync by itself. "
+      + "On the Mac you can also double-click refresh.command. The dashboard rebuilds "
+      + "automatically every two hours between 6am and 10pm, so it is rarely stale; "
+      + "ask Claude Code to republish when you want this phone copy refreshed."));
+    panel.hidden = false;
+    if (!copied) {
+      const range = document.createRange();
+      range.selectNodeContents(code);
+      const sel = window.getSelection();
+      sel.removeAllRanges(); sel.addRange(range);
+    }
+  });
+}
+
+/* ---- jump navigation ---- */
+const SECTIONS = [
+  ["week", "This week"], ["readiness", "Readiness"], ["load", "Load & form"],
+  ["recovery", "Recovery"], ["marathon", "Marathon"], ["ironman", "Ironman 2027"],
+  ["block", "The block"], ["nutrition", "Nutrition"], ["coach", "Coach"], ["data", "Data"],
+];
+function initJumpNav() {
+  const bar = $("jump");
+  bar.replaceChildren();
+  SECTIONS.forEach(([id, label]) => {
+    const link = el("a", { href: "#" + id, "data-target": id }, label);
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const target = $(id);
+      if (!target) return;
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    });
+    bar.appendChild(link);
+  });
+
+  // Highlight whichever section is currently in view. Nothing is hidden --
+  // these only scroll -- so the marker is orientation, not navigation state.
+  if (!("IntersectionObserver" in window)) return;
+  const links = new Map([...bar.children].map((a) => [a.dataset.target, a]));
+  const visible = new Set();
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) visible.add(entry.target.id);
+      else visible.delete(entry.target.id);
+    });
+    const first = SECTIONS.map(([id]) => id).find((id) => visible.has(id));
+    links.forEach((a, id) => a.classList.toggle("active", id === first));
+  }, { rootMargin: "-64px 0px -55% 0px" });
+  SECTIONS.forEach(([id]) => { const s = $(id); if (s) observer.observe(s); });
+}
+
+/* ---- range toggle ---- */
+function initRange(d, onChange) {
+  // How much history there actually is decides what the wider button can offer.
+  const counts = [
+    Object.keys((d.load || {}).daily || {}).length,
+    ((d.recovery || {}).history || []).length,
+    Object.keys(((d.form || {}).series) || {}).length,
+  ];
+  AVAILABLE_DAYS = Math.max(...counts, 1);
+  const wide = Math.min(90, AVAILABLE_DAYS);
+  RANGE_DAYS = Math.min(30, AVAILABLE_DAYS);
+
+  const group = $("range-group");
+  group.replaceChildren();
+  const options = [[Math.min(30, AVAILABLE_DAYS), AVAILABLE_DAYS < 30 ? `${AVAILABLE_DAYS}d` : "30 days"]];
+  if (wide > 30) {
+    // Say what the wider button really shows: "90 days" would be a lie at 47.
+    options.push([wide, wide < 90 ? `All (${wide}d)` : "90 days"]);
+  }
+  options.forEach(([days, label]) => {
+    const b = el("button", { type: "button", "aria-pressed": days === RANGE_DAYS ? "true" : "false" }, label);
+    b.addEventListener("click", () => {
+      RANGE_DAYS = days;
+      [...group.children].forEach((c) => c.setAttribute("aria-pressed", c === b ? "true" : "false"));
+      onChange();
+    });
+    group.appendChild(b);
+  });
+  if (options.length === 1) {
+    group.parentElement.appendChild(
+      el("span", { class: "lab" }, "more history builds daily"));
+  }
+}
+
+// Trim a date-keyed object or a date-bearing array to the active window.
+const windowKeys = (obj) => Object.keys(obj || {}).sort().slice(-RANGE_DAYS);
+const windowRows = (rows) => (rows || []).slice(-RANGE_DAYS);
 
 /* ---- the week: front and centre ---- */
 function renderWeek(d) {
@@ -1044,17 +1282,6 @@ function renderReadiness(d) {
   tiles.appendChild(tile("Body battery", nn(latest.bb_wake || latest.bb_high),
     latest.bb_wake ? "at wake" : latest.bb_high ? "day peak" : null));
 
-  // Readiness trend
-  const series = d.recovery.readiness_series || {};
-  const keys = Object.keys(series).sort();
-  if (keys.length > 2) {
-    lineChart($("chart-readiness"), {
-      labels: keys.map(shortDate), height: 150,
-      series: [{ name: "Readiness", color: "var(--series-1)", values: keys.map((k) => series[k].score) }],
-      tipFn: (i) => `<div class="t-date">${keys[i]}</div>`
-        + tipRow("Readiness", nn(series[keys[i]].score)) + tipRow("Band", nn(series[keys[i]].band)),
-    });
-  }
   if (noct.note) $("noct-note").textContent += " " + noct.note;
 }
 
@@ -1072,35 +1299,7 @@ function renderForm(d) {
   tiles.appendChild(tile("Fatigue / fitness", nn((d.adaptation || {}).fatigue_fitness_ratio),
     "above 1.40 eases the next workout"));
 
-  const fs = form.series || {};
-  const keys = Object.keys(fs).sort();
-  if (keys.length > 2) {
-    lineChart($("chart-form"), {
-      labels: keys.map(shortDate), height: 175, zeroLine: true,
-      series: [
-        { name: "Fitness", color: "var(--series-1)", values: keys.map((k) => fs[k].fitness) },
-        { name: "Fatigue", color: "var(--series-2)", values: keys.map((k) => fs[k].fatigue) },
-        { name: "Form", color: "var(--series-3)", values: keys.map((k) => fs[k].form) },
-      ],
-      tipFn: (i) => `<div class="t-date">${keys[i]}</div>`
-        + tipRow("Fitness", fs[keys[i]].fitness) + tipRow("Fatigue", fs[keys[i]].fatigue)
-        + tipRow("Form", (fs[keys[i]].form > 0 ? "+" : "") + fs[keys[i]].form),
-    });
-  }
   $("form-hint").textContent = form.label || form.method || "";
-
-  // Daily load
-  const daily = Object.entries(load.daily || {}).sort();
-  const points = daily.map(([date, value]) => ({ label: shortDate(date), value, date }));
-  const rolling = points.map((_, i) => {
-    const slice = points.slice(Math.max(0, i - 6), i + 1).map((p) => p.value);
-    return slice.length ? slice.reduce((a, b) => a + b, 0) / slice.length : null;
-  });
-  const ctx = barChart($("chart-load"), {
-    points, height: 175,
-    tipFn: (p) => `<div class="t-date">${p.date}</div>` + tipRow("Load", Math.round(p.value)),
-  });
-  overlayLine(ctx, rolling, "var(--series-2)");
 
   const lt = $("load-tiles"); lt.replaceChildren();
   lt.appendChild(tile("Acute (7-day)", nn(load.acute_7day)));
@@ -1113,13 +1312,59 @@ function renderForm(d) {
   $("load-label").textContent = nn(load.label, "");
 }
 
-function renderRecoveryCharts(d) {
-  const history = d.recovery.history || [], rhr = d.recovery.resting_hr || {},
-        noct = d.recovery.nocturnal || {};
+/* ---- every time-series chart, drawn over the active range ---- */
+function renderTimeSeries(d) {
+  const history = windowRows(d.recovery.history || []);
+  const rhr = d.recovery.resting_hr || {}, noct = d.recovery.nocturnal || {};
   const labels = history.map((h) => shortDate(h.date));
+  // Fewer x-axis labels once the window gets long, or they collide.
+  const tickStep = Math.max(1, Math.round(RANGE_DAYS / 6));
 
+  // Readiness
+  const rs = d.recovery.readiness_series || {};
+  const rKeys = windowKeys(rs);
+  if (rKeys.length > 2) {
+    lineChart($("chart-readiness"), {
+      labels: rKeys.map(shortDate), height: 150, tickStep,
+      series: [{ name: "Readiness", color: "var(--series-1)", values: rKeys.map((k) => rs[k].score) }],
+      tipFn: (i) => `<div class="t-date">${rKeys[i]}</div>`
+        + tipRow("Readiness", nn(rs[rKeys[i]].score)) + tipRow("Band", nn(rs[rKeys[i]].band)),
+    });
+  }
+
+  // Fitness / fatigue / form
+  const fs = (d.form || {}).series || {};
+  const fKeys = windowKeys(fs);
+  if (fKeys.length > 2) {
+    lineChart($("chart-form"), {
+      labels: fKeys.map(shortDate), height: 175, zeroLine: true, tickStep,
+      series: [
+        { name: "Fitness", color: "var(--series-1)", values: fKeys.map((k) => fs[k].fitness) },
+        { name: "Fatigue", color: "var(--series-2)", values: fKeys.map((k) => fs[k].fatigue) },
+        { name: "Form", color: "var(--series-3)", values: fKeys.map((k) => fs[k].form) },
+      ],
+      tipFn: (i) => `<div class="t-date">${fKeys[i]}</div>`
+        + tipRow("Fitness", fs[fKeys[i]].fitness) + tipRow("Fatigue", fs[fKeys[i]].fatigue)
+        + tipRow("Form", (fs[fKeys[i]].form > 0 ? "+" : "") + fs[fKeys[i]].form),
+    });
+  }
+
+  // Daily training load
+  const lKeys = windowKeys((d.load || {}).daily || {});
+  const points = lKeys.map((date) => ({ label: shortDate(date), value: d.load.daily[date], date }));
+  const rolling = points.map((_, i) => {
+    const slice = points.slice(Math.max(0, i - 6), i + 1).map((p) => p.value);
+    return slice.length ? slice.reduce((a, b) => a + b, 0) / slice.length : null;
+  });
+  const ctx = barChart($("chart-load"), {
+    points, height: 175, tickEvery: tickStep,
+    tipFn: (p) => `<div class="t-date">${p.date}</div>` + tipRow("Load", Math.round(p.value)),
+  });
+  overlayLine(ctx, rolling, "var(--series-2)");
+
+  // Resting HR against its baseline
   lineChart($("chart-rhr"), {
-    labels, height: 165,
+    labels, height: 165, tickStep,
     series: [{ name: "Resting HR", color: "var(--series-1)", values: history.map((h) => h.rhr) }],
     band: has(rhr.baseline) ? { mid: rhr.baseline, low: rhr.baseline - (rhr.stdev || 1),
                                 high: rhr.baseline + (rhr.stdev || 1) } : null,
@@ -1129,19 +1374,20 @@ function renderRecoveryCharts(d) {
           ? tipRow("vs baseline", `${history[i].rhr - rhr.baseline > 0 ? "+" : ""}${(history[i].rhr - rhr.baseline).toFixed(1)}`) : ""),
   });
 
-  const nPoints = history.map((h) => ({ label: shortDate(h.date), value: h.nocturnal_drop, h, date: h.date }));
+  // Nocturnal drop
   barChart($("chart-nocturnal"), {
-    points: nPoints, height: 165, rule: has(noct.baseline) ? noct.baseline : null,
-    yLabel: (v) => String(Math.round(v)),
+    points: history.map((h) => ({ label: shortDate(h.date), value: h.nocturnal_drop, h, date: h.date })),
+    height: 165, tickEvery: tickStep, rule: has(noct.baseline) ? noct.baseline : null,
     tipFn: (p) => `<div class="t-date">${p.date}</div>`
       + (has(p.value) ? tipRow("Drop", p.value + " bpm") : tipRow("Drop", "no overnight data"))
       + (has(p.h.overnight_hr_min) ? tipRow("Night minimum", p.h.overnight_hr_min + " bpm") : "")
       + (has(p.h.nocturnal_drop_timing) ? tipRow("Bottomed out at", Math.round(p.h.nocturnal_drop_timing * 100) + "% of night") : ""),
   });
 
-  const nights = history.slice(-14).map((h) => ({ label: shortDate(h.date), value: h.sleep_hours, h, date: h.date }));
+  // Sleep
   barChart($("chart-sleep"), {
-    points: nights, height: 150, tickEvery: 2, rule: d.recovery.sleep.target_hours,
+    points: history.map((h) => ({ label: shortDate(h.date), value: h.sleep_hours, h, date: h.date })),
+    height: 150, tickEvery: tickStep, rule: d.recovery.sleep.target_hours,
     yLabel: (v) => v.toFixed(0) + "h",
     tipFn: (p) => `<div class="t-date">${p.date}</div>`
       + tipRow("Sleep", has(p.value) ? p.value + " h" : "no data")
@@ -1156,10 +1402,18 @@ function renderRecoveryCharts(d) {
      { key: "sleep_hours", label: "Sleep h", num: true }, { key: "deep_pct", label: "Deep %", num: true },
      { key: "stress_avg", label: "Stress", num: true }, { key: "steps", label: "Steps", num: true }],
     [...history].reverse());
+
+  document.querySelectorAll("[data-range-label]").forEach((node) => {
+    node.textContent = `last ${RANGE_DAYS} days`;
+  });
 }
 
-function renderStanding(d) {
+function renderMarathon(d) {
   const p = d.projection || {}, f = d.fitness || {}, g = d.garmin || {};
+  const days = (d.race || {}).days_to_race;
+  $("mar-countdown").textContent = has(days)
+    ? `${days} ${days === 1 ? "day" : "days"} to go · goal ${nn((d.race || {}).goal, "")}`
+    : nn((d.race || {}).goal, "");
   $("p-time").textContent = nn(p.best || p.predicted);
   $("p-pace").textContent = p.predicted_pace ? "fastest read " + p.predicted_pace + "/mi" : "";
   $("p-band").replaceChildren(badge(p.on_track ? "good" : "warning",
@@ -1194,6 +1448,70 @@ function renderStanding(d) {
      { key: "pace", label: "Pace", num: true }, { key: "avg_hr", label: "Avg HR", num: true },
      { key: "efficiency_index", label: "Efficiency", num: true }],
     [...(f.recent_runs || [])].reverse());
+}
+
+function renderIronman(d) {
+  const tri = d.triathlon || {};
+  const im = tri.ironman || {}, ref = tri.reference_race || {};
+
+  $("im-title").textContent = im.name ? `${im.name} — 2027` : "Ironman 2027";
+  $("im-countdown").textContent = has(im.days_out)
+    ? `${im.days_out} days to go`
+    : "Date not set — add it to config.json for a countdown";
+
+  if (!im.available) {
+    $("im-mid").textContent = "—";
+    $("im-note").textContent = im.note || "Not enough race data to extrapolate from.";
+    return;
+  }
+
+  $("im-mid").textContent = nn(im.midpoint);
+  const range = $("im-range"); range.replaceChildren();
+  range.appendChild(el("span", { class: "seg" }, `range ${im.fast} – ${im.slow}`));
+  if (im.goal) {
+    range.appendChild(badge(im.on_track ? "good" : "warning",
+      im.on_track ? `inside goal ${im.goal}` : `outside goal ${im.goal}`));
+  }
+  $("im-note").textContent = im.note || "";
+
+  // Leg table: the 70.3 split, the fade applied, and the full-distance result.
+  const rows = im.legs.map((r) => ({
+    leg: r.leg[0].toUpperCase() + r.leg.slice(1),
+    ref: `${r.reference_time} / ${r.reference_miles} mi`,
+    refpace: r.leg === "bike" && r.reference_speed_mph
+      ? `${r.reference_speed_mph} mph`
+      : `${fmtMinPerMile(r.reference_pace_min_per_mile)}/mi`,
+    target: `${r.target_miles} mi`,
+    fade: `×${r.fade[0]}–${r.fade[1]}`,
+    projected: `${r.fast} – ${r.slow}`,
+  }));
+  rows.push({ leg: "Transitions", ref: "", refpace: "", target: "",
+              fade: "", projected: `${im.transition_minutes} min` });
+  rows.push({ leg: "Total", ref: `70.3 was ${nn(ref.moving_time)}`, refpace: "", target: "140.6 mi",
+              fade: "", projected: `${im.fast} – ${im.slow}` });
+  table($("table-ironman"),
+    [{ key: "leg", label: "Leg" }, { key: "ref", label: "Your 70.3" },
+     { key: "refpace", label: "Pace", num: true }, { key: "target", label: "Full", num: true },
+     { key: "fade", label: "Fade", num: true }, { key: "projected", label: "Projected", num: true }],
+    rows);
+
+  $("im-ref-note").textContent = ref.note
+    ? `${ref.name || "Reference race"}, ${ref.date}. ${ref.note}`
+    : `Extrapolated from ${ref.name || "your reference race"} on ${ref.date}.`;
+
+  const insights = $("im-insights"); insights.replaceChildren();
+  (tri.insights || []).forEach((line) => {
+    const row = el("div", {}, line);
+    row.style.cssText = "font-size:13.5px;color:var(--text-secondary);padding:6px 0 6px 14px;"
+      + "border-left:2px solid var(--border);margin-bottom:6px;line-height:1.55";
+    insights.appendChild(row);
+  });
+}
+
+function fmtMinPerMile(minutes) {
+  if (!has(minutes)) return "—";
+  const total = Math.round(minutes * 60);
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
 }
 
 function renderBlock(d) {
@@ -1375,9 +1693,25 @@ function renderFooter(d) {
 
 /* ------------------------------------------------------------------ boot */
 function render(d) {
-  renderDemoBanner(d); renderHeader(d); renderWeek(d); renderReadiness(d); renderForm(d);
-  renderRecoveryCharts(d); renderStanding(d); renderBlock(d);
-  renderNutrition(d); renderCoach(d); renderProvenance(d); renderFooter(d);
+  renderDemoBanner(d);
+  renderHeader(d);
+  renderSync(d);
+  renderWeek(d);
+  renderReadiness(d);
+  renderForm(d);
+  renderMarathon(d);
+  renderIronman(d);
+  renderBlock(d);
+  renderNutrition(d);
+  renderCoach(d);
+  renderProvenance(d);
+  renderFooter(d);
+
+  // Charts last: the range control decides their window, and re-runs this one
+  // pass so every chart always shows the same slice.
+  initRange(d, () => renderTimeSeries(d));
+  renderTimeSeries(d);
+  initJumpNav();
 }
 if (DATA) {
   try { render(DATA); }

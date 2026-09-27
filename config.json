@@ -1,23 +1,20 @@
 {
   "_comment": "Athlete parameters that can't be derived from Garmin data. Anything left null is either measured from your own history or reported as unavailable -- nothing is guessed.",
-
   "weight_lb": 180,
   "protein_per_lb": 1.0,
-
   "_nutrition_comment": "Calorie targets are built from Garmin's MEASURED total daily energy expenditure (bmrKilocalories + activeKilocalories), not an estimated TDEE. Protein is held flat at protein_per_lb. Fat has a per-day floor in g/lb so it never drops to an unhealthy level; carbohydrate takes whatever calories are left, which is what makes hard days high-carb and easy days higher-fat automatically.",
   "deficit_by_day": {
-    "big":      0,
+    "big": 0,
     "quality": -200,
-    "easy":    -400,
+    "easy": -400,
     "recovery": -450
   },
   "fat_g_per_lb_by_day": {
-    "big":      0.35,
-    "quality":  0.40,
-    "easy":     0.50,
+    "big": 0.35,
+    "quality": 0.4,
+    "easy": 0.5,
     "recovery": 0.55
   },
-
   "hr_max": null,
   "sleep_target_hours": 7.5,
   "readiness_weights": {
@@ -27,5 +24,21 @@
     "body_battery": 15,
     "stress": 5,
     "training_load": 10
+  },
+  "reference_race": {
+    "_comment": "The completed race the Ironman projection extrapolates from. Splits are read from the activities Garmin recorded that day, not typed in here.",
+    "name": "IRONMAN 70.3 Wisconsin",
+    "date": "2026-09-12",
+    "distance": "70.3"
+  },
+  "ironman_2027": {
+    "_comment": "Set date (YYYY-MM-DD) once the race is entered, and goal_time (H:MM:SS) if there is one. Leave them null and the section shows projections without a countdown rather than inventing a date.",
+    "name": "Ironman (140.6)",
+    "date": null,
+    "goal_time": null,
+    "swim_miles": 2.4,
+    "bike_miles": 112.0,
+    "run_miles": 26.2188,
+    "transition_minutes": 15
   }
 }

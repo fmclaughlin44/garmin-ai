@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  The morning run. Pulls a wider window than the top-ups so a few days away from
+  the machine still backfill, then rebuilds the dashboard before it gets opened.
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.garminai.dailysync</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/frankmclaughlin/Desktop/garmin-ai/.venv/bin/python</string>
+        <string>/Users/frankmclaughlin/Desktop/garmin-ai/run_daily.py</string>
+        <string>--days</string>
+        <string>14</string>
+    </array>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key><integer>6</integer>
+        <key>Minute</key><integer>30</integer>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>/Users/frankmclaughlin/Desktop/garmin-ai/logs/daily_sync.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/frankmclaughlin/Desktop/garmin-ai/logs/daily_sync.err.log</string>
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>

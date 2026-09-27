@@ -488,7 +488,7 @@ def fitness_fatigue_form(loads_by_date: dict, as_of: date,
         "label": label,
         "seeded_from": round(seed, 1),
         "series": {k: v for k, v in series.items()
-                   if k >= (as_of - timedelta(days=55)).isoformat()},
+                   if k >= (as_of - timedelta(days=89)).isoformat()},
         "method": f"EWMA, {ctl_days}-day fitness / {atl_days}-day fatigue, seeded from the "
                   f"first {seed_weeks} weeks of available load. Form is judged as a share of "
                   f"fitness so the bands don't depend on the load unit.",
@@ -929,6 +929,215 @@ def garmin_metrics(vo2_snapshots: dict, prediction_snapshots: dict) -> dict:
 
 
 # --------------------------------------------------------------------------
+# triathlon: the reference race, and what it implies at full distance
+# --------------------------------------------------------------------------
+
+SWIM_TYPES = {"lap_swimming", "open_water_swimming", "swimming"}
+BIKE_TYPES = {"cycling", "indoor_cycling", "virtual_ride", "road_biking", "gravel_cycling"}
+
+
+def reference_race_splits(activities: list, race_date: str) -> dict:
+    """Pull the three legs of a completed triathlon out of that day's activities.
+
+    Bike and run classify cleanly by activity type. The swim often doesn't: a
+    watch in open water regularly files the leg as something generic, and on this
+    race it came back as `indoor_cardio`. Rather than quietly treating any
+    leftover session as the swim, the unclassified case is used but flagged, so
+    the page can say the classification was inferred.
+    """
+    legs = {"swim": None, "bike": None, "run": None}
+    leftovers = []
+
+    for activity in activities:
+        day = store.activity_date(activity)
+        if not day or day.isoformat() != race_date:
+            continue
+        type_key = (activity.get("activityType") or {}).get("typeKey") or ""
+        summary = {
+            "type": type_key,
+            "name": activity.get("activityName"),
+            "minutes": round((activity.get("duration") or 0) / 60, 1),
+            "miles": round((activity.get("distance") or 0) / METERS_PER_MILE, 2),
+            "avg_hr": activity.get("averageHR"),
+            "inferred": False,
+        }
+        if type_key in SWIM_TYPES:
+            legs["swim"] = summary
+        elif type_key in BIKE_TYPES:
+            legs["bike"] = summary
+        elif "running" in type_key:
+            legs["run"] = summary
+        else:
+            leftovers.append(summary)
+
+    # Longest unclassified session stands in for an unrecorded swim leg.
+    if legs["swim"] is None and leftovers:
+        candidate = max(leftovers, key=lambda s: s["minutes"])
+        candidate["inferred"] = True
+        legs["swim"] = candidate
+
+    recorded = [leg for leg in legs.values() if leg]
+    total_minutes = sum(leg["minutes"] for leg in recorded) if recorded else None
+
+    return {
+        "date": race_date,
+        "legs": legs,
+        "moving_minutes": round(total_minutes, 1) if total_minutes else None,
+        "moving_time": fmt_duration(total_minutes * 60) if total_minutes else None,
+        "complete": all(legs.values()),
+        "note": "Swim leg classification was inferred from an unclassified session."
+                if (legs["swim"] or {}).get("inferred") else None,
+    }
+
+
+# How each leg slows when the distance doubles. These are the conventional
+# planning factors, and they are assumptions rather than measurements -- stated
+# here so they can be argued with rather than buried in an arithmetic expression.
+IRONMAN_FADE = {
+    "swim": (1.02, 1.10),   # least affected: it's short and mostly aerobic either way
+    "bike": (1.06, 1.14),   # ridden at lower intensity to protect the run
+    "run":  (1.12, 1.28),   # the marathon off the bike is where a full distance is won or lost
+}
+
+
+def ironman_projection(reference: dict, config: dict) -> dict:
+    """Extrapolate a full-distance time from a completed 70.3.
+
+    Each leg's pace from the half is slowed by a fade factor and applied over the
+    full distance. A range is reported rather than a single time, because a first
+    full distance has genuine spread and a single number would imply a precision
+    that isn't there.
+
+    This is an extrapolation from one race, not a prediction. It is labelled as
+    such everywhere it appears.
+    """
+    legs = reference.get("legs") or {}
+    if not reference.get("complete"):
+        return {"available": False,
+                "note": "Need all three legs of a completed triathlon to extrapolate from."}
+
+    targets = {
+        "swim": config.get("swim_miles", 2.4),
+        "bike": config.get("bike_miles", 112.0),
+        "run": config.get("run_miles", MARATHON_MILES),
+    }
+    reference_distance = {
+        "swim": legs["swim"]["miles"] or 1.2,   # swim distance is often unrecorded
+        "bike": legs["bike"]["miles"],
+        "run": legs["run"]["miles"],
+    }
+    if not reference_distance["swim"]:
+        reference_distance["swim"] = 1.2
+
+    rows, fast_total, slow_total = [], 0.0, 0.0
+    for leg in ("swim", "bike", "run"):
+        source = legs[leg]
+        distance = reference_distance[leg] or 1
+        pace_per_mile = source["minutes"] / distance
+        fast_fade, slow_fade = IRONMAN_FADE[leg]
+        fast = pace_per_mile * fast_fade * targets[leg]
+        slow = pace_per_mile * slow_fade * targets[leg]
+        fast_total += fast
+        slow_total += slow
+        rows.append({
+            "leg": leg,
+            "reference_time": fmt_duration(source["minutes"] * 60),
+            "reference_miles": round(distance, 2),
+            "reference_pace_min_per_mile": round(pace_per_mile, 2),
+            "reference_speed_mph": round(60 / pace_per_mile, 1) if pace_per_mile else None,
+            "target_miles": targets[leg],
+            "fade": [fast_fade, slow_fade],
+            "fast": fmt_duration(fast * 60),
+            "slow": fmt_duration(slow * 60),
+            "fast_minutes": round(fast, 1),
+            "slow_minutes": round(slow, 1),
+        })
+
+    transition = config.get("transition_minutes", 15)
+    fast_total += transition
+    slow_total += transition
+    midpoint = (fast_total + slow_total) / 2
+
+    goal_seconds = None
+    goal_time = config.get("goal_time")
+    if goal_time:
+        try:
+            h, m, s = (int(x) for x in str(goal_time).split(":"))
+            goal_seconds = h * 3600 + m * 60 + s
+        except Exception:
+            goal_seconds = None
+
+    return {
+        "available": True,
+        "legs": rows,
+        "transition_minutes": transition,
+        "fast": fmt_duration(fast_total * 60),
+        "slow": fmt_duration(slow_total * 60),
+        "midpoint": fmt_duration(midpoint * 60),
+        "midpoint_seconds": round(midpoint * 60),
+        "goal": goal_time,
+        "goal_seconds": goal_seconds,
+        "on_track": (goal_seconds is not None and midpoint * 60 <= goal_seconds),
+        "note": "Extrapolated from one completed 70.3 by slowing each leg's pace and "
+                "applying it over the full distance, plus "
+                f"{transition} minutes of transitions. Conventional fade factors, not "
+                "measurements — a first full distance has real spread, which is why this "
+                "is a range.",
+    }
+
+
+def triathlon_insights(reference: dict, projection: dict, activities: list, as_of: date) -> list:
+    """Observations that follow from the data, rather than generic race advice."""
+    out = []
+    legs = reference.get("legs") or {}
+    if not projection.get("available"):
+        return out
+
+    by_leg = {row["leg"]: row for row in projection["legs"]}
+
+    run = by_leg.get("run")
+    if run:
+        out.append(
+            f"The run is where the time is. Your 70.3 half went {fmt_pace(run['reference_pace_min_per_mile'] * 60)}/mi "
+            f"off the bike; at full distance the same fitness projects "
+            f"{run['fast']} to {run['slow']} for the marathon. Every minute per mile "
+            "you take off standalone marathon pace is roughly 26 minutes here.")
+
+    bike = by_leg.get("bike")
+    if bike and bike.get("reference_speed_mph"):
+        out.append(
+            f"You rode the 70.3 at {bike['reference_speed_mph']} mph. Held at full-distance "
+            f"intensity that is {bike['fast']} to {bike['slow']} for 112 miles — the single "
+            "largest block of the day, and the one that decides what is left for the run.")
+
+    # Swim and bike volume in the last 8 weeks, from real activities.
+    window_start = as_of - timedelta(days=56)
+    swim_minutes = bike_minutes = 0.0
+    for activity in activities:
+        day = store.activity_date(activity)
+        if not day or day < window_start or day > as_of:
+            continue
+        type_key = (activity.get("activityType") or {}).get("typeKey") or ""
+        if type_key in SWIM_TYPES:
+            swim_minutes += (activity.get("duration") or 0) / 60
+        elif type_key in BIKE_TYPES:
+            bike_minutes += (activity.get("duration") or 0) / 60
+
+    out.append(
+        f"Last 8 weeks: {round(swim_minutes)} minutes swimming and {round(bike_minutes)} minutes "
+        "riding. The marathon block is deliberately run-only, so both are near zero by design — "
+        "worth knowing rather than worrying about, but the clock on rebuilding them starts "
+        "the day after the marathon.")
+
+    if (legs.get("swim") or {}).get("inferred"):
+        out.append(
+            "The swim leg was not recorded as a swim activity, so its split is taken from the "
+            "unclassified session on race day. Treat the swim numbers as approximate.")
+
+    return out
+
+
+# --------------------------------------------------------------------------
 # plan adherence
 # --------------------------------------------------------------------------
 
@@ -1262,6 +1471,17 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
     current_week = next((w for w in adherence_info["weeks"] if w["status"] == "current"), None)
     energy_info = energy_baseline(history, days)
 
+    reference_config = config.get("reference_race") or {}
+    reference = reference_race_splits(activities, reference_config.get("date") or "")
+    ironman_config = config.get("ironman_2027") or {}
+    ironman = ironman_projection(reference, ironman_config)
+    ironman_days_out = None
+    if ironman_config.get("date"):
+        try:
+            ironman_days_out = (datetime.fromisoformat(ironman_config["date"]).date() - as_of).days
+        except Exception:
+            pass
+
     return {
         "meta": {
             "generated_at": datetime.now().isoformat(timespec="seconds"),
@@ -1292,14 +1512,16 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
             "resting_hr": rhr_info,
             "nocturnal": nocturnal_info,
             "sleep": sleep_info,
-            "history": history[-28:],
+            # 90 days emitted so the page's 30/90-day toggle has something to
+            # switch to. The page trims; the pipeline doesn't decide the window.
+            "history": history[-90:],
             "readiness_series": {k: v for k, v in readiness_by_day.items()
-                                 if k >= (as_of - timedelta(days=41)).isoformat()},
+                                 if k >= (as_of - timedelta(days=89)).isoformat()},
         },
         "load": {
             **load_info,
             "daily": {k: v for k, v in sorted(loads.items())
-                      if k >= (as_of - timedelta(days=41)).isoformat()},
+                      if k >= (as_of - timedelta(days=89)).isoformat()},
             "method": "Banister TRIMP from average HR where available, per-sport rate otherwise.",
             "measured_sport_rates": rate_info["measured"],
         },
@@ -1313,6 +1535,13 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
         "completed_days": sorted(
             {d.isoformat() for d in (store.activity_date(a) for a in activities) if d}
         ),
+        "triathlon": {
+            "reference_race": {**reference_config, **reference},
+            "ironman": {**ironman, "name": ironman_config.get("name"),
+                        "date": ironman_config.get("date"),
+                        "days_out": ironman_days_out},
+            "insights": triathlon_insights(reference, ironman, activities, as_of),
+        },
         "nutrition": nutrition(today_entry, energy_info, config),
         "nutrition_week": nutrition_week(plan.get("days", {}),
                                         (current_week or {}).get("start") or as_of_iso,
@@ -1429,6 +1658,12 @@ def main() -> None:
         print(f"  VO2 max        {g_.get('vo2_max')} (trend {g_.get('vo2_trend')})")
         if g_.get("race_prediction"):
             print(f"  Garmin says    {g_['race_prediction'].get('marathon')} marathon")
+        tri = signals.get("triathlon", {})
+        ref, im = tri.get("reference_race", {}), tri.get("ironman", {})
+        if ref.get("moving_time"):
+            print(f"  70.3 reference {ref['moving_time']} moving ({ref.get('date')})")
+        if im.get("available"):
+            print(f"  Ironman 140.6  {im['fast']} – {im['slow']} (mid {im['midpoint']})")
         print(f"  28d run miles  {signals['fitness']['miles_28day']} (longest {signals['fitness']['longest_run_28day']})")
         print(f"  projection     {p.get('predicted')} vs goal {p.get('goal')} (gap {p.get('gap')})")
         print(f"  adherence      {signals['adherence']['key_sessions_done_to_date']}/"

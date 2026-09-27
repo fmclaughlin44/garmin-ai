@@ -204,11 +204,30 @@ def build_dataset():
         "time5K": 1205, "time10K": 2530, "timeHalfMarathon": 5820, "timeMarathon": 13620,
     }
 
-    return days, activities, plan, snapshots
+    # A fabricated 70.3 before the block, so the Ironman section has a reference
+    # race to extrapolate from the way the real build does.
+    race_day = (AS_OF - timedelta(days=63)).isoformat()
+    for leg_id, (type_key, name, minutes, miles, hr) in enumerate([
+        ("open_water_swimming", "70.3 Swim", 37, 1.2, 152),
+        ("cycling", "70.3 Bike", 178, 56.0, 150),
+        ("running", "70.3 Run", 112, 13.1, 164),
+    ]):
+        activities.append({
+            "activityId": 800000 + leg_id,
+            "startTimeLocal": f"{race_day} 07:0{leg_id}:00",
+            "activityType": {"typeKey": type_key},
+            "activityName": name,
+            "duration": minutes * 60,
+            "distance": miles * signals.METERS_PER_MILE,
+            "averageHR": hr,
+            "maxHR": hr + 14,
+        })
+
+    return days, activities, plan, snapshots, race_day
 
 
 def main() -> None:
-    days, activities, plan, snapshots = build_dataset()
+    days, activities, plan, snapshots, race_day = build_dataset()
 
     data = signals.build(as_of=AS_OF, days=days, activities=activities, plan=plan,
                          snapshots=snapshots,
@@ -219,6 +238,13 @@ def main() -> None:
                                                      "easy": -400, "recovery": -450},
                                  "fat_g_per_lb_by_day": {"big": 0.35, "quality": 0.40,
                                                           "easy": 0.50, "recovery": 0.55},
+                                 "reference_race": {"name": "70.3 (demo)", "date": race_day,
+                                                     "distance": "70.3"},
+                                 "ironman_2027": {"name": "Ironman (140.6)",
+                                                   "date": "2027-09-12", "goal_time": "13:00:00",
+                                                   "swim_miles": 2.4, "bike_miles": 112.0,
+                                                   "run_miles": 26.2188,
+                                                   "transition_minutes": 15},
                                  "readiness_weights": {"resting_hr": 25, "nocturnal_drop": 20,
                                                         "sleep": 25, "body_battery": 15,
                                                         "stress": 5, "training_load": 10}})
@@ -250,6 +276,9 @@ def main() -> None:
     print(f"  nutrition: {n['target_kcal']}kcal C{n['carbs_g']} P{n['protein_g']} F{n['fat_g']} [{n['band']}]")
     print(f"  adaptation: {data['adaptation']['level']} — "
           f"{len(data['adaptation']['triggers'])} trigger(s)")
+    im = data["triathlon"]["ironman"]
+    if im.get("available"):
+        print(f"  ironman 140.6: {im['fast']} – {im['slow']} (mid {im['midpoint']})")
 
 
 if __name__ == "__main__":

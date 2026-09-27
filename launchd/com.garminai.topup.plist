@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Light top-ups through the day, so the dashboard reflects a session within a
+  couple of hours of finishing it rather than waiting for tomorrow morning.
+
+  Only 3 days are requested: the sync skips days it already holds, and 3 is the
+  window Garmin still revises, so each run is a couple of dozen API calls spaced
+  0.4s apart. A 429 aborts the run rather than retrying.
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.garminai.topup</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/frankmclaughlin/Desktop/garmin-ai/.venv/bin/python</string>
+        <string>/Users/frankmclaughlin/Desktop/garmin-ai/run_daily.py</string>
+        <string>--days</string>
+        <string>3</string>
+    </array>
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict><key>Hour</key><integer>8</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>10</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>12</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>14</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>16</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>18</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>20</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>22</integer><key>Minute</key><integer>30</integer></dict>
+    </array>
+    <key>StandardOutPath</key>
+    <string>/Users/frankmclaughlin/Desktop/garmin-ai/logs/daily_sync.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/frankmclaughlin/Desktop/garmin-ai/logs/daily_sync.err.log</string>
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>
