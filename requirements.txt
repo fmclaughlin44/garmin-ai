@@ -1,1 +1,8 @@
 garminconnect>=0.2.24
+
+# Tests
+pytest>=8.0
+
+# Optional: only needed for `coach.py --live`, which asks Claude for the
+# coach's read instead of using the built-in rules engine.
+# anthropic>=0.40
