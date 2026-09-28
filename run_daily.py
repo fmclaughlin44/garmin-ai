@@ -26,6 +26,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+import runlock
+
 BASE = Path(__file__).resolve().parent
 PY = str(BASE / ".venv" / "bin" / "python")
 LOG_DIR = BASE / "logs"
@@ -71,17 +73,18 @@ def main() -> None:
                         help="Rebuild from the store without hitting Garmin")
     args = parser.parse_args()
 
-    rotate_logs()
-    print(f"\n{'=' * 62}\nDaily run — {datetime.now().strftime('%A %d %B %Y, %H:%M')}\n{'=' * 62}",
-          flush=True)
+    with runlock.exclusive("run_daily"):
+        rotate_logs()
+        print(f"\n{'=' * 62}\nDaily run — {datetime.now().strftime('%A %d %B %Y, %H:%M')}\n{'=' * 62}",
+              flush=True)
 
-    if not args.skip_sync:
-        step("Sync Garmin", ["sync_garmin.py", "--days", str(args.days)], required=False)
+        if not args.skip_sync:
+            step("Sync Garmin", ["sync_garmin.py", "--days", str(args.days)], required=False)
 
-    step("Compute signals", ["signals.py", "--print"])
-    step("Match and adapt the plan", ["adapt.py"])
-    step("Coach", ["coach.py"] + (["--live"] if args.live_coach else []))
-    step("Build dashboard", ["build_dashboard.py"])
+        step("Compute signals", ["signals.py", "--print"])
+        step("Match and adapt the plan", ["adapt.py"])
+        step("Coach", ["coach.py"] + (["--live"] if args.live_coach else []))
+        step("Build dashboard", ["build_dashboard.py"])
 
     print(f"\nDone. Open {BASE / 'dashboard.html'}")
 

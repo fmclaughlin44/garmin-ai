@@ -155,9 +155,17 @@ def date_range(start: date, end: date):
 # daily wellness metrics
 # --------------------------------------------------------------------------
 
-def extract_day_metrics(day_str: str, payload: dict) -> dict:
-    """Flatten one stored day into the handful of fields we care about."""
+def extract_day_metrics(day_str: str, payload: dict, manual: dict = None) -> dict:
+    """Flatten one stored day into the handful of fields we care about.
+
+    ``manual`` fills gaps the watch left. Measured data always wins: Garmin
+    sometimes backfills a night's sleep a day or two late, and when it does, the
+    measurement should replace the estimate rather than the other way round. Any
+    field that ends up coming from a manual entry is labelled, so the page can
+    show it as entered rather than recorded.
+    """
     payload = payload or {}
+    manual = manual or {}
     stats = payload.get("stats") or {}
     sleep_dto = get_path(payload, "sleep", "dailySleepDTO", default={}) or {}
     hrv_summary = get_path(payload, "hrv", "hrvSummary", default={}) or {}
@@ -170,9 +178,19 @@ def extract_day_metrics(day_str: str, payload: dict) -> dict:
     rem = sleep_dto.get("remSleepSeconds")
     night = overnight_hr(payload)
 
+    sleep_source = "garmin" if sleep_seconds else None
+    if not sleep_seconds and manual.get("sleep_hours"):
+        sleep_seconds = int(float(manual["sleep_hours"]) * 3600)
+        sleep_source = manual.get("source", "manual")
+        # Stage breakdown is not recoverable by hand, so it stays absent rather
+        # than being invented from a typical ratio.
+        deep = rem = None
+
     return {
         "date": day_str,
         "source": payload.get("_source", "api"),
+        "sleep_source": sleep_source,
+        "manual_note": manual.get("note"),
         "rhr": stats.get("restingHeartRate"),
         "rhr_7day_avg": stats.get("lastSevenDaysAvgRestingHeartRate"),
         "sleep_seconds": sleep_seconds,
@@ -1385,7 +1403,7 @@ def nutrition_week(plan_days: dict, week_start: str, energy: dict, config: dict)
 # --------------------------------------------------------------------------
 
 def build(as_of: date = None, days=None, activities=None, plan=None, config=None,
-          snapshots=None) -> dict:
+          snapshots=None, manual=None) -> dict:
     """Compute every signal. Every input can be injected.
 
     Nothing here reaches for the store unless it wasn't given the data, which is
@@ -1408,7 +1426,9 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
         "body_battery": 15, "stress": 5, "training_load": 10}
     sleep_target = config.get("sleep_target_hours") or 7.5
 
-    history = [extract_day_metrics(d, days[d]) for d in sorted(days.keys())]
+    manual_entries = manual if manual is not None else store.all_manual()
+    history = [extract_day_metrics(d, days[d], manual_entries.get(d))
+               for d in sorted(days.keys())]
     as_of_iso = as_of.isoformat()
 
     # The most recent day we actually hold data for -- today's numbers may not
@@ -1494,6 +1514,7 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
                 "activity_count": len(activities),
             },
             "hr_max": hr_max_info,
+            "sleep_gaps": sleep_gaps(history, as_of),
             "unavailable_signals": _unavailable(history),
             "available_signals": _available(history),
             "schema_version": 2,
@@ -1552,6 +1573,37 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
                                         (current_week or {}).get("start") or as_of_iso,
                                         energy_info, config),
         "plan_days": plan.get("days", {}),
+    }
+
+
+def sleep_gaps(history: list, as_of: date, window_days=30) -> dict:
+    """Nights in the recent window with no sleep figure at all.
+
+    Worth surfacing rather than quietly averaging over: sleep and the nocturnal
+    drop together carry 45% of the readiness weight, so a missing night doesn't
+    just leave a hole in one chart -- it changes what the readiness score is
+    actually made of.
+    """
+    start = (as_of - timedelta(days=window_days)).isoformat()
+    recent = [h for h in history if start <= h["date"] <= as_of.isoformat()]
+
+    missing = [h["date"] for h in recent if h["sleep_hours"] is None]
+    filled = [{"date": h["date"], "hours": h["sleep_hours"], "source": h["sleep_source"]}
+              for h in recent if h["sleep_source"] and h["sleep_source"] != "garmin"]
+
+    return {
+        "window_days": window_days,
+        "nights_in_window": len(recent),
+        "missing": missing,
+        "missing_count": len(missing),
+        "filled_by_hand": filled,
+        # Last night specifically, because that's the one worth prompting about.
+        "last_night_missing": bool(recent and recent[-1]["sleep_hours"] is None
+                                   and recent[-1]["date"] == as_of.isoformat()),
+        "note": "A night the watch missed can be filled in with "
+                "`python3 log_sleep.py <date> <hours>`. Sleep duration is recoverable "
+                "that way; the overnight heart-rate series is not, so the nocturnal "
+                "drop stays unavailable for those nights.",
     }
 
 

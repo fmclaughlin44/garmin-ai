@@ -62,6 +62,10 @@ stage can be run or debugged on its own.
 | `plan/import_plan.py` | converts that into the schema the pipeline reads |
 | `make_demo_data.py` | synthetic dataset so the project can be shown publicly |
 | `run_daily.py` | runs the whole pipeline; called by a launchd job at 06:30 |
+| `backfill.py` | one-time historical pull; resumable, stops on a rate limit |
+| `log_sleep.py` | fills nights the watch missed |
+| `import_apple_health.py` | imports sleep from an Apple Health export |
+| `runlock.py` | one pipeline run at a time |
 | `tests/test_signals.py` | tests over the signal layer |
 | `tests/test_adapt.py` | tests over matching and adaptation |
 | `tests/test_nutrition.py` | tests over measured energy and macro targets |
@@ -77,6 +81,34 @@ mornings. Shipping a month of raw Garmin payloads to the page to recompute that
 on every load would be absurd. Computing it once a night also makes it stable,
 auditable and testable — `signals.py` is pure functions over plain data.
 
+**Nights the watch missed can be filled in, and are labelled when they are.** A
+night spent charging is gone from Garmin permanently — unlike a recorded night,
+it is never backfilled. Since sleep and the nocturnal drop carry 45% of the
+readiness weight between them, a missing night doesn't just leave a hole in one
+chart, it changes what the score is made of. So the dashboard asks: when a night
+has no sleep figure, a prompt appears with a box for the hours, and hands back the
+exact `log_sleep.py` command. `import_apple_health.py` does the same in bulk from
+an Apple Health export.
+
+What is and isn't recoverable is kept honest. Duration comes back; sleep stages
+are left absent rather than invented from a typical ratio; and the overnight
+heart-rate series isn't in any other source, so the nocturnal drop stays
+unavailable for those nights whatever you do. Measured Garmin data always wins
+over a hand-entered figure, and filled nights are drawn in a different colour on
+the sleep chart so an estimate never passes for a measurement.
+
+One subtlety in the Apple import: Apple writes a broad "asleep" record plus
+per-stage records covering the same minutes, from every device that saw the
+night. Summing those reports ten hours for a seven-hour night, so intervals are
+merged before totalling, and "in bed" is excluded because it overstates sleep by
+an hour or more.
+
+**One pipeline run at a time.** Three things can start a sync — the morning job,
+the two-hourly top-up, and a person running `refresh.command` or `backfill.py` —
+and nothing stopped them overlapping. Two processes double the request rate the
+0.4s pacing exists to stay under. An advisory lock now means a scheduled run that
+finds the pipeline busy skips rather than queueing; it will run again in two hours.
+
 **The store is append-only, and that was a bug fix.** The first version of this
 project wrote everything into a single `garmin/data.json`, rebuilt from scratch
 on each run. Because the sync only pulls a trailing window, every run silently
@@ -86,6 +118,12 @@ data. The store now keeps one small file per day and per activity, and a sync
 replaces only the days it actually fetched. `migrate_store.py` recovered the lost
 history by parsing the human-readable markdown notes the old pipeline had written
 alongside the snapshot and never deleted.
+
+That recovery only reached back to when the old pipeline started, though — which
+left the store holding 46 days while the Garmin account held 277. Every 28-day
+baseline, the fitness curve and the workload ratio were being computed against a
+sixth of the available history. `backfill.py` walks the full range and pulled it
+in: nine months, back to 2025-12-26.
 
 **There is no HRV on this watch, so the nocturnal heart-rate drop stands in for
 it.** Probed directly: `get_hrv_data` and `get_hrv_data_range` both return `{}`,

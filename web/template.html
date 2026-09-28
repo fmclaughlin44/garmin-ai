@@ -455,6 +455,35 @@
 
   section[id] { scroll-margin-top: 64px; }
 
+  .sleep-prompt {
+    background: color-mix(in srgb, var(--series-1) 7%, var(--surface-1));
+    border: 1px solid var(--series-1);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .sp-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .sp-head strong { font-size: 14.5px; }
+  .sp-body { font-size: 13px; color: var(--text-secondary); line-height: 1.5; max-width: 70ch; }
+  .sp-form { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+  .sp-form label { font-size: 12px; color: var(--muted); }
+  .sp-form input {
+    font-family: var(--mono); font-size: 14px; width: 90px; padding: 6px 9px;
+    border-radius: 6px; border: 1px solid var(--border-strong);
+    background: var(--surface-1); color: var(--text-primary);
+  }
+  .sp-form input:focus-visible { outline: 2px solid var(--series-1); outline-offset: 1px; }
+  .sp-result {
+    font-size: 12.5px; line-height: 1.55; border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+  .sp-result code {
+    display: block; font-family: var(--mono); font-size: 12px; margin-top: 7px;
+    padding: 8px 10px; background: var(--surface-2); border-radius: 5px;
+    user-select: all; word-break: break-all;
+  }
+  .sp-missing { font-family: var(--mono); font-size: 12px; color: var(--text-secondary); }
+
   .lift-group { border-top: 1px solid var(--border); padding: 10px 0; }
   .lift-group:first-child { border-top: none; padding-top: 0; }
   .lift-group > summary {
@@ -526,6 +555,21 @@
       <div class="group" id="range-group"></div>
     </div>
   </nav>
+
+  <div class="sleep-prompt" id="sleep-prompt" hidden>
+    <div class="sp-head">
+      <strong id="sp-title">Last night's sleep wasn't recorded</strong>
+      <button type="button" class="btn" id="sp-dismiss">Not now</button>
+    </div>
+    <div class="sp-body" id="sp-body"></div>
+    <div class="sp-form">
+      <label for="sp-hours">Hours slept</label>
+      <input type="number" id="sp-hours" step="0.25" min="0" max="24" placeholder="7.5"
+             inputmode="decimal">
+      <button type="button" class="btn primary" id="sp-log">Log it</button>
+    </div>
+    <div class="sp-result" id="sp-result" hidden></div>
+  </div>
 
   <!-- ============ 1. THIS WEEK ============ -->
   <section class="section" id="week">
@@ -673,6 +717,10 @@
         <div>
           <h2 style="margin-bottom:2px">Sleep</h2>
           <div class="chart-note">Hours per night; the rule marks the target. Scored here from duration and stage composition, since this device reports no sleep score.</div>
+        </div>
+        <div class="legend">
+          <span><i class="swatch" style="background:var(--series-1)"></i>Recorded</span>
+          <span><i class="swatch" style="background:var(--series-2)"></i>Entered or imported</span>
         </div>
       </div>
       <div id="chart-sleep"></div>
@@ -1614,13 +1662,19 @@ function renderTimeSeries(d) {
       + (has(p.h.nocturnal_drop_timing) ? tipRow("Bottomed out at", Math.round(p.h.nocturnal_drop_timing * 100) + "% of night") : ""),
   });
 
-  // Sleep
+  // Sleep. Nights filled in by hand or imported are drawn in the second series
+  // colour, so an estimate never passes for a measurement.
   barChart($("chart-sleep"), {
-    points: history.map((h) => ({ label: shortDate(h.date), value: h.sleep_hours, h, date: h.date })),
+    points: history.map((h) => ({
+      label: shortDate(h.date), value: h.sleep_hours, h, date: h.date,
+      color: h.sleep_source && h.sleep_source !== "garmin" ? "var(--series-2)" : undefined,
+    })),
     height: 150, tickEvery: tickStep, rule: d.recovery.sleep.target_hours,
     yLabel: (v) => v.toFixed(0) + "h",
     tipFn: (p) => `<div class="t-date">${p.date}</div>`
       + tipRow("Sleep", has(p.value) ? p.value + " h" : "no data")
+      + (p.h.sleep_source && p.h.sleep_source !== "garmin"
+          ? tipRow("Source", p.h.sleep_source === "apple_health" ? "Apple Health" : "entered by hand") : "")
       + (p.h.deep_pct ? tipRow("Deep", p.h.deep_pct + "%") : "")
       + (p.h.rem_pct ? tipRow("REM", p.h.rem_pct + "%") : ""),
   });
@@ -1956,6 +2010,86 @@ function renderProvenance(d) {
   }
 }
 
+/* ---- missing-sleep prompt ----
+   The watch misses nights when it's charging, and Garmin never backfills those.
+   Sleep and the nocturnal drop carry 45% of the readiness weight between them,
+   so a missing night quietly changes what the score is made of. This asks.
+
+   A published page can't write to the pipeline, so it does the next best thing:
+   takes the number, builds the exact command, and copies it. One paste finishes
+   the job. The dismissal is remembered per-night in localStorage so it asks once,
+   not every time the page is opened. */
+function renderSleepPrompt(d) {
+  const gaps = (d.meta || {}).sleep_gaps || {};
+  const card = $("sleep-prompt");
+  const missing = gaps.missing || [];
+  if (!missing.length) { card.hidden = true; return; }
+
+  const latest = missing[missing.length - 1];
+  const storageKey = "sleep-prompt-dismissed:" + latest;
+  try {
+    if (localStorage.getItem(storageKey)) { card.hidden = true; return; }
+  } catch (e) { /* private window or blocked storage — just show the prompt */ }
+
+  const isLastNight = latest === d.meta.as_of;
+  $("sp-title").textContent = isLastNight
+    ? "Last night's sleep wasn't recorded"
+    : `${missing.length} night${missing.length > 1 ? "s" : ""} missing sleep data`;
+
+  const body = $("sp-body");
+  body.replaceChildren();
+  body.appendChild(el("div", {},
+    `The watch recorded no sleep for ${dowName(latest)} ${shortDate(latest)}`
+    + (missing.length > 1 ? `, and ${missing.length - 1} other night${missing.length > 2 ? "s" : ""} in the last ${gaps.window_days} days.` : ".")
+    + " Sleep and the nocturnal drop are 45% of the readiness score between them,"
+    + " so this is worth filling in. The overnight heart-rate series can't be recovered,"
+    + " so the nocturnal drop stays unavailable for these nights either way."));
+  if (missing.length > 1) {
+    body.appendChild(el("div", { class: "sp-missing" },
+      "missing: " + missing.map((m) => `${dowName(m)} ${shortDate(m)}`).join(" · ")));
+  }
+
+  const input = $("sp-hours"), result = $("sp-result");
+
+  const submit = async () => {
+    const hours = parseFloat(input.value);
+    if (!(hours > 0 && hours <= 24)) {
+      result.hidden = false;
+      result.replaceChildren(el("div", {}, "Enter a number of hours between 0 and 24."));
+      return;
+    }
+    const command = `python3 log_sleep.py ${latest} ${hours}`;
+    let copied = false;
+    try {
+      await navigator.clipboard.writeText(command);
+      copied = true;
+    } catch (e) { /* refused in some app views — the command is shown regardless */ }
+
+    result.replaceChildren();
+    const line = el("div", {});
+    line.innerHTML = copied
+      ? `<span style="color:var(--good);font-weight:600">Copied.</span> Run this on the Mac to record it:`
+      : "Run this on the Mac to record it:";
+    result.appendChild(line);
+    result.appendChild(el("code", {}, command));
+    result.appendChild(el("div", { class: "note", style: "margin-top:8px" },
+      missing.length > 1
+        ? "For all of them at once: python3 log_sleep.py — it walks the gaps and asks for each."
+        : "The dashboard picks it up on the next rebuild."));
+    result.hidden = false;
+    try { localStorage.setItem(storageKey, "1"); } catch (e) { /* storage may be blocked */ }
+  };
+
+  $("sp-log").addEventListener("click", submit);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+  $("sp-dismiss").addEventListener("click", () => {
+    try { localStorage.setItem(storageKey, "1"); } catch (e) { /* ignore */ }
+    card.hidden = true;
+  });
+
+  card.hidden = false;
+}
+
 function renderDemoBanner(d) {
   // Hidden unless the payload says it is synthetic. A footer note was not enough:
   // it sat below several screens of charts, so the page read as real data.
@@ -1996,6 +2130,7 @@ function guarded(name, sectionId, fn) {
 
 function render(d) {
   guarded("Demo banner", null, () => renderDemoBanner(d));
+  guarded("Sleep prompt", null, () => renderSleepPrompt(d));
   guarded("Header", null, () => renderHeader(d));
   guarded("Sync status", null, () => renderSync(d));
   guarded("This week", "week", () => { renderWeek(d); initWeekNav(d); });

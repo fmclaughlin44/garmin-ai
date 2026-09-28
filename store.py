@@ -14,6 +14,8 @@ The store fixes that by keeping one small JSON file per day and per activity:
 
     garmin/store/days/YYYY-MM-DD.json      one day of wellness payloads
     garmin/store/activities/<id>.json      one activity, keyed by Garmin's id
+    garmin/store/manual/YYYY-MM-DD.json    numbers entered by hand for nights the
+                                           watch missed (charging, not worn)
     garmin/store/snapshots/<metric>/<date>.json
                                            account-wide metrics that aren't
                                            per-day (VO2 max, Garmin's own race
@@ -40,12 +42,14 @@ STORE = BASE / "garmin" / "store"
 DAYS_DIR = STORE / "days"
 ACTIVITIES_DIR = STORE / "activities"
 SNAPSHOTS_DIR = STORE / "snapshots"
+MANUAL_DIR = STORE / "manual"
 
 
 def ensure_dirs() -> None:
     DAYS_DIR.mkdir(parents=True, exist_ok=True)
     ACTIVITIES_DIR.mkdir(parents=True, exist_ok=True)
     SNAPSHOTS_DIR.mkdir(parents=True, exist_ok=True)
+    MANUAL_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def _read_json(path: Path):
@@ -211,6 +215,45 @@ def has_day(day_str: str) -> bool:
     return _has_content(payload)
 
 
+# --------------------------------------------------------------------------
+# Manual entries
+# --------------------------------------------------------------------------
+# The watch misses nights -- charging, or simply not worn. Those nights are not
+# recoverable from Garmin at any later date, so they can only be filled by hand
+# or from another tracker. Manual entries live in their own directory and are
+# never touched by a sync, which keeps them from being mistaken for measurements
+# and keeps a sync from destroying them.
+
+def put_manual(day_str: str, payload: dict) -> None:
+    """Record hand-entered (or imported) data for one day."""
+    ensure_dirs()
+    existing = _read_json(MANUAL_DIR / f"{day_str}.json") or {}
+    existing.update(payload)
+    _write_json(MANUAL_DIR / f"{day_str}.json", existing)
+
+
+def get_manual(day_str: str):
+    return _read_json(MANUAL_DIR / f"{day_str}.json")
+
+
+def all_manual() -> dict:
+    ensure_dirs()
+    out = {}
+    for path in sorted(MANUAL_DIR.glob("*.json")):
+        payload = _read_json(path)
+        if payload is not None:
+            out[path.stem] = payload
+    return out
+
+
+def delete_manual(day_str: str) -> bool:
+    path = MANUAL_DIR / f"{day_str}.json"
+    if path.exists():
+        path.unlink()
+        return True
+    return False
+
+
 def coverage() -> dict:
     """A quick summary of what the store holds -- used by the CLI and README."""
     days = all_days()
@@ -224,7 +267,9 @@ def coverage() -> dict:
             if directory.is_dir():
                 snapshot_counts[directory.name] = len(list(directory.glob("*.json")))
 
+    manual = all_manual()
     return {
+        "manual_entries": len(manual),
         "day_count": len(day_keys),
         "first_day": day_keys[0] if day_keys else None,
         "last_day": day_keys[-1] if day_keys else None,
