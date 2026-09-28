@@ -32,7 +32,7 @@ Every night it:
 ```mermaid
 flowchart LR
   G[Garmin Connect API] -->|sync_garmin.py| S[(garmin/store/<br/>one JSON per day<br/>one per activity)]
-  P[plan/build_plan.py] -->|generates| PJ[plan/plan.json]
+  MP[plan/marathon_plan.json<br/>hand-written source of truth] -->|import_plan.py| PJ[plan/plan.json]
   S --> SIG[signals.py]
   PJ --> SIG
   SIG --> D[(web/data.json<br/>the output contract)]
@@ -58,7 +58,8 @@ stage can be run or debugged on its own.
 | `adapt.py` | matches activities to the plan, and adjusts today and tomorrow |
 | `coach.py` | reads the signals, writes the coach's note |
 | `build_dashboard.py` | inlines `web/data.json` into `web/template.html` |
-| `plan/build_plan.py` | generates the 8-week plan from a single goal time |
+| `plan/marathon_plan.json` | **the plan itself**, as written by hand — the source of truth |
+| `plan/import_plan.py` | converts that into the schema the pipeline reads |
 | `make_demo_data.py` | synthetic dataset so the project can be shown publicly |
 | `run_daily.py` | runs the whole pipeline; called by a launchd job at 06:30 |
 | `tests/test_signals.py` | tests over the signal layer |
@@ -125,8 +126,19 @@ which has a different scale, so borrowing those cutoffs unchanged mislabelled a
 normal training week as a crisis. As a percentage of fitness the bands hold
 whatever the unit is.
 
-**The plan adapts, but never rewrites itself.** `plan/plan.json` is generated once
-from the goal time and then left alone. Each build adjusts only today and
+**The plan is a file I wrote, not one the code invented.**
+`plan/marathon_plan.json` is the plan as a coach writes one: prose session titles,
+mileage ranges, phase labels, four named lifting templates and a stated sacrifice
+order. `plan/import_plan.py` derives the machine-readable fields the pipeline needs
+— kind, mileage, whether a session is key, which lift — without altering anything.
+Every number the dashboard shows about the plan traces back to a line in that file.
+
+Parsing prose has one trap worth recording: the first version read "Easy 30-40min"
+as a 35-mile run, because `mi` matched the start of `min`, and reported week 1 at
+96 miles. Every distance pattern now guards against it and a test pins it down.
+
+**The plan adapts, but never rewrites itself.** `plan/plan.json` is derived once
+from that file and then left alone. Each build adjusts only today and
 tomorrow, and the dashboard shows the suggestion *next to* the original session so
 I pick which one to do. A plan that quietly rewrites itself every morning is a
 plan you stop trusting. Triggers: readiness ≥ 70 takes it as written; 45–69 turns
@@ -135,7 +147,12 @@ quality into easy running at the same distance and trims the long run 10%; below
 — never the day before another key session; three of the last four days below 55
 cuts the rest of the week 20%; a fatigue/fitness ratio above 1.4 eases the next
 workout; two or more key sessions missed last week holds this week at last week's
-volume. Lifting scales down with recovery rather than being dropped.
+volume.
+
+Lifting follows the plan's own sacrifice order rather than a generic rule: Lower B
+is dropped first, Lower A trimmed to two sets next, and upper body is the last
+thing cut. A naive "scale everything by recovery" would have reduced the upper-body
+work that costs the running nothing while keeping the lower-body work that doesn't.
 
 **Completion is measured, not ticked.** A run on the planned day covering at least
 60% of the planned distance counts as done; less is cut short; a run on another
@@ -165,6 +182,12 @@ pessimistic. On the same day they said 3:50:15 and 4:02:45. Showing the bracket 
 more honest than picking whichever number flatters the goal. These endpoints return
 only the current value with no history, so each observation is stored and the trend
 is the store's.
+
+**HRmax comes from the plan file, not from observed maxima.** The pipeline
+originally estimated it as the highest heart rate ever recorded in a session — 185
+— which is a demonstrated floor, not a maximum. The real figure is 194. Since TRIMP
+divides by heart-rate reserve, the wrong ceiling had inflated every load number in
+the project: fitness read 79 against a true 69.
 
 **Training load is TRIMP, not duration.** Banister's formula
 (`minutes × HRr × 0.64 × e^(1.92 × HRr)`) weights hard minutes far more heavily
@@ -262,7 +285,7 @@ call fails. The model never does arithmetic the pipeline has already done.
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 
 .venv/bin/python login.py          # one-time Garmin auth (handles MFA)
-.venv/bin/python plan/build_plan.py
+.venv/bin/python plan/import_plan.py
 .venv/bin/python run_daily.py      # sync → signals → coach → dashboard
 open dashboard.html
 ```
@@ -358,8 +381,8 @@ nothing in a lint pass. Only checking for it catches it.
 
 ## Tests
 
-87 tests over `signals.py`, `adapt.py`, the nutrition layer, the triathlon
-extrapolation and the rendered page itself, covering the edge cases that would otherwise fail quietly rather
+123 tests over `signals.py`, `adapt.py`, the nutrition layer, the triathlon
+extrapolation, the plan importer and the rendered page itself, covering the edge cases that would otherwise fail quietly rather
 than loudly:
 
 - a workload ratio computed from 5 days of history would look plausible and mean
@@ -388,6 +411,11 @@ than loudly:
   a minimal DOM in `tests/render_check/`, because a syntax check passes happily
   on a page that draws nothing
 - a duplicate element id is caught before it ships
+- "Easy 30-40min" is 3.7 miles, not 35 — `mi` never matches the start of `min`
+- the long run lands on Saturday in all eight weeks, and quality on Wednesday; an
+  off-by-one there would misalign adherence for the whole block
+- rest and optional days carry no mileage target, so an optional run reads as a
+  bonus rather than making the week look short
 
 ```bash
 .venv/bin/pytest tests/ -q

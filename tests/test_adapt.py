@@ -233,14 +233,40 @@ def test_low_readiness_rests_and_reschedules_the_key_session():
     assert suggestion["suggested"]["move_to"] is not None
 
 
-def test_low_readiness_reduces_lifting_to_mobility():
+def test_lower_b_is_the_first_lift_dropped():
+    """The plan states the sacrifice order: drop Lower B, then trim Lower A."""
     plan = week_plan()
-    plan[iso(1)]["lift"] = "legs"
+    plan[iso(1)]["lift"] = "lower_b"
     data = make_data(30)
     data["plan_days"] = plan
     statuses = adapt.match_plan(plan, [], WEEK_START + timedelta(days=1))
     result = adapt.adapt(data, statuses)
-    assert result["suggestions"]["today"]["suggested"]["lift"] == "mobility"
+    suggested = result["suggestions"]["today"]["suggested"]
+    assert suggested["lift"] is None
+    assert "Lower B" in suggested["lift_note"]
+
+
+def test_lower_a_is_trimmed_rather_than_dropped():
+    plan = week_plan()
+    plan[iso(1)]["lift"] = "lower_a"
+    data = make_data(30)
+    data["plan_days"] = plan
+    statuses = adapt.match_plan(plan, [], WEEK_START + timedelta(days=1))
+    suggested = adapt.adapt(data, statuses)["suggestions"]["today"]["suggested"]
+    assert suggested["lift"] == "lower_a"
+    assert "2 sets" in suggested["lift_note"]
+
+
+def test_upper_body_survives_a_bad_day():
+    """Upper body is last to be cut -- the opposite of a generic scale-everything
+    rule, and what the plan actually says to do."""
+    plan = week_plan()
+    plan[iso(1)]["lift"] = "upper_push"
+    data = make_data(30)
+    data["plan_days"] = plan
+    statuses = adapt.match_plan(plan, [], WEEK_START + timedelta(days=1))
+    suggested = adapt.adapt(data, statuses)["suggestions"]["today"]["suggested"]
+    assert suggested["lift"] == "upper_push"
 
 
 def test_absorb_week_fires_on_three_of_four_days_below_55():

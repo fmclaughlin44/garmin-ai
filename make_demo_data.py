@@ -51,29 +51,33 @@ def jitter(spread):
 
 
 def session_for(weekday, week_miles):
-    """A week's training pattern, mirroring the plan's own template.
+    """A week's training pattern, mirroring the real plan's own shape.
+
+    The plan runs quality on Wednesday and the long run on Saturday, with Sunday
+    as cross-training and Friday optional. The demo follows the same week so its
+    activities line up with the plan days the dashboard matches them against.
 
     Returns (type_key, minutes, miles, avg_hr) or None for a rest day.
-    Long run lands on Sunday, quality on Tuesday, medium-long on Thursday.
     """
     long_miles = round(week_miles * 0.38, 1)
-    if weekday == 0:      # Mon -- recovery cross-train, or a true day off
-        return ("lap_swimming", 32, None, 132) if RNG.random() < 0.6 else None
-    if weekday == 1:      # Tue -- quality
-        miles = round(week_miles * 0.21, 1)
-        return ("running", int(miles * 8.4), miles, 163)
-    if weekday == 2:      # Wed -- easy
-        miles = round(week_miles * 0.16, 1)
-        return ("running", int(miles * 9.8), miles, 145)
-    if weekday == 3:      # Thu -- medium-long with marathon pace
-        miles = round(week_miles * 0.25, 1)
-        return ("running", int(miles * 9.1), miles, 156)
-    if weekday == 4:      # Fri -- mostly rest
-        return ("cycling", 45, None, 121) if RNG.random() < 0.35 else None
-    if weekday == 5:      # Sat -- shakeout
-        miles = round(week_miles * 0.10, 1)
-        return ("running", int(miles * 10.0), miles, 141)
-    return ("running", int(long_miles * 9.5), long_miles, 152)   # Sun -- long run
+    if weekday == 0:      # Mon -- easy + Upper A
+        miles = round(week_miles * 0.14, 1)
+        return ("running", int(miles * 9.4), miles, 143)
+    if weekday == 1:      # Tue -- easy + Lower A
+        miles = round(week_miles * 0.17, 1)
+        return ("running", int(miles * 9.4), miles, 145)
+    if weekday == 2:      # Wed -- quality
+        miles = round(week_miles * 0.18, 1)
+        return ("running", int(miles * 8.5), miles, 164)
+    if weekday == 3:      # Thu -- easy + Upper B
+        miles = round(week_miles * 0.14, 1)
+        return ("running", int(miles * 9.4), miles, 144)
+    if weekday == 4:      # Fri -- optional pressure-valve day
+        return ("cycling", 42, None, 122) if RNG.random() < 0.35 else None
+    if weekday == 5:      # Sat -- the long run
+        return ("running", int(long_miles * 9.3), long_miles, 151)
+    # Sun -- easy cross-train, Z2
+    return ("lap_swimming", 34, None, 131) if RNG.random() < 0.7 else None
 
 
 def week_miles_for(day: date, plan_days: dict) -> float:

@@ -1501,6 +1501,11 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
         "race": {**race, "days_to_race": days_to_race},
         "paces": plan.get("paces", {}),
         "block": plan.get("block", {}),
+        # Passed through from the plan file so the page can show the lifting
+        # templates and the plan's own rules rather than paraphrasing them.
+        "lifting": plan.get("lifting", {}),
+        "plan_rules": plan.get("rules", []),
+        "athlete": plan.get("athlete", {}),
         "today": {
             "date": as_of_iso,
             "plan": today_entry,

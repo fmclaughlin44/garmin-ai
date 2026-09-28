@@ -455,6 +455,24 @@
 
   section[id] { scroll-margin-top: 64px; }
 
+  .lift-group { border-top: 1px solid var(--border); padding: 10px 0; }
+  .lift-group:first-child { border-top: none; padding-top: 0; }
+  .lift-group > summary {
+    cursor: pointer; list-style: none; display: flex; align-items: baseline; gap: 9px;
+    font-size: 13.5px; font-weight: 600;
+  }
+  .lift-group > summary::marker, .lift-group > summary::-webkit-details-marker { display: none; }
+  .lift-group > summary::before { content: "\25B8 "; color: var(--muted); font-weight: 400; }
+  .lift-group[open] > summary::before { content: "\25BE "; }
+  .lift-group .count { font-family: var(--mono); font-size: 11px; color: var(--muted); font-weight: 400; }
+  .lift-group ul { margin: 8px 0 2px; padding-left: 22px; }
+  .lift-group li { font-size: 12.5px; color: var(--text-secondary); padding: 2px 0; }
+
+  .rules { display: flex; flex-direction: column; gap: 8px; counter-reset: rule; }
+  .rule { display: grid; grid-template-columns: 20px 1fr; gap: 9px; font-size: 13px; line-height: 1.5; }
+  .rule .num { font-family: var(--mono); font-size: 11px; color: var(--muted); padding-top: 2px; }
+  .rule .text { color: var(--text-secondary); }
+
   .demo-banner {
     background: color-mix(in srgb, var(--warning) 16%, var(--surface-1));
     border: 1px solid var(--warning);
@@ -729,6 +747,16 @@
     <div class="card">
       <div id="block-weeks"></div>
     </div>
+    <div class="grid-2">
+      <div class="card">
+        <h2>Lifting templates</h2>
+        <div id="lift-templates"></div>
+      </div>
+      <div class="card">
+        <h2>The plan's own rules</h2>
+        <div id="plan-rules"></div>
+      </div>
+    </div>
     <div class="card">
       <div class="chart-head">
         <div>
@@ -817,6 +845,13 @@
         <h2>Not available</h2>
         <div class="prov" id="prov-no"></div>
       </div>
+    </div>
+    <div class="card">
+      <h2>Athlete reference — from the plan file</h2>
+      <dl class="kv" id="athlete-ref"></dl>
+      <p class="note" style="margin:10px 0 0">These are stated in
+        <code>plan/marathon_plan.json</code>, not measured by this pipeline. HRmax in
+        particular matters: every training-load figure is computed against it.</p>
     </div>
   </section>
 
@@ -1063,7 +1098,14 @@ function lineChart(mount, { labels, series, height = 170, pad = { t: 12, r: 44, 
 
 /* ------------------------------------------------------------------ renderers */
 
-const LIFT_LABEL = { upper_push: "push", upper_pull: "pull", legs: "legs", mobility: "mobility" };
+const LIFT_LABEL = {
+  upper_push: "Upper A", upper_pull: "Upper B", upper_full: "Upper (full)",
+  lower_a: "Lower A", lower_b: "Lower B", mobility: "mobility", legs: "legs",
+};
+const LIFT_SOURCE_KEY = {
+  upper_push: "upperA_push", upper_pull: "upperB_pull",
+  lower_a: "lowerA_hypertrophy", lower_b: "lowerB_prevention",
+};
 const STATUS_WORD = { done: "done", moved: "moved", short: "cut short", missed: "missed",
                       today: "today", rest: "rest", upcoming: "" };
 
@@ -1316,6 +1358,7 @@ function renderWeek(d) {
       : WEEK_INDEX < CURRENT_WEEK_INDEX ? " · past" : " · upcoming");
   $("wk-title").textContent = week.phase;
   $("wk-sub").textContent = week.headline || "";
+  if (week.long_run) $("wk-sub").textContent = `${week.headline || ""}`;
 
   const prev = $("wk-prev"), next = $("wk-next"), backToToday = $("wk-today");
   prev.disabled = WEEK_INDEX === 0;
@@ -1701,6 +1744,50 @@ function fmtMinPerMile(minutes) {
   return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
 }
 
+function renderPlanReference(d) {
+  const lifting = d.lifting || {};
+  const mount = $("lift-templates");
+  mount.replaceChildren();
+  // Ordered the way the plan's sacrifice order reads: upper first, lower after,
+  // since lower body is what gives way when recovery is poor.
+  const order = [
+    ["upperA_push", "Upper A — Push"],
+    ["upperB_pull", "Upper B — Pull"],
+    ["lowerA_hypertrophy", "Lower A — Hypertrophy"],
+    ["lowerB_prevention", "Lower B — Prevention"],
+  ];
+  order.forEach(([key, label]) => {
+    const exercises = lifting[key];
+    if (!exercises || !exercises.length) return;
+    const group = el("details", { class: "lift-group" });
+    const summary = el("summary");
+    summary.appendChild(el("span", {}, label));
+    summary.appendChild(el("span", { class: "count" }, `${exercises.length} movements`));
+    group.appendChild(summary);
+    const list = el("ul");
+    exercises.forEach((x) => list.appendChild(el("li", {}, x)));
+    group.appendChild(list);
+    mount.appendChild(group);
+  });
+  if (!mount.children.length) {
+    mount.appendChild(el("div", { class: "note" }, "No lifting templates in the plan file."));
+  }
+
+  const rules = $("plan-rules");
+  rules.replaceChildren();
+  const list = el("div", { class: "rules" });
+  (d.plan_rules || []).forEach((text, i) => {
+    const row = el("div", { class: "rule" });
+    row.appendChild(el("div", { class: "num" }, String(i + 1)));
+    row.appendChild(el("div", { class: "text" }, text));
+    list.appendChild(row);
+  });
+  rules.appendChild(list);
+  if (!(d.plan_rules || []).length) {
+    rules.appendChild(el("div", { class: "note" }, "No rules in the plan file."));
+  }
+}
+
 function renderBlock(d) {
   const weeks = (d.adherence || {}).weeks || [];
   const mount = $("block-weeks"); mount.replaceChildren();
@@ -1841,6 +1928,16 @@ function renderProvenance(d) {
   });
   const hrmax = (d.meta || {}).hr_max || {};
   yes.appendChild(el("div", {}, `HRmax for training load: ${hrmax.value} bpm (${hrmax.method}).`));
+
+  const athlete = d.athlete || {};
+  kv($("athlete-ref"), [
+    ["VO\u2082 max (stated)", athlete.vo2max],
+    ["Max HR", has(athlete.maxHR) ? athlete.maxHR + " bpm" : null],
+    ["Resting HR", has(athlete.restingHR) ? athlete.restingHR + " bpm" : null],
+    ["Threshold pace", athlete.thresholdPace ? athlete.thresholdPace + "/mi" : null],
+    ["Half marathon PR", athlete.halfMarathonPR],
+    ["Longest run ever", athlete.longestRunEver],
+  ]);
   const measured = (d.load || {}).measured_sport_rates || {};
   if (Object.keys(measured).length) {
     yes.appendChild(el("div", {}, "Load per minute measured from your own sessions for: "
@@ -1907,6 +2004,7 @@ function render(d) {
   guarded("Marathon", "marathon", () => renderMarathon(d));
   guarded("Ironman 2027", "ironman", () => renderIronman(d));
   guarded("The block", "block", () => renderBlock(d));
+  guarded("Plan reference", "block", () => renderPlanReference(d));
   guarded("Nutrition", "nutrition", () => renderNutrition(d));
   guarded("Coach", "coach", () => renderCoach(d));
   guarded("Data provenance", "data", () => renderProvenance(d));

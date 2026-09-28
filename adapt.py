@@ -218,17 +218,37 @@ def _rest_version(entry: dict) -> dict:
 
 
 def _scale_lift(entry: dict, adapted: dict, level: str) -> None:
-    """Lifting scales down with recovery instead of being dropped outright."""
+    """Scale lifting down following the plan's own sacrifice order.
+
+    marathon_plan.json states it explicitly: "Sacrifice order when tired: drop
+    Lower B -> trim Lower A -> skip Friday optional", alongside "Never cut the
+    long run or Wednesday quality to save a lift". So lower-body work gives way
+    first and upper-body work is left alone as long as possible -- the opposite
+    of what a generic "scale everything by recovery" rule would do.
+    """
     lift = entry.get("lift")
     if not lift:
         return
+    readable = lift.replace("_", " ")
+
     if level == "low":
-        adapted["lift"] = "mobility"
-        adapted["lift_note"] = f"{lift.replace('_', ' ')} → mobility only"
+        if lift == "lower_b":
+            adapted["lift"] = None
+            adapted["lift_note"] = "Lower B dropped — first to go per the plan's sacrifice order"
+        elif lift == "lower_a":
+            adapted["lift"] = lift
+            adapted["lift_note"] = "Lower A trimmed to 2 sets, submaximal"
+        else:
+            adapted["lift"] = lift
+            adapted["lift_note"] = f"{readable} kept but 2 sets — upper body is last to be cut"
     elif level == "moderate":
         adapted["lift"] = lift
-        adapted["lift_note"] = ("2 sets instead of 3, no Nordics"
-                                if lift == "legs" else "2 sets, lighter")
+        if lift == "lower_b":
+            adapted["lift_note"] = "Lower B: iso and prevention only, no plyometrics"
+        elif lift == "lower_a":
+            adapted["lift_note"] = "Lower A at 2 sets instead of 4"
+        else:
+            adapted["lift_note"] = f"{readable} as written"
 
 
 def find_reschedule_slot(plan_days: dict, statuses: dict, from_iso: str) -> str:

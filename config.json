@@ -15,7 +15,7 @@
     "easy": 0.5,
     "recovery": 0.55
   },
-  "hr_max": null,
+  "hr_max": 194,
   "sleep_target_hours": 7.5,
   "readiness_weights": {
     "resting_hr": 25,
@@ -40,5 +40,6 @@
     "bike_miles": 112.0,
     "run_miles": 26.2188,
     "transition_minutes": 15
-  }
+  },
+  "_hr_max_comment": "From marathon_plan.json athleteContext. Overrides the estimate from observed session maxima, which is a floor rather than a true HRmax."
 }
