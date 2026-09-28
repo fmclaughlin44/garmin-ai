@@ -219,6 +219,11 @@ def extract_day_metrics(day_str: str, payload: dict, manual: dict = None) -> dic
         "nocturnal_drop": night["drop"],
         "nocturnal_drop_timing": night["drop_timing"],
         "overnight_samples": night["samples"],
+        # Logged by hand; absent unless entered.
+        "soreness": manual.get("soreness"),
+        "energy": manual.get("energy"),
+        "rpe": manual.get("rpe"),
+        "weight_lb": manual.get("weight_lb"),
     }
 
 
@@ -513,6 +518,80 @@ def fitness_fatigue_form(loads_by_date: dict, as_of: date,
     }
 
 
+def perceived_load(history: list, activities: list, loads_by_date: dict,
+                   as_of: date, window_days=42) -> dict:
+    """Session-RPE load against the heart-rate-derived load, where both exist.
+
+    Foster's session-RPE is simply RPE x minutes, and it is a genuinely
+    independent measure: it comes from the athlete, not the sensor. That matters
+    because heart rate systematically under-reads on exactly the days it would be
+    most useful -- deep fatigue, heat, illness and dehydration all suppress the
+    heart-rate response to a hard effort.
+
+    So when perceived load runs consistently above measured load, the heart rate
+    is telling a more flattering story than the legs are. That divergence is the
+    signal; neither number alone says it.
+    """
+    start = as_of - timedelta(days=window_days)
+    minutes_by_date = defaultdict(float)
+    for activity in activities:
+        day = store.activity_date(activity)
+        if day and start <= day <= as_of:
+            minutes_by_date[day.isoformat()] += (activity.get("duration") or 0) / 60
+
+    rows = []
+    for entry in history:
+        if entry["date"] < start.isoformat() or entry["date"] > as_of.isoformat():
+            continue
+        rpe = entry.get("rpe")
+        minutes = minutes_by_date.get(entry["date"], 0)
+        if rpe is None or minutes <= 0:
+            continue
+        srpe = rpe * minutes
+        trimp = loads_by_date.get(entry["date"], 0)
+        rows.append({"date": entry["date"], "rpe": rpe, "minutes": round(minutes),
+                     "srpe": round(srpe), "trimp": round(trimp, 1),
+                     "ratio": round(srpe / trimp, 2) if trimp else None})
+
+    ratios = [r["ratio"] for r in rows if r["ratio"]]
+    if not ratios:
+        return {"sessions": rows, "available": False,
+                "note": "Log RPE after a session (`python3 log.py rpe <date> <1-10>`) to "
+                        "compare how hard it felt against what your heart rate recorded."}
+
+    # The ratio's absolute value is meaningless -- the units differ -- so it is
+    # judged against its own recent median.
+    typical = median(ratios)
+    latest = rows[-1]
+    drift = (latest["ratio"] / typical) if (typical and latest["ratio"]) else None
+
+    if drift is None:
+        label = "Not enough paired sessions yet."
+        band = "unknown"
+    elif drift >= 1.25:
+        band, label = "warning", ("The last session felt harder than your heart rate says it "
+                                  "was. That gap usually means accumulated fatigue, heat or "
+                                  "illness rather than a bad session.")
+    elif drift <= 0.8:
+        band, label = "good", ("The last session felt easier than the heart-rate load "
+                               "suggests — a good sign that fitness is moving.")
+    else:
+        band, label = "good", "Perceived effort and measured load agree."
+
+    return {
+        "available": True,
+        "sessions": rows[-14:],
+        "paired_sessions": len(rows),
+        "typical_ratio": round(typical, 2),
+        "latest_ratio": latest["ratio"],
+        "drift": round(drift, 2) if drift else None,
+        "band": band,
+        "label": label,
+        "note": "Session-RPE (RPE x minutes) against Banister TRIMP. The ratio is compared "
+                "to its own median, since the two use different units.",
+    }
+
+
 # --------------------------------------------------------------------------
 # baselines and readiness
 # --------------------------------------------------------------------------
@@ -617,6 +696,27 @@ def _score_nocturnal(delta, baseline):
     return clamp(0.5 + (delta / max(baseline, 4.0)), 0.0, 1.0)
 
 
+def _score_subjective(soreness, energy):
+    """Morning soreness and energy, as a single 0-1 score.
+
+    These are the only inputs here that can see a problem before the heart rate
+    does -- perceived soreness and low energy tend to precede both overreaching
+    and injury, which is why they are worth the friction of typing them in.
+    Whichever of the two is present is used; neither present means no score, and
+    the weight is redistributed like any other missing input.
+    """
+    parts = []
+    if soreness is not None:
+        # 1 = none, 10 = wrecked.
+        parts.append(clamp((10 - soreness) / 8, 0.0, 1.0))
+    if energy is not None:
+        # 1 = flat, 10 = flying.
+        parts.append(clamp((energy - 2) / 7, 0.0, 1.0))
+    if not parts:
+        return None
+    return sum(parts) / len(parts)
+
+
 def _score_sleep(hours, target):
     if hours is None:
         return None
@@ -667,6 +767,7 @@ def readiness(rhr: dict, sleep: dict, day: dict, load: dict, weights: dict,
         # The stand-in for HRV: how far heart rate fell overnight, against how
         # far it usually falls.
         "nocturnal_drop": _score_nocturnal(nocturnal.get("delta"), nocturnal.get("baseline")),
+        "subjective": _score_subjective(day.get("soreness"), day.get("energy")),
         "sleep": _score_sleep(sleep.get("last_night_hours") or sleep.get("avg_7day_hours"),
                               sleep.get("target_hours", 7.5)),
         # Wake value is the cleanest read, but it's absent on a partially
@@ -678,6 +779,11 @@ def readiness(rhr: dict, sleep: dict, day: dict, load: dict, weights: dict,
     }
 
     available = {k: v for k, v in components.items() if v is not None}
+    # A component with no weight is computed, reported as available, and then
+    # contributes nothing — which is indistinguishable from working. Say so.
+    unweighted = sorted(k for k in available if not weights.get(k))
+    if unweighted:
+        available = {k: v for k, v in available.items() if weights.get(k)}
     if not available:
         return {"score": None, "band": "unknown", "label": "Not enough recovery data to score today.",
                 "components": components, "inputs_used": [], "weights_applied": {}}
@@ -706,6 +812,7 @@ def readiness(rhr: dict, sleep: dict, day: dict, load: dict, weights: dict,
         "inputs_used": sorted(available),
         "inputs_missing": sorted(k for k, v in components.items() if v is None),
         "weights_applied": {k: weights.get(k, 0) for k in sorted(available)},
+        "unweighted_components": unweighted,
     }
 
 
@@ -1293,6 +1400,19 @@ BAND_INTENT = {
 }
 
 
+def latest_logged_weight(history: list):
+    """The most recently logged bodyweight, and how old it is.
+
+    Every macro target scales off this, and in a deficit it moves, so a stale
+    figure quietly skews the whole nutrition panel. There is no connected scale
+    on this account, so it only arrives by hand.
+    """
+    for entry in reversed(history):
+        if entry.get("weight_lb"):
+            return {"weight_lb": entry["weight_lb"], "date": entry["date"]}
+    return None
+
+
 def nutrition(plan_entry: dict, energy: dict, config: dict) -> dict:
     """Today's calorie and macro targets, built in a fixed order.
 
@@ -1367,6 +1487,7 @@ def nutrition(plan_entry: dict, energy: dict, config: dict) -> dict:
             "fat": round(fat_g / weight_kg, 1),
         },
         "weight_lb": weight_lb,
+        "weight_source": config.get("_weight_source"),
         "protein_per_lb": protein_per_lb,
         "energy": energy,
         "note": "Protein held flat at "
@@ -1422,8 +1543,8 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
                      for name in ("max_metrics", "race_predictions")}
 
     weights = config.get("readiness_weights") or {
-        "resting_hr": 25, "nocturnal_drop": 20, "sleep": 25,
-        "body_battery": 15, "stress": 5, "training_load": 10}
+        "resting_hr": 22, "nocturnal_drop": 18, "sleep": 20, "subjective": 18,
+        "body_battery": 12, "stress": 4, "training_load": 6}
     sleep_target = config.get("sleep_target_hours") or 7.5
 
     manual_entries = manual if manual is not None else store.all_manual()
@@ -1490,6 +1611,15 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
     today_entry = plan.get("days", {}).get(as_of_iso)
     current_week = next((w for w in adherence_info["weeks"] if w["status"] == "current"), None)
     energy_info = energy_baseline(history, days)
+    perceived_info = perceived_load(history, activities, loads, as_of)
+
+    # A logged bodyweight beats the config default, since it is the more recent
+    # measurement of a number every macro target scales off.
+    logged_weight = latest_logged_weight(history)
+    nutrition_config = dict(config)
+    if logged_weight:
+        nutrition_config["weight_lb"] = logged_weight["weight_lb"]
+        nutrition_config["_weight_source"] = logged_weight
 
     reference_config = config.get("reference_race") or {}
     reference = reference_race_splits(activities, reference_config.get("date") or "")
@@ -1568,7 +1698,8 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
                         "days_out": ironman_days_out},
             "insights": triathlon_insights(reference, ironman, activities, as_of),
         },
-        "nutrition": nutrition(today_entry, energy_info, config),
+        "nutrition": nutrition(today_entry, energy_info, nutrition_config),
+        "perceived_load": perceived_info,
         "nutrition_week": nutrition_week(plan.get("days", {}),
                                         (current_week or {}).get("start") or as_of_iso,
                                         energy_info, config),
@@ -1685,6 +1816,47 @@ def _unavailable(history: list) -> list:
     return out
 
 
+# The keys the page reads. The frontend trusts whatever shape arrives, and the
+# duplicate-id bug showed how contract violations surface: as blank sections with
+# no error anyone sees. Failing here instead makes the pipeline the thing that
+# breaks, which is the cheap place for it to break.
+REQUIRED_TOP_LEVEL = [
+    "meta", "race", "paces", "block", "today", "readiness", "recovery", "load",
+    "form", "garmin", "fitness", "projection", "adherence", "nutrition",
+    "nutrition_week", "triathlon", "plan_days", "completed_days", "perceived_load",
+]
+REQUIRED_NESTED = {
+    "meta": ["generated_at", "as_of", "data_through", "store_coverage", "hr_max",
+             "sleep_gaps", "schema_version"],
+    "readiness": ["score", "band", "components", "inputs_used"],
+    "recovery": ["latest", "resting_hr", "nocturnal", "sleep", "history", "readiness_series"],
+    "load": ["acute_7day", "ratio", "zone", "daily"],
+    "form": ["fitness", "fatigue", "form", "zone", "series"],
+    "nutrition": ["band", "target_kcal", "protein_g", "carbs_g", "fat_g", "energy"],
+    "projection": ["goal_seconds", "gap_seconds", "on_track"],
+    "adherence": ["weeks"],
+    "triathlon": ["reference_race", "ironman", "insights"],
+}
+
+
+def validate_contract(payload: dict) -> list:
+    """Check the output contract before anything downstream depends on it."""
+    problems = []
+    for key in REQUIRED_TOP_LEVEL:
+        if key not in payload:
+            problems.append(f"missing top-level key: {key}")
+    for parent, children in REQUIRED_NESTED.items():
+        section = payload.get(parent)
+        if not isinstance(section, dict):
+            if parent in payload:
+                problems.append(f"{parent} is not an object")
+            continue
+        for child in children:
+            if child not in section:
+                problems.append(f"missing {parent}.{child}")
+    return problems
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--print", action="store_true", dest="do_print", help="Print a summary")
@@ -1693,6 +1865,13 @@ def main() -> None:
 
     as_of = datetime.fromisoformat(args.as_of).date() if args.as_of else date.today()
     signals = build(as_of=as_of)
+
+    problems = validate_contract(signals)
+    if problems:
+        print("Signals failed their own output contract:", file=sys.stderr)
+        for problem in problems:
+            print(f"  - {problem}", file=sys.stderr)
+        sys.exit(1)
 
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(signals, indent=2, default=str))

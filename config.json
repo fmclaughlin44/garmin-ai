@@ -18,12 +18,13 @@
   "hr_max": 194,
   "sleep_target_hours": 7.5,
   "readiness_weights": {
-    "resting_hr": 25,
-    "nocturnal_drop": 20,
-    "sleep": 25,
-    "body_battery": 15,
-    "stress": 5,
-    "training_load": 10
+    "resting_hr": 22,
+    "nocturnal_drop": 18,
+    "sleep": 20,
+    "subjective": 18,
+    "body_battery": 12,
+    "stress": 4,
+    "training_load": 6
   },
   "reference_race": {
     "_comment": "The completed race the Ironman projection extrapolates from. Splits are read from the activities Garmin recorded that day, not typed in here.",
@@ -41,5 +42,6 @@
     "run_miles": 26.2188,
     "transition_minutes": 15
   },
-  "_hr_max_comment": "From marathon_plan.json athleteContext. Overrides the estimate from observed session maxima, which is a floor rather than a true HRmax."
+  "_hr_max_comment": "From marathon_plan.json athleteContext. Overrides the estimate from observed session maxima, which is a floor rather than a true HRmax.",
+  "_readiness_weights_comment": "Must list every component signals.readiness() can produce. A component missing from this dict is computed, reported as available, then multiplied by zero \u2014 which is how the subjective score was silently ignored."
 }

@@ -246,6 +246,15 @@ def all_manual() -> dict:
     return out
 
 
+def replace_manual(day_str: str, payload: dict) -> None:
+    """Overwrite a day's manual entry wholesale (used when removing one field)."""
+    ensure_dirs()
+    if payload:
+        _write_json(MANUAL_DIR / f"{day_str}.json", payload)
+    else:
+        delete_manual(day_str)
+
+
 def delete_manual(day_str: str) -> bool:
     path = MANUAL_DIR / f"{day_str}.json"
     if path.exists():

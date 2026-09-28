@@ -31,7 +31,7 @@ const MOUNTS = [
   "chart-readiness", "chart-form", "chart-load", "chart-rhr", "chart-nocturnal",
   "chart-sleep", "chart-mileage", "block-weeks", "nut-macros", "nut-energy",
   "table-nutrition", "coach-body", "prov-yes", "p-reads", "table-ironman", "im-insights",
-  "lift-templates", "plan-rules", "athlete-ref",
+  "lift-templates", "plan-rules", "athlete-ref", "perceived-band", "perceived-note",
 ];
 
 const failures = [];

@@ -14,6 +14,10 @@ web/data.json
 # synthetic demo build (demo/index.html) is safe to commit.
 dashboard.html
 
+# --- Runtime ---
+.tmp-runlock
+.tmp-health-state.json
+
 # --- Local environment / noise ---
 .venv/
 __pycache__/

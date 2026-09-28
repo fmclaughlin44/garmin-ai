@@ -455,6 +455,31 @@
 
   section[id] { scroll-margin-top: 64px; }
 
+  .health-banner {
+    border-radius: 10px; padding: 12px 15px; font-size: 13.5px;
+    display: flex; flex-direction: column; gap: 9px;
+  }
+  .health-banner[data-status="warn"] {
+    background: color-mix(in srgb, var(--warning) 14%, var(--surface-1));
+    border: 1px solid var(--warning);
+  }
+  .health-banner[data-status="fail"] {
+    background: color-mix(in srgb, var(--critical) 13%, var(--surface-1));
+    border: 1px solid var(--critical);
+  }
+  .hb-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .hb-checks { display: flex; flex-direction: column; gap: 5px; }
+  .hb-check { display: grid; grid-template-columns: 54px 1fr; gap: 10px; font-size: 12.5px; }
+  .hb-check .tag {
+    font-family: var(--mono); font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.06em; padding: 1px 0; text-align: center; border-radius: 3px;
+  }
+  .hb-check .tag.ok { color: var(--good); }
+  .hb-check .tag.warn { color: var(--warning); }
+  .hb-check .tag.fail { color: var(--critical); }
+  .hb-check .what { color: var(--text-secondary); }
+  .hb-check .what b { color: var(--text-primary); font-weight: 600; }
+
   .sleep-prompt {
     background: color-mix(in srgb, var(--series-1) 7%, var(--surface-1));
     border: 1px solid var(--series-1);
@@ -555,6 +580,12 @@
       <div class="group" id="range-group"></div>
     </div>
   </nav>
+
+  <div class="health-banner" id="health-banner" hidden>
+    <div class="hb-head"><strong id="hb-summary"></strong>
+      <button type="button" class="btn" id="hb-toggle">Details</button></div>
+    <div class="hb-checks" id="hb-checks" hidden></div>
+  </div>
 
   <div class="sleep-prompt" id="sleep-prompt" hidden>
     <div class="sp-head">
@@ -678,6 +709,13 @@
         </div>
         <div id="chart-load"></div>
       </div>
+    </div>
+    <div class="card" id="perceived-card">
+      <h2>Perceived effort against measured load</h2>
+      <div id="perceived-band"></div>
+      <div class="verdict" id="perceived-label" style="margin-top:8px"></div>
+      <div class="scroll-x" id="table-perceived" style="margin-top:10px"></div>
+      <p class="note" id="perceived-note" style="margin:10px 0 0"></p>
     </div>
     <div class="card">
       <h2>Workload ratio</h2>
@@ -1531,7 +1569,8 @@ function renderReadiness(d) {
   $("r-verdict").textContent = nn(r.label, "");
 
   const LABELS = { resting_hr: "Resting HR", nocturnal_drop: "Nocturnal drop", sleep: "Sleep",
-                   body_battery: "Body battery", stress: "Stress", training_load: "Training load" };
+                   subjective: "How you feel", body_battery: "Body battery",
+                   stress: "Stress", training_load: "Training load" };
   const wrap = $("r-components"); wrap.replaceChildren();
   Object.entries(LABELS).forEach(([key, label]) => {
     const score = (r.components || {})[key];
@@ -1588,6 +1627,30 @@ function renderForm(d) {
   lt.appendChild(tile("Monotony", nn(load.monotony), "same-ness of the week"));
   lt.appendChild(tile("Strain", nn(load.strain), "load × monotony"));
   $("load-label").textContent = nn(load.label, "");
+}
+
+function renderPerceived(d) {
+  const p = d.perceived_load || {};
+  const band = $("perceived-band"); band.replaceChildren();
+  if (!p.available) {
+    band.appendChild(badge("unknown", "no RPE logged yet"));
+    $("perceived-label").textContent = "";
+    $("table-perceived").replaceChildren();
+    $("perceived-note").textContent = p.note || "";
+    return;
+  }
+  band.appendChild(badge(p.band || "unknown",
+    has(p.drift)
+      ? `felt ${p.drift > 1.05 ? "harder" : p.drift < 0.95 ? "easier" : "as expected"} than measured`
+      : "\u2014"));
+  $("perceived-label").textContent = p.label || "";
+  table($("table-perceived"),
+    [{ key: "date", label: "Date" }, { key: "rpe", label: "RPE", num: true },
+     { key: "minutes", label: "Minutes", num: true },
+     { key: "srpe", label: "Session RPE", num: true },
+     { key: "trimp", label: "TRIMP", num: true }, { key: "ratio", label: "Ratio", num: true }],
+    [...(p.sessions || [])].reverse());
+  $("perceived-note").textContent = p.note || "";
 }
 
 /* ---- every time-series chart, drawn over the active range ---- */
@@ -1926,7 +1989,9 @@ function renderNutrition(d) {
     ["Average active", has(e.avg_active) ? e.avg_active + " kcal" : null],
     ["Observed range", e.range ? `${e.range[0]} – ${e.range[1]} kcal` : null],
     ["Complete days used", e.days_used || null],
-    ["Bodyweight", has(n.weight_lb) ? n.weight_lb + " lb" : null],
+    ["Bodyweight", has(n.weight_lb)
+      ? n.weight_lb + " lb" + (n.weight_source ? ` (logged ${n.weight_source.date})` : " (from config)")
+      : null],
     ["Protein rule", has(n.protein_per_lb) ? `${n.protein_per_lb}g per lb` : null],
   ]);
   $("nut-energy-note").textContent = nn(e.note, "");
@@ -2090,6 +2155,34 @@ function renderSleepPrompt(d) {
   card.hidden = false;
 }
 
+/* ---- pipeline health ----
+   The failure this exists for: the token expires, syncs fail silently, and the
+   page keeps rendering stale numbers confidently. Shown only when something is
+   actually wrong, so it stays worth reading. */
+function renderHealth(d) {
+  const health = d.health;
+  const banner = $("health-banner");
+  if (!health || health.status === "ok") { banner.hidden = true; return; }
+
+  banner.setAttribute("data-status", health.status);
+  $("hb-summary").textContent = health.summary || "";
+
+  const list = $("hb-checks");
+  list.replaceChildren();
+  (health.checks || []).forEach((check) => {
+    const row = el("div", { class: "hb-check" });
+    row.appendChild(el("div", { class: "tag " + check.status }, check.status));
+    const what = el("div", { class: "what" });
+    what.appendChild(el("b", {}, check.name + ": "));
+    what.appendChild(el("span", {}, check.detail));
+    row.appendChild(what);
+    list.appendChild(row);
+  });
+
+  $("hb-toggle").addEventListener("click", () => { list.hidden = !list.hidden; });
+  banner.hidden = false;
+}
+
 function renderDemoBanner(d) {
   // Hidden unless the payload says it is synthetic. A footer note was not enough:
   // it sat below several screens of charts, so the page read as real data.
@@ -2129,6 +2222,7 @@ function guarded(name, sectionId, fn) {
 }
 
 function render(d) {
+  guarded("Pipeline health", null, () => renderHealth(d));
   guarded("Demo banner", null, () => renderDemoBanner(d));
   guarded("Sleep prompt", null, () => renderSleepPrompt(d));
   guarded("Header", null, () => renderHeader(d));
@@ -2136,6 +2230,7 @@ function render(d) {
   guarded("This week", "week", () => { renderWeek(d); initWeekNav(d); });
   guarded("Readiness", "readiness", () => renderReadiness(d));
   guarded("Fitness and load", "load", () => renderForm(d));
+  guarded("Perceived load", "load", () => renderPerceived(d));
   guarded("Marathon", "marathon", () => renderMarathon(d));
   guarded("Ironman 2027", "ironman", () => renderIronman(d));
   guarded("The block", "block", () => renderBlock(d));

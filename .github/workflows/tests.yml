@@ -1,0 +1,48 @@
+name: tests
+
+# The test suite existed for weeks and only ran when someone remembered. This
+# runs it on every push, including the render check that executes the built page
+# under a minimal DOM -- the check that caught a blank dashboard a syntax check
+# had passed.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        # garminconnect is deliberately not installed: nothing in the test suite
+        # talks to Garmin, and requiring it would make CI depend on a third-party
+        # package that changes often.
+        run: pip install pytest
+
+      - name: Build the plan from its source file
+        run: python plan/import_plan.py
+
+      - name: Generate the demo dataset
+        # The render check needs a payload to render. The demo generator is
+        # seeded, so this produces the same data on every run.
+        run: python make_demo_data.py
+
+      - name: Run the test suite
+        run: pytest tests/ -q
+
+      - name: Check the built page actually renders
+        run: |
+          python build_dashboard.py --data web/demo-data.json --out /tmp/demo.html
+          node tests/render_check/run.js /tmp/demo.html

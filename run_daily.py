@@ -84,7 +84,11 @@ def main() -> None:
         step("Compute signals", ["signals.py", "--print"])
         step("Match and adapt the plan", ["adapt.py"])
         step("Coach", ["coach.py"] + (["--live"] if args.live_coach else []))
-        step("Build dashboard", ["build_dashboard.py"])
+    step("Build dashboard", ["build_dashboard.py"])
+    # Last, so it judges what was actually produced. Never fatal: a failed
+        # health check must not stop the dashboard from being written.
+    step("Health check", ["healthcheck.py"], required=False)
+    step("Rebuild with health", ["build_dashboard.py"], required=False)
 
     print(f"\nDone. Open {BASE / 'dashboard.html'}")
 

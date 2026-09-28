@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-09-28T16:34:32",
+    "generated_at": "2026-09-28T17:02:25",
     "as_of": "2026-10-21",
     "data_through": "2026-10-21",
     "store_coverage": {
@@ -155,12 +155,13 @@
     }
   },
   "readiness": {
-    "score": 85,
+    "score": 78,
     "band": "good",
     "label": "Recovery signals are strong \u2014 take the session as planned.",
     "components": {
       "resting_hr": 0.714,
       "nocturnal_drop": 0.606,
+      "subjective": 0.527,
       "sleep": 1.0,
       "body_battery": 1.0,
       "stress": 1.0,
@@ -172,17 +173,20 @@
       "resting_hr",
       "sleep",
       "stress",
+      "subjective",
       "training_load"
     ],
     "inputs_missing": [],
     "weights_applied": {
-      "body_battery": 15,
-      "nocturnal_drop": 20,
-      "resting_hr": 25,
-      "sleep": 25,
-      "stress": 5,
-      "training_load": 10
-    }
+      "body_battery": 12,
+      "nocturnal_drop": 18,
+      "resting_hr": 22,
+      "sleep": 20,
+      "stress": 4,
+      "subjective": 18,
+      "training_load": 6
+    },
+    "unweighted_components": []
   },
   "recovery": {
     "latest": {
@@ -215,7 +219,11 @@
       "nocturnal_drop": 13.6,
       "nocturnal_drop_timing": 0.39,
       "overnight_samples": 227,
-      "readiness_score": 85,
+      "soreness": 5,
+      "energy": 5,
+      "rpe": 7,
+      "weight_lb": 168.0,
+      "readiness_score": 78,
       "readiness_band": "good"
     },
     "resting_hr": {
@@ -276,6 +284,10 @@
         "nocturnal_drop": 13.0,
         "nocturnal_drop_timing": 0.41,
         "overnight_samples": 236,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
         "readiness_score": 100,
         "readiness_band": "good"
       },
@@ -309,7 +321,11 @@
         "nocturnal_drop": 13.6,
         "nocturnal_drop_timing": 0.43,
         "overnight_samples": 247,
-        "readiness_score": 82,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 81,
         "readiness_band": "good"
       },
       {
@@ -342,7 +358,11 @@
         "nocturnal_drop": 11.7,
         "nocturnal_drop_timing": 0.44,
         "overnight_samples": 238,
-        "readiness_score": 86,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 85,
         "readiness_band": "good"
       },
       {
@@ -375,7 +395,11 @@
         "nocturnal_drop": 11.5,
         "nocturnal_drop_timing": 0.38,
         "overnight_samples": 229,
-        "readiness_score": 78,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 77,
         "readiness_band": "good"
       },
       {
@@ -408,7 +432,11 @@
         "nocturnal_drop": 10.2,
         "nocturnal_drop_timing": 0.42,
         "overnight_samples": 217,
-        "readiness_score": 83,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 82,
         "readiness_band": "good"
       },
       {
@@ -441,7 +469,11 @@
         "nocturnal_drop": 10.6,
         "nocturnal_drop_timing": 0.46,
         "overnight_samples": 227,
-        "readiness_score": 82,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 81,
         "readiness_band": "good"
       },
       {
@@ -474,7 +506,11 @@
         "nocturnal_drop": 13.3,
         "nocturnal_drop_timing": 0.41,
         "overnight_samples": 230,
-        "readiness_score": 90,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": 166.9,
+        "readiness_score": 89,
         "readiness_band": "good"
       },
       {
@@ -507,7 +543,11 @@
         "nocturnal_drop": 9.0,
         "nocturnal_drop_timing": 0.63,
         "overnight_samples": 229,
-        "readiness_score": 72,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 70,
         "readiness_band": "moderate"
       },
       {
@@ -540,7 +580,11 @@
         "nocturnal_drop": 13.2,
         "nocturnal_drop_timing": 0.35,
         "overnight_samples": 221,
-        "readiness_score": 85,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 84,
         "readiness_band": "good"
       },
       {
@@ -573,7 +617,11 @@
         "nocturnal_drop": 11.5,
         "nocturnal_drop_timing": 0.43,
         "overnight_samples": 220,
-        "readiness_score": 87,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 86,
         "readiness_band": "good"
       },
       {
@@ -606,7 +654,11 @@
         "nocturnal_drop": 12.4,
         "nocturnal_drop_timing": 0.36,
         "overnight_samples": 242,
-        "readiness_score": 78,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 77,
         "readiness_band": "good"
       },
       {
@@ -639,7 +691,11 @@
         "nocturnal_drop": 13.2,
         "nocturnal_drop_timing": 0.43,
         "overnight_samples": 218,
-        "readiness_score": 86,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 85,
         "readiness_band": "good"
       },
       {
@@ -672,7 +728,11 @@
         "nocturnal_drop": 12.1,
         "nocturnal_drop_timing": 0.34,
         "overnight_samples": 241,
-        "readiness_score": 81,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 80,
         "readiness_band": "good"
       },
       {
@@ -705,6 +765,10 @@
         "nocturnal_drop": 13.9,
         "nocturnal_drop_timing": 0.39,
         "overnight_samples": 225,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": 167.2,
         "readiness_score": 88,
         "readiness_band": "good"
       },
@@ -738,7 +802,11 @@
         "nocturnal_drop": 9.9,
         "nocturnal_drop_timing": 0.75,
         "overnight_samples": 242,
-        "readiness_score": 71,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 70,
         "readiness_band": "moderate"
       },
       {
@@ -771,7 +839,11 @@
         "nocturnal_drop": 11.9,
         "nocturnal_drop_timing": 0.43,
         "overnight_samples": 230,
-        "readiness_score": 85,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 84,
         "readiness_band": "good"
       },
       {
@@ -804,7 +876,11 @@
         "nocturnal_drop": 14.0,
         "nocturnal_drop_timing": 0.35,
         "overnight_samples": 224,
-        "readiness_score": 89,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 88,
         "readiness_band": "good"
       },
       {
@@ -837,6 +913,10 @@
         "nocturnal_drop": 12.8,
         "nocturnal_drop_timing": 0.43,
         "overnight_samples": 221,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
         "readiness_score": 85,
         "readiness_band": "good"
       },
@@ -870,7 +950,11 @@
         "nocturnal_drop": 11.2,
         "nocturnal_drop_timing": 0.41,
         "overnight_samples": 246,
-        "readiness_score": 81,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 80,
         "readiness_band": "good"
       },
       {
@@ -903,7 +987,11 @@
         "nocturnal_drop": 11.7,
         "nocturnal_drop_timing": 0.37,
         "overnight_samples": 242,
-        "readiness_score": 80,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 79,
         "readiness_band": "good"
       },
       {
@@ -936,7 +1024,11 @@
         "nocturnal_drop": 12.4,
         "nocturnal_drop_timing": 0.44,
         "overnight_samples": 219,
-        "readiness_score": 82,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": 167.2,
+        "readiness_score": 80,
         "readiness_band": "good"
       },
       {
@@ -969,7 +1061,11 @@
         "nocturnal_drop": 10.2,
         "nocturnal_drop_timing": 0.7,
         "overnight_samples": 218,
-        "readiness_score": 62,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 60,
         "readiness_band": "moderate"
       },
       {
@@ -1002,8 +1098,12 @@
         "nocturnal_drop": 12.5,
         "nocturnal_drop_timing": 0.41,
         "overnight_samples": 227,
-        "readiness_score": 76,
-        "readiness_band": "good"
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 74,
+        "readiness_band": "moderate"
       },
       {
         "date": "2026-09-05",
@@ -1035,7 +1135,11 @@
         "nocturnal_drop": 11.9,
         "nocturnal_drop_timing": 0.45,
         "overnight_samples": 241,
-        "readiness_score": 79,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 77,
         "readiness_band": "good"
       },
       {
@@ -1068,7 +1172,11 @@
         "nocturnal_drop": 12.3,
         "nocturnal_drop_timing": 0.47,
         "overnight_samples": 226,
-        "readiness_score": 89,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 88,
         "readiness_band": "good"
       },
       {
@@ -1101,7 +1209,11 @@
         "nocturnal_drop": 12.3,
         "nocturnal_drop_timing": 0.42,
         "overnight_samples": 243,
-        "readiness_score": 80,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 78,
         "readiness_band": "good"
       },
       {
@@ -1134,7 +1246,11 @@
         "nocturnal_drop": 12.6,
         "nocturnal_drop_timing": 0.41,
         "overnight_samples": 235,
-        "readiness_score": 85,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 84,
         "readiness_band": "good"
       },
       {
@@ -1167,7 +1283,11 @@
         "nocturnal_drop": 13.0,
         "nocturnal_drop_timing": 0.41,
         "overnight_samples": 210,
-        "readiness_score": 84,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": 166.8,
+        "readiness_score": 83,
         "readiness_band": "good"
       },
       {
@@ -1200,7 +1320,11 @@
         "nocturnal_drop": 6.4,
         "nocturnal_drop_timing": 0.63,
         "overnight_samples": 225,
-        "readiness_score": 61,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 58,
         "readiness_band": "moderate"
       },
       {
@@ -1233,7 +1357,11 @@
         "nocturnal_drop": 10.2,
         "nocturnal_drop_timing": 0.36,
         "overnight_samples": 216,
-        "readiness_score": 74,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 72,
         "readiness_band": "moderate"
       },
       {
@@ -1266,8 +1394,12 @@
         "nocturnal_drop": 11.8,
         "nocturnal_drop_timing": 0.33,
         "overnight_samples": 214,
-        "readiness_score": 76,
-        "readiness_band": "good"
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 74,
+        "readiness_band": "moderate"
       },
       {
         "date": "2026-09-13",
@@ -1299,7 +1431,11 @@
         "nocturnal_drop": 11.1,
         "nocturnal_drop_timing": 0.42,
         "overnight_samples": 232,
-        "readiness_score": 83,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 82,
         "readiness_band": "good"
       },
       {
@@ -1332,7 +1468,11 @@
         "nocturnal_drop": 11.7,
         "nocturnal_drop_timing": 0.41,
         "overnight_samples": 226,
-        "readiness_score": 79,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 77,
         "readiness_band": "good"
       },
       {
@@ -1365,7 +1505,11 @@
         "nocturnal_drop": 14.8,
         "nocturnal_drop_timing": 0.48,
         "overnight_samples": 232,
-        "readiness_score": 89,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 88,
         "readiness_band": "good"
       },
       {
@@ -1398,7 +1542,11 @@
         "nocturnal_drop": 11.8,
         "nocturnal_drop_timing": 0.34,
         "overnight_samples": 214,
-        "readiness_score": 72,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": 167.1,
+        "readiness_score": 70,
         "readiness_band": "moderate"
       },
       {
@@ -1431,7 +1579,11 @@
         "nocturnal_drop": 9.5,
         "nocturnal_drop_timing": 0.73,
         "overnight_samples": 225,
-        "readiness_score": 73,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 70,
         "readiness_band": "moderate"
       },
       {
@@ -1464,7 +1616,11 @@
         "nocturnal_drop": 12.7,
         "nocturnal_drop_timing": 0.34,
         "overnight_samples": 235,
-        "readiness_score": 82,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 81,
         "readiness_band": "good"
       },
       {
@@ -1497,7 +1653,11 @@
         "nocturnal_drop": 11.8,
         "nocturnal_drop_timing": 0.47,
         "overnight_samples": 241,
-        "readiness_score": 77,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 75,
         "readiness_band": "good"
       },
       {
@@ -1530,7 +1690,11 @@
         "nocturnal_drop": 14.2,
         "nocturnal_drop_timing": 0.36,
         "overnight_samples": 220,
-        "readiness_score": 92,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 91,
         "readiness_band": "good"
       },
       {
@@ -1563,7 +1727,11 @@
         "nocturnal_drop": 13.2,
         "nocturnal_drop_timing": 0.36,
         "overnight_samples": 239,
-        "readiness_score": 83,
+        "soreness": null,
+        "energy": null,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 81,
         "readiness_band": "good"
       },
       {
@@ -1596,7 +1764,11 @@
         "nocturnal_drop": 14.2,
         "nocturnal_drop_timing": 0.44,
         "overnight_samples": 223,
-        "readiness_score": 82,
+        "soreness": 1,
+        "energy": 6,
+        "rpe": 4,
+        "weight_lb": null,
+        "readiness_score": 80,
         "readiness_band": "good"
       },
       {
@@ -1629,7 +1801,11 @@
         "nocturnal_drop": 12.5,
         "nocturnal_drop_timing": 0.43,
         "overnight_samples": 229,
-        "readiness_score": 87,
+        "soreness": 4,
+        "energy": 5,
+        "rpe": 8,
+        "weight_lb": 167.9,
+        "readiness_score": 81,
         "readiness_band": "good"
       },
       {
@@ -1662,7 +1838,11 @@
         "nocturnal_drop": 7.4,
         "nocturnal_drop_timing": 0.66,
         "overnight_samples": 242,
-        "readiness_score": 71,
+        "soreness": 2,
+        "energy": 7,
+        "rpe": 4,
+        "weight_lb": null,
+        "readiness_score": 72,
         "readiness_band": "moderate"
       },
       {
@@ -1695,7 +1875,11 @@
         "nocturnal_drop": 13.4,
         "nocturnal_drop_timing": 0.38,
         "overnight_samples": 246,
-        "readiness_score": 67,
+        "soreness": 1,
+        "energy": 7,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 68,
         "readiness_band": "moderate"
       },
       {
@@ -1728,7 +1912,11 @@
         "nocturnal_drop": 11.6,
         "nocturnal_drop_timing": 0.44,
         "overnight_samples": 244,
-        "readiness_score": 64,
+        "soreness": 4,
+        "energy": 5,
+        "rpe": 8,
+        "weight_lb": null,
+        "readiness_score": 61,
         "readiness_band": "moderate"
       },
       {
@@ -1761,7 +1949,11 @@
         "nocturnal_drop": 10.4,
         "nocturnal_drop_timing": 0.4,
         "overnight_samples": 225,
-        "readiness_score": 62,
+        "soreness": 2,
+        "energy": 7,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 64,
         "readiness_band": "moderate"
       },
       {
@@ -1794,7 +1986,11 @@
         "nocturnal_drop": 13.1,
         "nocturnal_drop_timing": 0.36,
         "overnight_samples": 219,
-        "readiness_score": 87,
+        "soreness": 3,
+        "energy": 6,
+        "rpe": 3,
+        "weight_lb": null,
+        "readiness_score": 84,
         "readiness_band": "good"
       },
       {
@@ -1827,7 +2023,11 @@
         "nocturnal_drop": 14.2,
         "nocturnal_drop_timing": 0.48,
         "overnight_samples": 226,
-        "readiness_score": 86,
+        "soreness": 3,
+        "energy": 6,
+        "rpe": 3,
+        "weight_lb": null,
+        "readiness_score": 83,
         "readiness_band": "good"
       },
       {
@@ -1860,7 +2060,11 @@
         "nocturnal_drop": 11.6,
         "nocturnal_drop_timing": 0.38,
         "overnight_samples": 229,
-        "readiness_score": 82,
+        "soreness": 5,
+        "energy": 7,
+        "rpe": 8,
+        "weight_lb": 167.5,
+        "readiness_score": 78,
         "readiness_band": "good"
       },
       {
@@ -1893,6 +2097,10 @@
         "nocturnal_drop": 10.3,
         "nocturnal_drop_timing": 0.75,
         "overnight_samples": 232,
+        "soreness": 2,
+        "energy": 7,
+        "rpe": 4,
+        "weight_lb": null,
         "readiness_score": 76,
         "readiness_band": "good"
       },
@@ -1926,7 +2134,11 @@
         "nocturnal_drop": 10.0,
         "nocturnal_drop_timing": 0.41,
         "overnight_samples": 217,
-        "readiness_score": 73,
+        "soreness": 2,
+        "energy": 8,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 75,
         "readiness_band": "moderate"
       },
       {
@@ -1959,7 +2171,11 @@
         "nocturnal_drop": 13.6,
         "nocturnal_drop_timing": 0.37,
         "overnight_samples": 229,
-        "readiness_score": 82,
+        "soreness": 4,
+        "energy": 5,
+        "rpe": 8,
+        "weight_lb": null,
+        "readiness_score": 77,
         "readiness_band": "good"
       },
       {
@@ -1992,7 +2208,11 @@
         "nocturnal_drop": 12.8,
         "nocturnal_drop_timing": 0.45,
         "overnight_samples": 241,
-        "readiness_score": 81,
+        "soreness": 4,
+        "energy": 7,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 78,
         "readiness_band": "good"
       },
       {
@@ -2025,7 +2245,11 @@
         "nocturnal_drop": 13.2,
         "nocturnal_drop_timing": 0.44,
         "overnight_samples": 217,
-        "readiness_score": 86,
+        "soreness": 2,
+        "energy": 7,
+        "rpe": 3,
+        "weight_lb": null,
+        "readiness_score": 85,
         "readiness_band": "good"
       },
       {
@@ -2058,7 +2282,11 @@
         "nocturnal_drop": 11.6,
         "nocturnal_drop_timing": 0.39,
         "overnight_samples": 235,
-        "readiness_score": 85,
+        "soreness": 3,
+        "energy": 8,
+        "rpe": 3,
+        "weight_lb": null,
+        "readiness_score": 84,
         "readiness_band": "good"
       },
       {
@@ -2091,7 +2319,11 @@
         "nocturnal_drop": 13.0,
         "nocturnal_drop_timing": 0.4,
         "overnight_samples": 225,
-        "readiness_score": 81,
+        "soreness": 6,
+        "energy": 6,
+        "rpe": 8,
+        "weight_lb": 167.6,
+        "readiness_score": 75,
         "readiness_band": "good"
       },
       {
@@ -2124,7 +2356,11 @@
         "nocturnal_drop": 10.5,
         "nocturnal_drop_timing": 0.74,
         "overnight_samples": 228,
-        "readiness_score": 74,
+        "soreness": 3,
+        "energy": 6,
+        "rpe": 4,
+        "weight_lb": null,
+        "readiness_score": 72,
         "readiness_band": "moderate"
       },
       {
@@ -2157,7 +2393,11 @@
         "nocturnal_drop": 11.8,
         "nocturnal_drop_timing": 0.38,
         "overnight_samples": 230,
-        "readiness_score": 85,
+        "soreness": 4,
+        "energy": 7,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 81,
         "readiness_band": "good"
       },
       {
@@ -2190,8 +2430,12 @@
         "nocturnal_drop": 12.5,
         "nocturnal_drop_timing": 0.42,
         "overnight_samples": 243,
-        "readiness_score": 79,
-        "readiness_band": "good"
+        "soreness": 4,
+        "energy": 6,
+        "rpe": 7,
+        "weight_lb": null,
+        "readiness_score": 75,
+        "readiness_band": "moderate"
       },
       {
         "date": "2026-10-11",
@@ -2223,7 +2467,11 @@
         "nocturnal_drop": 12.1,
         "nocturnal_drop_timing": 0.42,
         "overnight_samples": 237,
-        "readiness_score": 86,
+        "soreness": 2,
+        "energy": 6,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 84,
         "readiness_band": "good"
       },
       {
@@ -2256,7 +2504,11 @@
         "nocturnal_drop": 11.8,
         "nocturnal_drop_timing": 0.37,
         "overnight_samples": 226,
-        "readiness_score": 89,
+        "soreness": 3,
+        "energy": 7,
+        "rpe": 3,
+        "weight_lb": null,
+        "readiness_score": 87,
         "readiness_band": "good"
       },
       {
@@ -2289,7 +2541,11 @@
         "nocturnal_drop": 13.4,
         "nocturnal_drop_timing": 0.35,
         "overnight_samples": 216,
-        "readiness_score": 82,
+        "soreness": 2,
+        "energy": 6,
+        "rpe": 3,
+        "weight_lb": null,
+        "readiness_score": 81,
         "readiness_band": "good"
       },
       {
@@ -2322,7 +2578,11 @@
         "nocturnal_drop": 13.0,
         "nocturnal_drop_timing": 0.45,
         "overnight_samples": 226,
-        "readiness_score": 88,
+        "soreness": 4,
+        "energy": 7,
+        "rpe": 8,
+        "weight_lb": 167.7,
+        "readiness_score": 84,
         "readiness_band": "good"
       },
       {
@@ -2355,7 +2615,11 @@
         "nocturnal_drop": 7.8,
         "nocturnal_drop_timing": 0.58,
         "overnight_samples": 218,
-        "readiness_score": 65,
+        "soreness": 4,
+        "energy": 6,
+        "rpe": 3,
+        "weight_lb": null,
+        "readiness_score": 63,
         "readiness_band": "moderate"
       },
       {
@@ -2388,7 +2652,11 @@
         "nocturnal_drop": 11.5,
         "nocturnal_drop_timing": 0.45,
         "overnight_samples": 239,
-        "readiness_score": 81,
+        "soreness": 4,
+        "energy": 7,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 78,
         "readiness_band": "good"
       },
       {
@@ -2421,7 +2689,11 @@
         "nocturnal_drop": 11.7,
         "nocturnal_drop_timing": 0.39,
         "overnight_samples": 236,
-        "readiness_score": 85,
+        "soreness": 5,
+        "energy": 6,
+        "rpe": 8,
+        "weight_lb": null,
+        "readiness_score": 80,
         "readiness_band": "good"
       },
       {
@@ -2454,7 +2726,11 @@
         "nocturnal_drop": 12.9,
         "nocturnal_drop_timing": 0.47,
         "overnight_samples": 247,
-        "readiness_score": 87,
+        "soreness": 2,
+        "energy": 6,
+        "rpe": null,
+        "weight_lb": null,
+        "readiness_score": 85,
         "readiness_band": "good"
       },
       {
@@ -2487,7 +2763,11 @@
         "nocturnal_drop": 12.7,
         "nocturnal_drop_timing": 0.37,
         "overnight_samples": 214,
-        "readiness_score": 84,
+        "soreness": 1,
+        "energy": 6,
+        "rpe": 3,
+        "weight_lb": null,
+        "readiness_score": 82,
         "readiness_band": "good"
       },
       {
@@ -2520,7 +2800,11 @@
         "nocturnal_drop": 14.0,
         "nocturnal_drop_timing": 0.47,
         "overnight_samples": 229,
-        "readiness_score": 86,
+        "soreness": 3,
+        "energy": 7,
+        "rpe": 4,
+        "weight_lb": null,
+        "readiness_score": 84,
         "readiness_band": "good"
       },
       {
@@ -2553,7 +2837,11 @@
         "nocturnal_drop": 13.6,
         "nocturnal_drop_timing": 0.39,
         "overnight_samples": 227,
-        "readiness_score": 85,
+        "soreness": 5,
+        "energy": 5,
+        "rpe": 7,
+        "weight_lb": 168.0,
+        "readiness_score": 78,
         "readiness_band": "good"
       }
     ],
@@ -2563,51 +2851,51 @@
         "band": "good"
       },
       "2026-08-14": {
-        "score": 82,
+        "score": 81,
         "band": "good"
       },
       "2026-08-15": {
-        "score": 86,
-        "band": "good"
-      },
-      "2026-08-16": {
-        "score": 78,
-        "band": "good"
-      },
-      "2026-08-17": {
-        "score": 83,
-        "band": "good"
-      },
-      "2026-08-18": {
-        "score": 82,
-        "band": "good"
-      },
-      "2026-08-19": {
-        "score": 90,
-        "band": "good"
-      },
-      "2026-08-20": {
-        "score": 72,
-        "band": "moderate"
-      },
-      "2026-08-21": {
         "score": 85,
         "band": "good"
       },
+      "2026-08-16": {
+        "score": 77,
+        "band": "good"
+      },
+      "2026-08-17": {
+        "score": 82,
+        "band": "good"
+      },
+      "2026-08-18": {
+        "score": 81,
+        "band": "good"
+      },
+      "2026-08-19": {
+        "score": 89,
+        "band": "good"
+      },
+      "2026-08-20": {
+        "score": 70,
+        "band": "moderate"
+      },
+      "2026-08-21": {
+        "score": 84,
+        "band": "good"
+      },
       "2026-08-22": {
-        "score": 87,
-        "band": "good"
-      },
-      "2026-08-23": {
-        "score": 78,
-        "band": "good"
-      },
-      "2026-08-24": {
         "score": 86,
         "band": "good"
       },
+      "2026-08-23": {
+        "score": 77,
+        "band": "good"
+      },
+      "2026-08-24": {
+        "score": 85,
+        "band": "good"
+      },
       "2026-08-25": {
-        "score": 81,
+        "score": 80,
         "band": "good"
       },
       "2026-08-26": {
@@ -2615,15 +2903,15 @@
         "band": "good"
       },
       "2026-08-27": {
-        "score": 71,
+        "score": 70,
         "band": "moderate"
       },
       "2026-08-28": {
-        "score": 85,
+        "score": 84,
         "band": "good"
       },
       "2026-08-29": {
-        "score": 89,
+        "score": 88,
         "band": "good"
       },
       "2026-08-30": {
@@ -2631,127 +2919,127 @@
         "band": "good"
       },
       "2026-08-31": {
-        "score": 81,
+        "score": 80,
         "band": "good"
       },
       "2026-09-01": {
-        "score": 80,
+        "score": 79,
         "band": "good"
       },
       "2026-09-02": {
-        "score": 82,
-        "band": "good"
-      },
-      "2026-09-03": {
-        "score": 62,
-        "band": "moderate"
-      },
-      "2026-09-04": {
-        "score": 76,
-        "band": "good"
-      },
-      "2026-09-05": {
-        "score": 79,
-        "band": "good"
-      },
-      "2026-09-06": {
-        "score": 89,
-        "band": "good"
-      },
-      "2026-09-07": {
         "score": 80,
         "band": "good"
       },
-      "2026-09-08": {
-        "score": 85,
-        "band": "good"
-      },
-      "2026-09-09": {
-        "score": 84,
-        "band": "good"
-      },
-      "2026-09-10": {
-        "score": 61,
+      "2026-09-03": {
+        "score": 60,
         "band": "moderate"
       },
-      "2026-09-11": {
+      "2026-09-04": {
         "score": 74,
         "band": "moderate"
       },
-      "2026-09-12": {
-        "score": 76,
-        "band": "good"
-      },
-      "2026-09-13": {
-        "score": 83,
-        "band": "good"
-      },
-      "2026-09-14": {
-        "score": 79,
-        "band": "good"
-      },
-      "2026-09-15": {
-        "score": 89,
-        "band": "good"
-      },
-      "2026-09-16": {
-        "score": 72,
-        "band": "moderate"
-      },
-      "2026-09-17": {
-        "score": 73,
-        "band": "moderate"
-      },
-      "2026-09-18": {
-        "score": 82,
-        "band": "good"
-      },
-      "2026-09-19": {
+      "2026-09-05": {
         "score": 77,
         "band": "good"
       },
-      "2026-09-20": {
-        "score": 92,
+      "2026-09-06": {
+        "score": 88,
         "band": "good"
       },
-      "2026-09-21": {
+      "2026-09-07": {
+        "score": 78,
+        "band": "good"
+      },
+      "2026-09-08": {
+        "score": 84,
+        "band": "good"
+      },
+      "2026-09-09": {
         "score": 83,
         "band": "good"
       },
-      "2026-09-22": {
+      "2026-09-10": {
+        "score": 58,
+        "band": "moderate"
+      },
+      "2026-09-11": {
+        "score": 72,
+        "band": "moderate"
+      },
+      "2026-09-12": {
+        "score": 74,
+        "band": "moderate"
+      },
+      "2026-09-13": {
         "score": 82,
+        "band": "good"
+      },
+      "2026-09-14": {
+        "score": 77,
+        "band": "good"
+      },
+      "2026-09-15": {
+        "score": 88,
+        "band": "good"
+      },
+      "2026-09-16": {
+        "score": 70,
+        "band": "moderate"
+      },
+      "2026-09-17": {
+        "score": 70,
+        "band": "moderate"
+      },
+      "2026-09-18": {
+        "score": 81,
+        "band": "good"
+      },
+      "2026-09-19": {
+        "score": 75,
+        "band": "good"
+      },
+      "2026-09-20": {
+        "score": 91,
+        "band": "good"
+      },
+      "2026-09-21": {
+        "score": 81,
+        "band": "good"
+      },
+      "2026-09-22": {
+        "score": 80,
         "band": "good"
       },
       "2026-09-23": {
-        "score": 87,
+        "score": 81,
         "band": "good"
       },
       "2026-09-24": {
-        "score": 71,
+        "score": 72,
         "band": "moderate"
       },
       "2026-09-25": {
-        "score": 67,
+        "score": 68,
         "band": "moderate"
       },
       "2026-09-26": {
-        "score": 64,
+        "score": 61,
         "band": "moderate"
       },
       "2026-09-27": {
-        "score": 62,
+        "score": 64,
         "band": "moderate"
       },
       "2026-09-28": {
-        "score": 87,
+        "score": 84,
         "band": "good"
       },
       "2026-09-29": {
-        "score": 86,
+        "score": 83,
         "band": "good"
       },
       "2026-09-30": {
-        "score": 82,
+        "score": 78,
         "band": "good"
       },
       "2026-10-01": {
@@ -2759,83 +3047,83 @@
         "band": "good"
       },
       "2026-10-02": {
-        "score": 73,
+        "score": 75,
         "band": "moderate"
       },
       "2026-10-03": {
-        "score": 82,
+        "score": 77,
         "band": "good"
       },
       "2026-10-04": {
-        "score": 81,
+        "score": 78,
         "band": "good"
       },
       "2026-10-05": {
-        "score": 86,
+        "score": 85,
         "band": "good"
       },
       "2026-10-06": {
-        "score": 85,
-        "band": "good"
-      },
-      "2026-10-07": {
-        "score": 81,
-        "band": "good"
-      },
-      "2026-10-08": {
-        "score": 74,
-        "band": "moderate"
-      },
-      "2026-10-09": {
-        "score": 85,
-        "band": "good"
-      },
-      "2026-10-10": {
-        "score": 79,
-        "band": "good"
-      },
-      "2026-10-11": {
-        "score": 86,
-        "band": "good"
-      },
-      "2026-10-12": {
-        "score": 89,
-        "band": "good"
-      },
-      "2026-10-13": {
-        "score": 82,
-        "band": "good"
-      },
-      "2026-10-14": {
-        "score": 88,
-        "band": "good"
-      },
-      "2026-10-15": {
-        "score": 65,
-        "band": "moderate"
-      },
-      "2026-10-16": {
-        "score": 81,
-        "band": "good"
-      },
-      "2026-10-17": {
-        "score": 85,
-        "band": "good"
-      },
-      "2026-10-18": {
-        "score": 87,
-        "band": "good"
-      },
-      "2026-10-19": {
         "score": 84,
         "band": "good"
       },
+      "2026-10-07": {
+        "score": 75,
+        "band": "good"
+      },
+      "2026-10-08": {
+        "score": 72,
+        "band": "moderate"
+      },
+      "2026-10-09": {
+        "score": 81,
+        "band": "good"
+      },
+      "2026-10-10": {
+        "score": 75,
+        "band": "moderate"
+      },
+      "2026-10-11": {
+        "score": 84,
+        "band": "good"
+      },
+      "2026-10-12": {
+        "score": 87,
+        "band": "good"
+      },
+      "2026-10-13": {
+        "score": 81,
+        "band": "good"
+      },
+      "2026-10-14": {
+        "score": 84,
+        "band": "good"
+      },
+      "2026-10-15": {
+        "score": 63,
+        "band": "moderate"
+      },
+      "2026-10-16": {
+        "score": 78,
+        "band": "good"
+      },
+      "2026-10-17": {
+        "score": 80,
+        "band": "good"
+      },
+      "2026-10-18": {
+        "score": 85,
+        "band": "good"
+      },
+      "2026-10-19": {
+        "score": 82,
+        "band": "good"
+      },
       "2026-10-20": {
-        "score": 86,
+        "score": 84,
         "band": "good"
       },
       "2026-10-21": {
-        "score": 85,
+        "score": 78,
         "band": "good"
       }
     }
@@ -4172,7 +4460,11 @@
       "carbs": 4.0,
       "fat": 0.9
     },
-    "weight_lb": 168,
+    "weight_lb": 168.0,
+    "weight_source": {
+      "weight_lb": 168.0,
+      "date": "2026-10-21"
+    },
     "protein_per_lb": 1.0,
     "energy": {
       "maintenance": 2691,
@@ -4186,6 +4478,130 @@
       "note": "Measured from Garmin: BMR plus active calories, averaged over the last 14 complete days. Today is excluded because its BMR is still accruing."
     },
     "note": "Protein held flat at 1g per lb. Fat floored by day type so it never drops too low; carbohydrate takes the remaining calories, which is what makes hard days high-carb and easy days higher-fat. Intake is not tracked \u2014 Garmin carries no food log \u2014 so these are targets, not a record of what you ate."
+  },
+  "perceived_load": {
+    "available": true,
+    "sessions": [
+      {
+        "date": "2026-10-03",
+        "rpe": 8,
+        "minutes": 114,
+        "srpe": 912,
+        "trimp": 207.5,
+        "ratio": 4.4
+      },
+      {
+        "date": "2026-10-05",
+        "rpe": 3,
+        "minutes": 49,
+        "srpe": 147,
+        "trimp": 73.3,
+        "ratio": 2.01
+      },
+      {
+        "date": "2026-10-06",
+        "rpe": 3,
+        "minutes": 60,
+        "srpe": 180,
+        "trimp": 109.2,
+        "ratio": 1.65
+      },
+      {
+        "date": "2026-10-07",
+        "rpe": 8,
+        "minutes": 57,
+        "srpe": 456,
+        "trimp": 154.0,
+        "ratio": 2.96
+      },
+      {
+        "date": "2026-10-08",
+        "rpe": 4,
+        "minutes": 49,
+        "srpe": 196,
+        "trimp": 77.1,
+        "ratio": 2.54
+      },
+      {
+        "date": "2026-10-10",
+        "rpe": 7,
+        "minutes": 132,
+        "srpe": 924,
+        "trimp": 234.6,
+        "ratio": 3.94
+      },
+      {
+        "date": "2026-10-12",
+        "rpe": 3,
+        "minutes": 49,
+        "srpe": 147,
+        "trimp": 77.1,
+        "ratio": 1.91
+      },
+      {
+        "date": "2026-10-13",
+        "rpe": 3,
+        "minutes": 60,
+        "srpe": 180,
+        "trimp": 94.4,
+        "ratio": 1.91
+      },
+      {
+        "date": "2026-10-14",
+        "rpe": 8,
+        "minutes": 57,
+        "srpe": 456,
+        "trimp": 143.9,
+        "ratio": 3.17
+      },
+      {
+        "date": "2026-10-15",
+        "rpe": 3,
+        "minutes": 49,
+        "srpe": 147,
+        "trimp": 79.0,
+        "ratio": 1.86
+      },
+      {
+        "date": "2026-10-17",
+        "rpe": 8,
+        "minutes": 132,
+        "srpe": 1056,
+        "trimp": 258.1,
+        "ratio": 4.09
+      },
+      {
+        "date": "2026-10-19",
+        "rpe": 3,
+        "minutes": 54,
+        "srpe": 162,
+        "trimp": 80.8,
+        "ratio": 2.0
+      },
+      {
+        "date": "2026-10-20",
+        "rpe": 4,
+        "minutes": 66,
+        "srpe": 264,
+        "trimp": 114.5,
+        "ratio": 2.31
+      },
+      {
+        "date": "2026-10-21",
+        "rpe": 7,
+        "minutes": 63,
+        "srpe": 441,
+        "trimp": 155.5,
+        "ratio": 2.84
+      }
+    ],
+    "paired_sessions": 22,
+    "typical_ratio": 2.42,
+    "latest_ratio": 2.84,
+    "drift": 1.17,
+    "band": "good",
+    "label": "Perceived effort and measured load agree.",
+    "note": "Session-RPE (RPE x minutes) against Banister TRIMP. The ratio is compared to its own median, since the two use different units."
   },
   "nutrition_week": [
     {
@@ -5207,7 +5623,7 @@
   },
   "adaptation": {
     "level": "green",
-    "readiness": 85,
+    "readiness": 78,
     "triggers": [
       {
         "trigger": "readiness >= 70",

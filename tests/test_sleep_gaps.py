@@ -8,7 +8,6 @@ invented from a typical ratio — would corrupt the score while looking fine.
 """
 
 import sys
-import zipfile
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -17,7 +16,6 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-import import_apple_health as ah  # noqa: E402
 import signals  # noqa: E402
 
 
@@ -113,89 +111,3 @@ def test_gaps_ignores_nights_outside_the_window():
     as_of = date(2026, 9, 20)
     rows = [("2026-01-01", None), (as_of.isoformat(), 7.5)]
     assert signals.sleep_gaps(history_with(rows), as_of, window_days=30)["missing_count"] == 0
-
-
-# --------------------------------------------------------------------------
-# Apple Health import
-# --------------------------------------------------------------------------
-
-def write_export(tmp_path, records, as_zip=False):
-    body = "\n".join(
-        f'<Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="{src}" '
-        f'startDate="{start}" endDate="{end}" value="{value}"/>'
-        for src, start, end, value in records)
-    xml = f'<?xml version="1.0" encoding="UTF-8"?>\n<HealthData>\n{body}\n</HealthData>\n'
-    path = tmp_path / "export.xml"
-    path.write_text(xml)
-    if not as_zip:
-        return path
-    zip_path = tmp_path / "export.zip"
-    with zipfile.ZipFile(zip_path, "w") as archive:
-        archive.writestr("apple_health_export/export.xml", xml)
-    return zip_path
-
-
-ASLEEP = "HKCategoryValueSleepAnalysisAsleepCore"
-
-
-def test_a_simple_night_totals_correctly(tmp_path):
-    path = write_export(tmp_path, [
-        ("iPhone", "2026-09-19 23:00:00 -0400", "2026-09-20 06:30:00 -0400", ASLEEP)])
-    assert ah.extract_sleep(path)["2026-09-20"] == pytest.approx(7.5 * 3600)
-
-
-def test_overlapping_records_are_merged_not_summed(tmp_path):
-    """Apple writes a broad 'asleep' record plus per-stage records covering the
-    same minutes. Summing them reports ten hours for a seven-hour night."""
-    path = write_export(tmp_path, [
-        ("iPhone", "2026-09-19 23:00:00 -0400", "2026-09-20 06:30:00 -0400", ASLEEP),
-        ("Watch", "2026-09-19 23:05:00 -0400", "2026-09-20 01:00:00 -0400",
-         "HKCategoryValueSleepAnalysisAsleepDeep"),
-        ("Watch", "2026-09-20 01:00:00 -0400", "2026-09-20 03:00:00 -0400",
-         "HKCategoryValueSleepAnalysisAsleepREM"),
-    ])
-    assert ah.extract_sleep(path)["2026-09-20"] == pytest.approx(7.5 * 3600)
-
-
-def test_in_bed_records_are_excluded(tmp_path):
-    """'In bed' overstates sleep, often by an hour. An inflated number is worse
-    than a missing one for something feeding a readiness score."""
-    path = write_export(tmp_path, [
-        ("iPhone", "2026-09-19 22:00:00 -0400", "2026-09-19 23:00:00 -0400",
-         "HKCategoryValueSleepAnalysisInBed"),
-        ("iPhone", "2026-09-19 23:00:00 -0400", "2026-09-20 06:00:00 -0400", ASLEEP),
-    ])
-    assert ah.extract_sleep(path)["2026-09-20"] == pytest.approx(7 * 3600)
-
-
-def test_a_night_is_filed_under_the_date_it_ended(tmp_path):
-    """Garmin files a night under the wake date; this has to match or the two
-    sources disagree by a day."""
-    path = write_export(tmp_path, [
-        ("iPhone", "2026-09-19 23:30:00 -0400", "2026-09-20 07:00:00 -0400", ASLEEP)])
-    nights = ah.extract_sleep(path)
-    assert "2026-09-20" in nights
-    assert "2026-09-19" not in nights
-
-
-def test_a_zip_export_is_read_directly(tmp_path):
-    path = write_export(tmp_path, [
-        ("iPhone", "2026-09-19 23:00:00 -0400", "2026-09-20 06:00:00 -0400", ASLEEP)],
-        as_zip=True)
-    assert ah.extract_sleep(path)["2026-09-20"] == pytest.approx(7 * 3600)
-
-
-def test_non_sleep_records_are_ignored(tmp_path):
-    xml = ('<?xml version="1.0" encoding="UTF-8"?>\n<HealthData>\n'
-           '<Record type="HKQuantityTypeIdentifierStepCount" startDate="2026-09-20 08:00:00 -0400" '
-           'endDate="2026-09-20 09:00:00 -0400" value="900"/>\n</HealthData>\n')
-    path = tmp_path / "export.xml"
-    path.write_text(xml)
-    assert ah.extract_sleep(path) == {}
-
-
-def test_a_malformed_timestamp_is_skipped_not_fatal(tmp_path):
-    path = write_export(tmp_path, [
-        ("iPhone", "not-a-date", "2026-09-20 06:00:00 -0400", ASLEEP),
-        ("iPhone", "2026-09-19 23:00:00 -0400", "2026-09-20 06:00:00 -0400", ASLEEP)])
-    assert ah.extract_sleep(path)["2026-09-20"] == pytest.approx(7 * 3600)

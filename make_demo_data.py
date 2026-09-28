@@ -227,31 +227,45 @@ def build_dataset():
             "maxHR": hr + 14,
         })
 
-    return days, activities, plan, snapshots, race_day
+    # Hand-logged values the fictional athlete recorded: bodyweight, morning
+    # soreness and energy, and RPE after sessions.
+    manual = {}
+    for offset in range(0, HISTORY_DAYS, 1):
+        day = AS_OF - timedelta(days=offset)
+        iso = day.isoformat()
+        entry = {}
+        if offset % 7 == 0:
+            entry["weight_lb"] = round(168 - offset * 0.02 + jitter(0.6), 1)
+        if offset < 30:
+            hard = day.weekday() in (2, 5)
+            entry["soreness"] = int(max(1, min(10, (5 if hard else 3) + jitter(1.4))))
+            entry["energy"] = int(max(1, min(10, (6 if hard else 7) + jitter(1.2))))
+            if day.weekday() in (0, 1, 2, 3, 5):
+                entry["rpe"] = int(max(1, min(10, (8 if hard else 4) + jitter(1.0))))
+        if entry:
+            entry["source"] = "manual"
+            manual[iso] = entry
+
+    return days, activities, plan, snapshots, race_day, manual
 
 
 def main() -> None:
-    days, activities, plan, snapshots, race_day = build_dataset()
+    days, activities, plan, snapshots, race_day, manual = build_dataset()
+
+    # Start from the real config so the demo can't drift away from it, and
+    # override only the things that are specific to the fictional athlete.
+    config = json.loads((BASE / "config.json").read_text())
+    config.update({
+        "weight_lb": 168,
+        "hr_max": HR_MAX,
+        "reference_race": {"name": "70.3 (demo)", "date": race_day, "distance": "70.3"},
+        "ironman_2027": {"name": "Ironman (140.6)", "date": "2027-09-12",
+                         "goal_time": "13:00:00", "swim_miles": 2.4, "bike_miles": 112.0,
+                         "run_miles": signals.MARATHON_MILES, "transition_minutes": 15},
+    })
 
     data = signals.build(as_of=AS_OF, days=days, activities=activities, plan=plan,
-                         snapshots=snapshots,
-                         config={"sleep_target_hours": 7.5,
-                                 "hr_max": HR_MAX,
-                                 "weight_lb": 168, "protein_per_lb": 1.0,
-                                 "deficit_by_day": {"big": 0, "quality": -200,
-                                                     "easy": -400, "recovery": -450},
-                                 "fat_g_per_lb_by_day": {"big": 0.35, "quality": 0.40,
-                                                          "easy": 0.50, "recovery": 0.55},
-                                 "reference_race": {"name": "70.3 (demo)", "date": race_day,
-                                                     "distance": "70.3"},
-                                 "ironman_2027": {"name": "Ironman (140.6)",
-                                                   "date": "2027-09-12", "goal_time": "13:00:00",
-                                                   "swim_miles": 2.4, "bike_miles": 112.0,
-                                                   "run_miles": 26.2188,
-                                                   "transition_minutes": 15},
-                                 "readiness_weights": {"resting_hr": 25, "nocturnal_drop": 20,
-                                                        "sleep": 25, "body_battery": 15,
-                                                        "stress": 5, "training_load": 10}})
+                         snapshots=snapshots, manual=manual, config=config)
     data = adapt.annotate(data)
     data["coach"] = coach.build_rules_note(data)
     data["demo"] = True
@@ -278,6 +292,10 @@ def main() -> None:
           f"VO2 {data['garmin']['vo2_max']}")
     n = data["nutrition"]
     print(f"  nutrition: {n['target_kcal']}kcal C{n['carbs_g']} P{n['protein_g']} F{n['fat_g']} [{n['band']}]")
+    pl = data.get("perceived_load", {})
+    if pl.get("available"):
+        print(f"  perceived load: {pl['paired_sessions']} paired sessions, "
+              f"drift {pl.get('drift')} [{pl.get('band')}]")
     print(f"  adaptation: {data['adaptation']['level']} — "
           f"{len(data['adaptation']['triggers'])} trigger(s)")
     im = data["triathlon"]["ironman"]

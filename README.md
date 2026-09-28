@@ -63,8 +63,9 @@ stage can be run or debugged on its own.
 | `make_demo_data.py` | synthetic dataset so the project can be shown publicly |
 | `run_daily.py` | runs the whole pipeline; called by a launchd job at 06:30 |
 | `backfill.py` | one-time historical pull; resumable, stops on a rate limit |
-| `log_sleep.py` | fills nights the watch missed |
-| `import_apple_health.py` | imports sleep from an Apple Health export |
+| `log.py` | the manual input channel: sleep, weight, soreness, energy, RPE |
+| `healthcheck.py` | decides whether the pipeline is actually working |
+| `analyse_readiness.py` | checks whether the readiness model predicts anything |
 | `runlock.py` | one pipeline run at a time |
 | `tests/test_signals.py` | tests over the signal layer |
 | `tests/test_adapt.py` | tests over matching and adaptation |
@@ -81,27 +82,38 @@ mornings. Shipping a month of raw Garmin payloads to the page to recompute that
 on every load would be absurd. Computing it once a night also makes it stable,
 auditable and testable — `signals.py` is pure functions over plain data.
 
+**Things the sensors can't see get typed in, and are labelled when they are.**
+`log.py` is the single manual channel: sleep for nights the watch spent charging,
+bodyweight (there is no connected scale, and every macro target scales off it),
+and three subjective scores — morning soreness, energy, and session RPE.
+
+The subjective scores earn their weight: perceived soreness and low energy are
+among the better predictors of overreaching, and they are the only inputs here
+that can see a problem before the heart rate does. RPE also gives an independent
+load measure — RPE × minutes is Foster's session-RPE — which the dashboard
+compares against heart-rate-derived TRIMP. Heart rate systematically under-reads
+in exactly the conditions where it would be most useful: deep fatigue, heat,
+illness, dehydration. So when perceived load runs consistently above measured
+load, the heart rate is telling a more flattering story than the legs are. That
+divergence is the signal, and neither number alone says it.
+
 **Nights the watch missed can be filled in, and are labelled when they are.** A
 night spent charging is gone from Garmin permanently — unlike a recorded night,
 it is never backfilled. Since sleep and the nocturnal drop carry 45% of the
 readiness weight between them, a missing night doesn't just leave a hole in one
 chart, it changes what the score is made of. So the dashboard asks: when a night
 has no sleep figure, a prompt appears with a box for the hours, and hands back the
-exact `log_sleep.py` command. `import_apple_health.py` does the same in bulk from
-an Apple Health export.
-
-What is and isn't recoverable is kept honest. Duration comes back; sleep stages
+exact `log_sleep.py` command. What is and isn't recoverable is kept honest. Duration comes back; sleep stages
 are left absent rather than invented from a typical ratio; and the overnight
 heart-rate series isn't in any other source, so the nocturnal drop stays
 unavailable for those nights whatever you do. Measured Garmin data always wins
 over a hand-entered figure, and filled nights are drawn in a different colour on
 the sleep chart so an estimate never passes for a measurement.
 
-One subtlety in the Apple import: Apple writes a broad "asleep" record plus
-per-stage records covering the same minutes, from every device that saw the
-night. Summing those reports ten hours for a seven-hour night, so intervals are
-merged before totalling, and "in bed" is excluded because it overstates sleep by
-an hour or more.
+(An Apple Health importer was built and then removed. It only ever produced sleep
+duration — the same field `log.py` takes in one line — while requiring a manual
+iPhone export each time, so it moved the manual step rather than removing it.
+It's in the git history if a bulk historical fill is ever wanted.)
 
 **One pipeline run at a time.** Three things can start a sync — the morning job,
 the two-hourly top-up, and a person running `refresh.command` or `backfill.py` —
@@ -317,6 +329,24 @@ works offline, and can be unit-tested. `coach.py --live` instead hands the
 plain language, falling back to the rules engine if the key is missing or the
 call fails. The model never does arithmetic the pipeline has already done.
 
+**The pipeline says when it isn't working.** The failure this exists for: the
+Garmin token expires, every sync fails from then on, `run_daily.py` carries on
+rebuilding the dashboard from stale data, and the only evidence is a timestamp
+you have to open the page to notice. The error log shows this had already
+happened repeatedly. `healthcheck.py` now runs at the end of every pipeline run,
+checks data freshness, build age, store growth, recent failures, sleep coverage
+and how many readiness inputs actually fired, writes its verdict into the page as
+a banner, and raises a macOS notification — on a *change* into a bad state, not
+every two hours forever. A banner that is always on is a banner nobody reads,
+which is also why recent failures are gated on the error log's modification time
+rather than counting months of history.
+
+**The signals validate their own output contract.** The frontend trusts whatever
+shape arrives, and the duplicate-id bug showed how contract violations surface:
+as blank sections nobody is told about. `signals.py` now fails if a key the page
+reads is missing, which makes the pipeline the thing that breaks — the cheap
+place for it to break.
+
 ## Running it
 
 ```bash
@@ -417,10 +447,39 @@ renderer called `replaceChildren` on the entire section, destroyed a chart's
 mount, and everything downstream stopped. No syntax error, no browser warning,
 nothing in a lint pass. Only checking for it catches it.
 
+## Does the readiness model actually work?
+
+Every curve in it is a hand-picked constant. `analyse_readiness.py` asks the
+narrow answerable question — does today's score carry information about what
+happened next — using Spearman rank correlation against next-day session
+completion, volume and efficiency.
+
+The honest answer, across 277 days: **not much.** Next-day mileage correlates
+−0.19, efficiency −0.08. Both are weak enough to call no relationship. The
+confound is real and stated in the output — a scheduled rest day reads as a
+missed session and a taper week reads as lost volume, so the plan itself drives
+most of the variance the model is being scored against.
+
+What the analysis did find was worth more than the correlations:
+
+- `subjective` was missing from `config.json`'s weights while being a live
+  component in the code. Readiness computed it, reported it as an available
+  input, then multiplied it by zero. It would have looked like it was working
+  indefinitely. The weights now cover every component, and `readiness()` reports
+  any unweighted component instead of silently dropping it.
+- `nocturnal_drop` carries the second-highest weight but was present on only 27%
+  of all days — though 78% of the last 60, since the overnight series only began
+  arriving once the store held full API payloads. Worth watching, not yet worth
+  reweighting.
+
+The model stays as it is for now, but it is no longer unexamined, and the tooling
+to re-examine it exists.
+
 ## Tests
 
-123 tests over `signals.py`, `adapt.py`, the nutrition layer, the triathlon
-extrapolation, the plan importer and the rendered page itself, covering the edge cases that would otherwise fail quietly rather
+171 tests over the signal layer, the adaptive plan, nutrition, the triathlon
+extrapolation, the plan importer, the store, the coach, the health check and the
+rendered page itself, covering the edge cases that would otherwise fail quietly rather
 than loudly:
 
 - a workload ratio computed from 5 days of history would look plausible and mean
@@ -458,6 +517,11 @@ than loudly:
 ```bash
 .venv/bin/pytest tests/ -q
 ```
+
+They also run on every push via `.github/workflows/tests.yml`, including the
+render check. The workflow deliberately does not install `garminconnect`:
+nothing in the suite talks to Garmin, and requiring it would make CI depend on a
+third-party package that changes often.
 
 ## What's deliberately not here
 
