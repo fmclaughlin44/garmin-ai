@@ -102,6 +102,8 @@ def main() -> None:
         sys.exit(1)
 
     data = json.loads(data_path.read_text())
+    # Internal keys the pipeline passes between stages but the page never reads.
+    data.pop("_activities", None)
     html = render(template_text, data)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)

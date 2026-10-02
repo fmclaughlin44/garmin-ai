@@ -204,6 +204,19 @@ is dropped first, Lower A trimmed to two sets next, and upper body is the last
 thing cut. A naive "scale everything by recovery" would have reduced the upper-body
 work that costs the running nothing while keeping the lower-body work that doesn't.
 
+**Lifting completion is inferred, and says so.** This watch has no lifting
+activity type, so a gym session lands as "other". Across 277 days, 111 of 124
+"other" activities sit between 30 and 90 minutes at an average heart rate of
+85-119 — the shape of a lifting session and nothing else: too long for a warm-up,
+too easy for cardio. So an "other" activity of that length on a planned lift day
+completes that lift.
+
+It is an inference and is marked as one: the calendar chip carries a "?", the
+tooltip states what it was inferred from, and the data section explains the rule.
+A session Garmin does type as strength training counts outright and isn't
+flagged. Lifts are matched entirely separately from runs, because most lift days
+also carry a run and the two must not satisfy each other.
+
 **Completion is measured, not ticked.** A run on the planned day covering at least
 60% of the planned distance counts as done; less is cut short; a run on another
 day fills the nearest unmatched run that week, because shifting a session by a day
@@ -477,7 +490,7 @@ to re-examine it exists.
 
 ## Tests
 
-171 tests over the signal layer, the adaptive plan, nutrition, the triathlon
+193 tests over the signal layer, the adaptive plan, nutrition, the triathlon
 extrapolation, the plan importer, the store, the coach, the health check and the
 rendered page itself, covering the edge cases that would otherwise fail quietly rather
 than loudly:

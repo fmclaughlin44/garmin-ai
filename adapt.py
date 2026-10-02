@@ -37,12 +37,29 @@ import sys
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
+import store
+
 BASE = Path(__file__).resolve().parent
 DATA_JSON = BASE / "web" / "data.json"
 
 MATCH_THRESHOLD = 0.60          # a run counts as done at 60% of planned distance
 EASY_KINDS = {"easy", "cross", "rest"}
 RUNNING_KINDS = {"easy", "quality", "medium_long", "long", "race"}
+
+# Garmin files a gym session as "other" -- there is no lifting activity type on
+# this watch, and the app offers nothing better. Across 277 days, 111 of 124
+# "other" activities sit between 30 and 90 minutes at an average heart rate of
+# 85-119, which is the shape of a lifting session and nothing else: too long for
+# a warm-up, too easy for cardio.
+#
+# So a planned lift is counted as done when an "other" activity of that length
+# appears on the same day. It is an inference, not a measurement, and is labelled
+# as inferred everywhere it surfaces. A session Garmin does type as strength
+# training counts outright.
+LIFT_EXPLICIT_TYPES = {"strength_training", "strength_condition", "yoga", "pilates"}
+LIFT_INFERRED_TYPE = "other"
+LIFT_MIN_MINUTES = 30
+LIFT_MAX_MINUTES = 90
 
 
 def parse_date(iso: str) -> date:
@@ -158,7 +175,63 @@ def match_plan(plan_days: dict, runs: list, as_of: date) -> dict:
     return statuses
 
 
-def week_summary(plan_days: dict, statuses: dict, week_start: str) -> dict:
+def match_lifts(plan_days: dict, activities: list, as_of: date) -> dict:
+    """Work out which planned lifts actually happened.
+
+    Kept entirely separate from run matching: most lift days also carry a run, and
+    the two must not consume each other. A day can have its run done and its lift
+    missed, or the reverse.
+    """
+    by_date = {}
+    for activity in activities:
+        day = store.activity_date(activity)
+        if not day:
+            continue
+        type_key = ((activity.get("activityType") or {}).get("typeKey") or "").lower()
+        minutes = (activity.get("duration") or 0) / 60
+        by_date.setdefault(day.isoformat(), []).append({
+            "type": type_key, "minutes": minutes,
+            "avg_hr": activity.get("averageHR"),
+            "name": activity.get("activityName"),
+        })
+
+    out = {}
+    for iso, entry in plan_days.items():
+        lift = entry.get("lift")
+        if not lift:
+            continue
+        day = parse_date(iso)
+        sessions = by_date.get(iso, [])
+
+        explicit = next((s for s in sessions if s["type"] in LIFT_EXPLICIT_TYPES), None)
+        inferred = next((s for s in sessions
+                         if s["type"] == LIFT_INFERRED_TYPE
+                         and LIFT_MIN_MINUTES <= s["minutes"] <= LIFT_MAX_MINUTES), None)
+        found = explicit or inferred
+
+        if found:
+            out[iso] = {
+                "lift": lift,
+                "status": "done",
+                "minutes": round(found["minutes"]),
+                "avg_hr": found["avg_hr"],
+                "inferred": explicit is None,
+                "basis": ("Garmin recorded this as strength training"
+                          if explicit else
+                          f"{round(found['minutes'])}min 'other' activity — assumed to be the lift"),
+            }
+        elif day > as_of:
+            out[iso] = {"lift": lift, "status": "upcoming"}
+        elif day == as_of:
+            # The day isn't over; a lift planned for today hasn't been missed.
+            out[iso] = {"lift": lift, "status": "today"}
+        else:
+            out[iso] = {"lift": lift, "status": "missed"}
+    return out
+
+
+def week_summary(plan_days: dict, statuses: dict, week_start: str,
+                 lift_statuses: dict = None) -> dict:
     """Planned versus done for one week, by session and by mileage."""
     start = parse_date(week_start)
     days = [(start + timedelta(days=i)).isoformat() for i in range(7)]
@@ -173,6 +246,13 @@ def week_summary(plan_days: dict, statuses: dict, week_start: str) -> dict:
     key_missed = [d for d in key_days if statuses.get(d, {}).get("status") == "missed"]
     key_pending = [d for d in key_days if statuses.get(d, {}).get("status") == "today"]
 
+    lift_statuses = lift_statuses or {}
+    lift_days = [d for d in days if (plan_days.get(d) or {}).get("lift")]
+    lifts_done = [d for d in lift_days
+                  if (lift_statuses.get(d) or {}).get("status") == "done"]
+    lifts_missed = [d for d in lift_days
+                    if (lift_statuses.get(d) or {}).get("status") == "missed"]
+
     return {
         "week_start": week_start,
         "planned_miles": round(planned_miles, 1),
@@ -181,6 +261,9 @@ def week_summary(plan_days: dict, statuses: dict, week_start: str) -> dict:
         "key_done": len(key_done),
         "key_missed": len(key_missed),
         "key_pending": len(key_pending),
+        "lifts_planned": len(lift_days),
+        "lifts_done": len(lifts_done),
+        "lifts_missed": len(lifts_missed),
     }
 
 
@@ -415,17 +498,22 @@ def annotate(data: dict) -> dict:
     plan_days = data.get("plan_days") or {}
 
     statuses = match_plan(plan_days, runs, as_of)
+    lift_statuses = match_lifts(plan_days, data.get("_activities") or [], as_of)
     data["matching"] = statuses
+    data["lift_matching"] = lift_statuses
     data["adaptation"] = adapt(data, statuses)
 
     # Restate weekly adherence from the matching, which is stricter than
     # "an activity happened that day".
     for week in (data.get("adherence") or {}).get("weeks", []):
-        summary = week_summary(plan_days, statuses, week["start"])
+        summary = week_summary(plan_days, statuses, week["start"], lift_statuses)
         week["miles_actual"] = summary["actual_miles"]
         week["key_sessions_due"] = summary["key_planned"]
         week["key_sessions_done"] = summary["key_done"]
         week["key_sessions_missed"] = summary["key_missed"]
+        week["lifts_planned"] = summary["lifts_planned"]
+        week["lifts_done"] = summary["lifts_done"]
+        week["lifts_missed"] = summary["lifts_missed"]
 
     weeks = (data.get("adherence") or {}).get("weeks", [])
     elapsed = [w for w in weeks if w["status"] in ("done", "current")]
@@ -468,6 +556,12 @@ def main() -> None:
     for value in statuses.values():
         counts[value["status"]] = counts.get(value["status"], 0) + 1
     print(f"  matching: {counts}")
+
+    lift_counts = {}
+    for value in data.get("lift_matching", {}).values():
+        lift_counts[value["status"]] = lift_counts.get(value["status"], 0) + 1
+    inferred = sum(1 for v in data.get("lift_matching", {}).values() if v.get("inferred"))
+    print(f"  lifts:    {lift_counts}" + (f" ({inferred} inferred from 'other')" if inferred else ""))
 
 
 if __name__ == "__main__":

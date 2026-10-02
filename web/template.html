@@ -339,9 +339,22 @@
   .cal-target { font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
   .cal-miles { font-family: var(--mono); font-size: 11.5px; color: var(--text-secondary); }
   .cal-lift {
-    display: inline-block; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em;
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em;
     padding: 1px 5px; border-radius: 3px; background: var(--surface-2); color: var(--text-secondary);
   }
+  .cal-lift[data-status="done"] {
+    background: color-mix(in srgb, var(--good) 16%, transparent); color: var(--good);
+  }
+  .cal-lift[data-status="missed"] {
+    background: transparent; color: var(--muted);
+    border: 1px dashed var(--border-strong);
+  }
+  .cal-lift[data-status="today"] {
+    background: color-mix(in srgb, var(--series-1) 14%, transparent); color: var(--series-1);
+  }
+  /* An inferred completion is marked, so it never reads as a recorded one. */
+  .cal-lift .inferred { opacity: 0.75; font-size: 9px; }
   .cal-adjusted {
     font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;
     color: var(--warning);
@@ -1420,6 +1433,24 @@ const MARK = {
   shifted:  { glyph: "\u2192", word: "shifted" },
 };
 
+/* Garmin has no lifting activity type, so a gym session lands as "other". A
+   30-90 minute "other" activity on a planned lift day is taken as that lift --
+   an inference, marked as one, never shown as a recording. */
+const LIFT_MARK = { done: "\u2713", missed: "\u2715", today: "\u25CF", upcoming: "" };
+
+function liftChip(d, iso, entry) {
+  const match = (d.lift_matching || {})[iso] || {};
+  const status = match.status || "upcoming";
+  const chip = el("span", { class: "cal-lift", "data-status": status });
+  const mark = LIFT_MARK[status];
+  if (mark) chip.appendChild(el("i", { "aria-hidden": "true" }, mark));
+  chip.appendChild(el("span", {}, LIFT_LABEL[entry.lift] || entry.lift));
+  if (match.inferred) chip.appendChild(el("span", { class: "inferred" }, "?"));
+  if (match.basis) chip.title = match.basis;
+  else if (status === "missed") chip.title = "No lifting-shaped activity recorded that day";
+  return chip;
+}
+
 function dayCell(d, iso, entry) {
   const matching = d.matching || {}, today = d.meta.as_of;
   const match = matching[iso] || {};
@@ -1463,7 +1494,7 @@ function dayCell(d, iso, entry) {
   } else if (match.actual_miles) {
     footer.appendChild(el("span", { class: "cal-miles" }, `${match.actual_miles} mi unplanned`));
   }
-  if (entry.lift) footer.appendChild(el("span", { class: "cal-lift" }, LIFT_LABEL[entry.lift] || entry.lift));
+  if (entry.lift) footer.appendChild(liftChip(d, iso, entry));
   if (footer.children.length) cell.appendChild(footer);
 
   // A day whose session was adjusted is flagged here; the full
@@ -2234,6 +2265,15 @@ function renderProvenance(d) {
     ["Half marathon PR", athlete.halfMarathonPR],
     ["Longest run ever", athlete.longestRunEver],
   ]);
+  const lifts = Object.values(d.lift_matching || {});
+  const inferred = lifts.filter((l) => l.inferred).length;
+  if (lifts.length) {
+    yes.appendChild(el("div", {},
+      `Lifting completion: Garmin has no lifting activity type, so a gym session lands as `
+      + `"other". A 30-90 minute "other" activity on a planned lift day is taken as that lift`
+      + (inferred ? ` — ${inferred} so far, each marked with "?" on the calendar.` : ".")));
+  }
+
   const measured = (d.load || {}).measured_sport_rates || {};
   if (Object.keys(measured).length) {
     yes.appendChild(el("div", {}, "Load per minute measured from your own sessions for: "

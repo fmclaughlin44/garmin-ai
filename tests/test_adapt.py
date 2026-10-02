@@ -313,3 +313,111 @@ def test_the_original_session_is_always_kept_beside_the_suggestion():
     suggestion = result["suggestions"]["today"]
     assert suggestion["original"]["session"]
     assert suggestion["suggested"]["session"] != suggestion["original"]["session"]
+
+
+# --------------------------------------------------------------------------
+# lift matching
+# --------------------------------------------------------------------------
+# Garmin has no lifting activity type on this watch, so a gym session is filed as
+# "other". A 30-90 minute "other" activity on a planned lift day is taken to be
+# that lift. The risk is obvious: it is an inference, and it must never be
+# presented as a recording.
+
+def lift_plan():
+    """Mon upper push, Tue lower A, Thu upper pull, Sat lower B."""
+    plan = week_plan()
+    for offset, lift in ((0, "upper_push"), (1, "lower_a"), (3, "upper_pull"), (5, "lower_b")):
+        plan[iso(offset)]["lift"] = lift
+    return plan
+
+
+def other(day_offset, minutes, hr=102):
+    return {"activityId": 9000 + day_offset,
+            "startTimeLocal": f"{iso(day_offset)} 18:00:00",
+            "activityType": {"typeKey": "other"},
+            "duration": minutes * 60, "averageHR": hr}
+
+
+def typed(day_offset, type_key, minutes):
+    return {"activityId": 9500 + day_offset,
+            "startTimeLocal": f"{iso(day_offset)} 18:00:00",
+            "activityType": {"typeKey": type_key},
+            "duration": minutes * 60}
+
+
+def test_an_other_activity_in_the_band_completes_the_lift():
+    lifts = adapt.match_lifts(lift_plan(), [other(0, 49)], WEEK_START + timedelta(days=6))
+    assert lifts[iso(0)]["status"] == "done"
+    assert lifts[iso(0)]["minutes"] == 49
+
+
+def test_an_inferred_completion_is_flagged_as_inferred():
+    """It must never read as a recorded strength session."""
+    lifts = adapt.match_lifts(lift_plan(), [other(0, 49)], WEEK_START + timedelta(days=6))
+    assert lifts[iso(0)]["inferred"] is True
+    assert "assumed" in lifts[iso(0)]["basis"]
+
+
+def test_a_real_strength_activity_is_not_flagged_as_inferred():
+    lifts = adapt.match_lifts(lift_plan(),
+                              [typed(0, "strength_training", 45)],
+                              WEEK_START + timedelta(days=6))
+    assert lifts[iso(0)]["status"] == "done"
+    assert lifts[iso(0)]["inferred"] is False
+
+
+@pytest.mark.parametrize("minutes,expected", [
+    (29, "missed"),    # too short — a warm-up or a walk
+    (30, "done"),      # boundary
+    (90, "done"),      # boundary
+    (91, "missed"),    # too long to be a lift
+])
+def test_the_duration_band_is_respected(minutes, expected):
+    lifts = adapt.match_lifts(lift_plan(), [other(0, minutes)],
+                              WEEK_START + timedelta(days=6))
+    assert lifts[iso(0)]["status"] == expected
+
+
+def test_a_run_on_a_lift_day_does_not_complete_the_lift():
+    """Most lift days also carry a run. They must not satisfy each other."""
+    lifts = adapt.match_lifts(lift_plan(), [typed(0, "running", 45)],
+                              WEEK_START + timedelta(days=6))
+    assert lifts[iso(0)]["status"] == "missed"
+
+
+def test_a_lift_and_a_run_are_tracked_independently():
+    plan = lift_plan()
+    as_of = WEEK_START + timedelta(days=6)
+    # Monday is a planned rest day for running but carries a lift. Ran Tuesday.
+    runs = [run(1, 6.0)]
+    statuses = adapt.match_plan(plan, runs, as_of)
+    lifts = adapt.match_lifts(plan, [other(0, 50)], as_of)
+    assert statuses[iso(1)]["status"] == "done"      # the run
+    assert lifts[iso(0)]["status"] == "done"         # the lift, a different day
+    assert lifts[iso(1)]["status"] == "missed"       # Tuesday's lift wasn't done
+
+
+def test_a_lift_planned_for_today_is_not_yet_missed():
+    lifts = adapt.match_lifts(lift_plan(), [], WEEK_START)
+    assert lifts[iso(0)]["status"] == "today"
+
+
+def test_future_lifts_are_upcoming():
+    lifts = adapt.match_lifts(lift_plan(), [], WEEK_START)
+    assert lifts[iso(3)]["status"] == "upcoming"
+
+
+def test_days_with_no_planned_lift_are_absent_entirely():
+    lifts = adapt.match_lifts(lift_plan(), [other(2, 50)], WEEK_START + timedelta(days=6))
+    assert iso(2) not in lifts          # Wednesday has no lift in this plan
+
+
+def test_the_week_summary_counts_lifts():
+    plan = lift_plan()
+    as_of = WEEK_START + timedelta(days=6)
+    lifts = adapt.match_lifts(plan, [other(0, 50), other(3, 62)], as_of)
+    summary = adapt.week_summary(plan, adapt.match_plan(plan, [], as_of),
+                                 WEEK_START.isoformat(), lifts)
+    assert summary["lifts_planned"] == 4
+    assert summary["lifts_done"] == 2
+    assert summary["lifts_missed"] == 2

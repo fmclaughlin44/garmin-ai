@@ -1811,6 +1811,9 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
                                         (current_week or {}).get("start") or as_of_iso,
                                         energy_info, config),
         "plan_days": plan.get("days", {}),
+        # Carried for adapt.py's lift matching, then dropped before the page is
+        # built -- the raw list is large and the page never reads it.
+        "_activities": activities,
     }
 
 

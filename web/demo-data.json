@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-10-02T10:25:27",
+    "generated_at": "2026-10-02T15:04:57",
     "as_of": "2026-10-21",
     "data_through": "2026-10-21",
     "store_coverage": {
@@ -155,7 +155,10 @@
       "miles_actual": 21.3,
       "key_sessions_due": 2,
       "key_sessions_done": 1,
-      "key_sessions_missed": 0
+      "key_sessions_missed": 0,
+      "lifts_planned": 4,
+      "lifts_done": 0,
+      "lifts_missed": 2
     }
   },
   "readiness": {
@@ -4174,7 +4177,10 @@
         "miles_actual": 26.6,
         "key_sessions_due": 1,
         "key_sessions_done": 1,
-        "key_sessions_missed": 0
+        "key_sessions_missed": 0,
+        "lifts_planned": 4,
+        "lifts_done": 0,
+        "lifts_missed": 4
       },
       {
         "week": 2,
@@ -4188,7 +4194,10 @@
         "miles_actual": 32.8,
         "key_sessions_due": 2,
         "key_sessions_done": 2,
-        "key_sessions_missed": 0
+        "key_sessions_missed": 0,
+        "lifts_planned": 4,
+        "lifts_done": 0,
+        "lifts_missed": 4
       },
       {
         "week": 3,
@@ -4202,7 +4211,10 @@
         "miles_actual": 38.0,
         "key_sessions_due": 2,
         "key_sessions_done": 2,
-        "key_sessions_missed": 0
+        "key_sessions_missed": 0,
+        "lifts_planned": 4,
+        "lifts_done": 0,
+        "lifts_missed": 4
       },
       {
         "week": 4,
@@ -4216,7 +4228,10 @@
         "miles_actual": 35.9,
         "key_sessions_due": 3,
         "key_sessions_done": 1,
-        "key_sessions_missed": 1
+        "key_sessions_missed": 1,
+        "lifts_planned": 2,
+        "lifts_done": 0,
+        "lifts_missed": 2
       },
       {
         "week": 5,
@@ -4230,7 +4245,10 @@
         "miles_actual": 21.3,
         "key_sessions_due": 2,
         "key_sessions_done": 1,
-        "key_sessions_missed": 0
+        "key_sessions_missed": 0,
+        "lifts_planned": 4,
+        "lifts_done": 0,
+        "lifts_missed": 2
       },
       {
         "week": 6,
@@ -4244,7 +4262,10 @@
         "miles_actual": 0,
         "key_sessions_due": 2,
         "key_sessions_done": 0,
-        "key_sessions_missed": 0
+        "key_sessions_missed": 0,
+        "lifts_planned": 4,
+        "lifts_done": 0,
+        "lifts_missed": 0
       },
       {
         "week": 7,
@@ -4258,7 +4279,10 @@
         "miles_actual": 0,
         "key_sessions_due": 2,
         "key_sessions_done": 0,
-        "key_sessions_missed": 0
+        "key_sessions_missed": 0,
+        "lifts_planned": 4,
+        "lifts_done": 0,
+        "lifts_missed": 0
       },
       {
         "week": 8,
@@ -4272,7 +4296,10 @@
         "miles_actual": 0,
         "key_sessions_due": 2,
         "key_sessions_done": 0,
-        "key_sessions_missed": 0
+        "key_sessions_missed": 0,
+        "lifts_planned": 1,
+        "lifts_done": 0,
+        "lifts_missed": 0
       }
     ],
     "key_sessions_due_to_date": 10,
@@ -5573,6 +5600,850 @@
       "week_miles_target": 40.0
     }
   },
+  "_activities": [
+    {
+      "activityId": 900000,
+      "startTimeLocal": "2026-08-13 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2700,
+      "averageHR": 142,
+      "maxHR": 159,
+      "calories": 517,
+      "distance": 7724.8512
+    },
+    {
+      "activityId": 900001,
+      "startTimeLocal": "2026-08-15 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 7140,
+      "averageHR": 152,
+      "maxHR": 172,
+      "calories": 1368,
+      "distance": 20760.5376
+    },
+    {
+      "activityId": 900002,
+      "startTimeLocal": "2026-08-16 07:12:00",
+      "activityType": {
+        "typeKey": "lap_swimming"
+      },
+      "activityName": "Pool Swim",
+      "duration": 2040,
+      "averageHR": 133,
+      "maxHR": 146,
+      "calories": 391
+    },
+    {
+      "activityId": 900003,
+      "startTimeLocal": "2026-08-17 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2700,
+      "averageHR": 146,
+      "maxHR": 165,
+      "calories": 517,
+      "distance": 7724.8512
+    },
+    {
+      "activityId": 900004,
+      "startTimeLocal": "2026-08-18 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 3240,
+      "averageHR": 146,
+      "maxHR": 159,
+      "calories": 621,
+      "distance": 9334.1952
+    },
+    {
+      "activityId": 900005,
+      "startTimeLocal": "2026-08-19 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 3060,
+      "averageHR": 162,
+      "maxHR": 180,
+      "calories": 586,
+      "distance": 9816.9984
+    },
+    {
+      "activityId": 900006,
+      "startTimeLocal": "2026-08-20 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2700,
+      "averageHR": 144,
+      "maxHR": 157,
+      "calories": 517,
+      "distance": 7724.8512
+    },
+    {
+      "activityId": 900007,
+      "startTimeLocal": "2026-08-21 07:12:00",
+      "activityType": {
+        "typeKey": "cycling"
+      },
+      "activityName": "Ride",
+      "duration": 2520,
+      "averageHR": 125,
+      "maxHR": 147,
+      "calories": 483
+    },
+    {
+      "activityId": 900008,
+      "startTimeLocal": "2026-08-22 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 7140,
+      "averageHR": 150,
+      "maxHR": 166,
+      "calories": 1368,
+      "distance": 20760.5376
+    },
+    {
+      "activityId": 900009,
+      "startTimeLocal": "2026-08-23 07:12:00",
+      "activityType": {
+        "typeKey": "lap_swimming"
+      },
+      "activityName": "Pool Swim",
+      "duration": 2040,
+      "averageHR": 127,
+      "maxHR": 140,
+      "calories": 391
+    },
+    {
+      "activityId": 900010,
+      "startTimeLocal": "2026-08-24 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2700,
+      "averageHR": 140,
+      "maxHR": 154,
+      "calories": 517,
+      "distance": 7724.8512
+    },
+    {
+      "activityId": 900011,
+      "startTimeLocal": "2026-08-25 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 3240,
+      "averageHR": 148,
+      "maxHR": 171,
+      "calories": 621,
+      "distance": 9334.1952
+    },
+    {
+      "activityId": 900012,
+      "startTimeLocal": "2026-08-26 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 3060,
+      "averageHR": 163,
+      "maxHR": 185,
+      "calories": 586,
+      "distance": 9816.9984
+    },
+    {
+      "activityId": 900013,
+      "startTimeLocal": "2026-08-27 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2700,
+      "averageHR": 141,
+      "maxHR": 156,
+      "calories": 517,
+      "distance": 7724.8512
+    },
+    {
+      "activityId": 900014,
+      "startTimeLocal": "2026-08-28 07:12:00",
+      "activityType": {
+        "typeKey": "cycling"
+      },
+      "activityName": "Ride",
+      "duration": 2520,
+      "averageHR": 124,
+      "maxHR": 142,
+      "calories": 483
+    },
+    {
+      "activityId": 900015,
+      "startTimeLocal": "2026-08-29 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 7140,
+      "averageHR": 148,
+      "maxHR": 160,
+      "calories": 1368,
+      "distance": 20760.5376
+    },
+    {
+      "activityId": 900016,
+      "startTimeLocal": "2026-08-31 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2700,
+      "averageHR": 140,
+      "maxHR": 158,
+      "calories": 517,
+      "distance": 7724.8512
+    },
+    {
+      "activityId": 900017,
+      "startTimeLocal": "2026-09-01 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 3240,
+      "averageHR": 147,
+      "maxHR": 163,
+      "calories": 621,
+      "distance": 9334.1952
+    },
+    {
+      "activityId": 900018,
+      "startTimeLocal": "2026-09-02 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 3060,
+      "averageHR": 161,
+      "maxHR": 178,
+      "calories": 586,
+      "distance": 9816.9984
+    },
+    {
+      "activityId": 900019,
+      "startTimeLocal": "2026-09-03 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2700,
+      "averageHR": 146,
+      "maxHR": 158,
+      "calories": 517,
+      "distance": 7724.8512
+    },
+    {
+      "activityId": 900020,
+      "startTimeLocal": "2026-09-05 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 7140,
+      "averageHR": 152,
+      "maxHR": 171,
+      "calories": 1368,
+      "distance": 20760.5376
+    },
+    {
+      "activityId": 900021,
+      "startTimeLocal": "2026-09-06 07:12:00",
+      "activityType": {
+        "typeKey": "lap_swimming"
+      },
+      "activityName": "Pool Swim",
+      "duration": 2040,
+      "averageHR": 131,
+      "maxHR": 146,
+      "calories": 391
+    },
+    {
+      "activityId": 900022,
+      "startTimeLocal": "2026-09-07 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2700,
+      "averageHR": 140,
+      "maxHR": 163,
+      "calories": 517,
+      "distance": 7724.8512
+    },
+    {
+      "activityId": 900023,
+      "startTimeLocal": "2026-09-08 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 3240,
+      "averageHR": 147,
+      "maxHR": 166,
+      "calories": 621,
+      "distance": 9334.1952
+    },
+    {
+      "activityId": 900024,
+      "startTimeLocal": "2026-09-09 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 3060,
+      "averageHR": 166,
+      "maxHR": 186,
+      "calories": 586,
+      "distance": 9816.9984
+    },
+    {
+      "activityId": 900025,
+      "startTimeLocal": "2026-09-10 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2700,
+      "averageHR": 143,
+      "maxHR": 160,
+      "calories": 517,
+      "distance": 7724.8512
+    },
+    {
+      "activityId": 900026,
+      "startTimeLocal": "2026-09-12 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 7140,
+      "averageHR": 150,
+      "maxHR": 163,
+      "calories": 1368,
+      "distance": 20760.5376
+    },
+    {
+      "activityId": 900027,
+      "startTimeLocal": "2026-09-13 07:12:00",
+      "activityType": {
+        "typeKey": "lap_swimming"
+      },
+      "activityName": "Pool Swim",
+      "duration": 2040,
+      "averageHR": 132,
+      "maxHR": 148,
+      "calories": 391
+    },
+    {
+      "activityId": 900028,
+      "startTimeLocal": "2026-09-14 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2700,
+      "averageHR": 139,
+      "maxHR": 155,
+      "calories": 517,
+      "distance": 7724.8512
+    },
+    {
+      "activityId": 900029,
+      "startTimeLocal": "2026-09-15 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 3240,
+      "averageHR": 141,
+      "maxHR": 156,
+      "calories": 621,
+      "distance": 9334.1952
+    },
+    {
+      "activityId": 900030,
+      "startTimeLocal": "2026-09-16 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 3060,
+      "averageHR": 166,
+      "maxHR": 183,
+      "calories": 586,
+      "distance": 9816.9984
+    },
+    {
+      "activityId": 900031,
+      "startTimeLocal": "2026-09-17 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2700,
+      "averageHR": 146,
+      "maxHR": 163,
+      "calories": 517,
+      "distance": 7724.8512
+    },
+    {
+      "activityId": 900032,
+      "startTimeLocal": "2026-09-18 07:12:00",
+      "activityType": {
+        "typeKey": "cycling"
+      },
+      "activityName": "Ride",
+      "duration": 2520,
+      "averageHR": 118,
+      "maxHR": 139,
+      "calories": 483
+    },
+    {
+      "activityId": 900033,
+      "startTimeLocal": "2026-09-19 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 7140,
+      "averageHR": 148,
+      "maxHR": 169,
+      "calories": 1368,
+      "distance": 20760.5376
+    },
+    {
+      "activityId": 900034,
+      "startTimeLocal": "2026-09-21 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2040,
+      "averageHR": 146,
+      "maxHR": 160,
+      "calories": 391,
+      "distance": 5954.572800000001
+    },
+    {
+      "activityId": 900035,
+      "startTimeLocal": "2026-09-22 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2520,
+      "averageHR": 141,
+      "maxHR": 153,
+      "calories": 483,
+      "distance": 7242.048000000001
+    },
+    {
+      "activityId": 900036,
+      "startTimeLocal": "2026-09-23 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2340,
+      "averageHR": 162,
+      "maxHR": 179,
+      "calories": 448,
+      "distance": 7563.916800000001
+    },
+    {
+      "activityId": 900037,
+      "startTimeLocal": "2026-09-24 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2040,
+      "averageHR": 147,
+      "maxHR": 169,
+      "calories": 391,
+      "distance": 5954.572800000001
+    },
+    {
+      "activityId": 900038,
+      "startTimeLocal": "2026-09-25 07:12:00",
+      "activityType": {
+        "typeKey": "cycling"
+      },
+      "activityName": "Ride",
+      "duration": 2520,
+      "averageHR": 118,
+      "maxHR": 138,
+      "calories": 483
+    },
+    {
+      "activityId": 900039,
+      "startTimeLocal": "2026-09-26 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 5580,
+      "averageHR": 152,
+      "maxHR": 170,
+      "calories": 1069,
+      "distance": 16093.44
+    },
+    {
+      "activityId": 900040,
+      "startTimeLocal": "2026-09-28 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2580,
+      "averageHR": 139,
+      "maxHR": 159,
+      "calories": 494,
+      "distance": 7402.9824
+    },
+    {
+      "activityId": 900041,
+      "startTimeLocal": "2026-09-29 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 3060,
+      "averageHR": 146,
+      "maxHR": 168,
+      "calories": 586,
+      "distance": 8851.392
+    },
+    {
+      "activityId": 900042,
+      "startTimeLocal": "2026-09-30 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2940,
+      "averageHR": 160,
+      "maxHR": 178,
+      "calories": 563,
+      "distance": 9334.1952
+    },
+    {
+      "activityId": 900043,
+      "startTimeLocal": "2026-10-01 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2580,
+      "averageHR": 146,
+      "maxHR": 169,
+      "calories": 494,
+      "distance": 7402.9824
+    },
+    {
+      "activityId": 900044,
+      "startTimeLocal": "2026-10-02 07:12:00",
+      "activityType": {
+        "typeKey": "cycling"
+      },
+      "activityName": "Ride",
+      "duration": 2520,
+      "averageHR": 121,
+      "maxHR": 138,
+      "calories": 483
+    },
+    {
+      "activityId": 900045,
+      "startTimeLocal": "2026-10-03 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 6840,
+      "averageHR": 148,
+      "maxHR": 171,
+      "calories": 1311,
+      "distance": 19794.931200000003
+    },
+    {
+      "activityId": 900046,
+      "startTimeLocal": "2026-10-04 07:12:00",
+      "activityType": {
+        "typeKey": "lap_swimming"
+      },
+      "activityName": "Pool Swim",
+      "duration": 2040,
+      "averageHR": 133,
+      "maxHR": 151,
+      "calories": 391
+    },
+    {
+      "activityId": 900047,
+      "startTimeLocal": "2026-10-05 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2940,
+      "averageHR": 140,
+      "maxHR": 161,
+      "calories": 563,
+      "distance": 8529.5232
+    },
+    {
+      "activityId": 900048,
+      "startTimeLocal": "2026-10-06 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 3600,
+      "averageHR": 148,
+      "maxHR": 161,
+      "calories": 690,
+      "distance": 10299.8016
+    },
+    {
+      "activityId": 900049,
+      "startTimeLocal": "2026-10-07 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 3420,
+      "averageHR": 165,
+      "maxHR": 181,
+      "calories": 655,
+      "distance": 10943.5392
+    },
+    {
+      "activityId": 900050,
+      "startTimeLocal": "2026-10-08 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2940,
+      "averageHR": 142,
+      "maxHR": 161,
+      "calories": 563,
+      "distance": 8529.5232
+    },
+    {
+      "activityId": 900051,
+      "startTimeLocal": "2026-10-09 07:12:00",
+      "activityType": {
+        "typeKey": "cycling"
+      },
+      "activityName": "Ride",
+      "duration": 2520,
+      "averageHR": 125,
+      "maxHR": 143,
+      "calories": 483
+    },
+    {
+      "activityId": 900052,
+      "startTimeLocal": "2026-10-10 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 7920,
+      "averageHR": 147,
+      "maxHR": 164,
+      "calories": 1518,
+      "distance": 22852.6848
+    },
+    {
+      "activityId": 900053,
+      "startTimeLocal": "2026-10-11 07:12:00",
+      "activityType": {
+        "typeKey": "lap_swimming"
+      },
+      "activityName": "Pool Swim",
+      "duration": 2040,
+      "averageHR": 133,
+      "maxHR": 145,
+      "calories": 391
+    },
+    {
+      "activityId": 900054,
+      "startTimeLocal": "2026-10-12 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2820,
+      "averageHR": 142,
+      "maxHR": 156,
+      "calories": 540,
+      "distance": 8046.72
+    },
+    {
+      "activityId": 900055,
+      "startTimeLocal": "2026-10-13 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 3360,
+      "averageHR": 142,
+      "maxHR": 156,
+      "calories": 644,
+      "distance": 9656.064
+    },
+    {
+      "activityId": 900056,
+      "startTimeLocal": "2026-10-14 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 3240,
+      "averageHR": 162,
+      "maxHR": 179,
+      "calories": 621,
+      "distance": 10299.8016
+    },
+    {
+      "activityId": 900057,
+      "startTimeLocal": "2026-10-15 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 2820,
+      "averageHR": 143,
+      "maxHR": 164,
+      "calories": 540,
+      "distance": 8046.72
+    },
+    {
+      "activityId": 900058,
+      "startTimeLocal": "2026-10-16 07:12:00",
+      "activityType": {
+        "typeKey": "cycling"
+      },
+      "activityName": "Ride",
+      "duration": 2520,
+      "averageHR": 121,
+      "maxHR": 140,
+      "calories": 483
+    },
+    {
+      "activityId": 900059,
+      "startTimeLocal": "2026-10-17 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 7500,
+      "averageHR": 151,
+      "maxHR": 167,
+      "calories": 1437,
+      "distance": 21726.144
+    },
+    {
+      "activityId": 900060,
+      "startTimeLocal": "2026-10-19 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 3420,
+      "averageHR": 140,
+      "maxHR": 153,
+      "calories": 655,
+      "distance": 9816.9984
+    },
+    {
+      "activityId": 900061,
+      "startTimeLocal": "2026-10-20 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 4140,
+      "averageHR": 146,
+      "maxHR": 167,
+      "calories": 793,
+      "distance": 11909.145600000002
+    },
+    {
+      "activityId": 900062,
+      "startTimeLocal": "2026-10-21 07:12:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "Morning Run",
+      "duration": 3960,
+      "averageHR": 161,
+      "maxHR": 178,
+      "calories": 759,
+      "distance": 12552.8832
+    },
+    {
+      "activityId": 800000,
+      "startTimeLocal": "2026-08-19 07:00:00",
+      "activityType": {
+        "typeKey": "open_water_swimming"
+      },
+      "activityName": "70.3 Swim",
+      "duration": 2220,
+      "distance": 1931.2128,
+      "averageHR": 152,
+      "maxHR": 166
+    },
+    {
+      "activityId": 800001,
+      "startTimeLocal": "2026-08-19 07:01:00",
+      "activityType": {
+        "typeKey": "cycling"
+      },
+      "activityName": "70.3 Bike",
+      "duration": 10680,
+      "distance": 90123.264,
+      "averageHR": 150,
+      "maxHR": 164
+    },
+    {
+      "activityId": 800002,
+      "startTimeLocal": "2026-08-19 07:02:00",
+      "activityType": {
+        "typeKey": "running"
+      },
+      "activityName": "70.3 Run",
+      "duration": 6720,
+      "distance": 21082.4064,
+      "averageHR": 164,
+      "maxHR": 178
+    }
+  ],
   "matching": {
     "2026-09-21": {
       "status": "done",
@@ -5847,6 +6718,116 @@
       "actual_miles": 0.0
     }
   },
+  "lift_matching": {
+    "2026-09-21": {
+      "lift": "upper_push",
+      "status": "missed"
+    },
+    "2026-09-22": {
+      "lift": "lower_a",
+      "status": "missed"
+    },
+    "2026-09-24": {
+      "lift": "upper_pull",
+      "status": "missed"
+    },
+    "2026-09-26": {
+      "lift": "lower_b",
+      "status": "missed"
+    },
+    "2026-09-28": {
+      "lift": "upper_push",
+      "status": "missed"
+    },
+    "2026-09-29": {
+      "lift": "lower_a",
+      "status": "missed"
+    },
+    "2026-10-01": {
+      "lift": "upper_pull",
+      "status": "missed"
+    },
+    "2026-10-03": {
+      "lift": "lower_b",
+      "status": "missed"
+    },
+    "2026-10-05": {
+      "lift": "upper_push",
+      "status": "missed"
+    },
+    "2026-10-06": {
+      "lift": "lower_a",
+      "status": "missed"
+    },
+    "2026-10-08": {
+      "lift": "upper_pull",
+      "status": "missed"
+    },
+    "2026-10-10": {
+      "lift": "lower_b",
+      "status": "missed"
+    },
+    "2026-10-12": {
+      "lift": "upper_push",
+      "status": "missed"
+    },
+    "2026-10-13": {
+      "lift": "lower_a",
+      "status": "missed"
+    },
+    "2026-10-19": {
+      "lift": "upper_push",
+      "status": "missed"
+    },
+    "2026-10-20": {
+      "lift": "lower_a",
+      "status": "missed"
+    },
+    "2026-10-22": {
+      "lift": "upper_pull",
+      "status": "upcoming"
+    },
+    "2026-10-24": {
+      "lift": "lower_b",
+      "status": "upcoming"
+    },
+    "2026-10-26": {
+      "lift": "upper_push",
+      "status": "upcoming"
+    },
+    "2026-10-27": {
+      "lift": "lower_a",
+      "status": "upcoming"
+    },
+    "2026-10-29": {
+      "lift": "upper_pull",
+      "status": "upcoming"
+    },
+    "2026-10-31": {
+      "lift": "lower_b",
+      "status": "upcoming"
+    },
+    "2026-11-02": {
+      "lift": "upper_push",
+      "status": "upcoming"
+    },
+    "2026-11-03": {
+      "lift": "lower_a",
+      "status": "upcoming"
+    },
+    "2026-11-05": {
+      "lift": "upper_pull",
+      "status": "upcoming"
+    },
+    "2026-11-07": {
+      "lift": "lower_b",
+      "status": "upcoming"
+    },
+    "2026-11-09": {
+      "lift": "upper_full",
+      "status": "upcoming"
+    }
+  },
   "adaptation": {
     "level": "green",
     "readiness": 78,
@@ -5902,7 +6883,10 @@
       "key_planned": 3,
       "key_done": 1,
       "key_missed": 1,
-      "key_pending": 0
+      "key_pending": 0,
+      "lifts_planned": 2,
+      "lifts_done": 0,
+      "lifts_missed": 0
     },
     "hold_volume": false,
     "absorb_week": false,
