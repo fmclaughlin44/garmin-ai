@@ -57,6 +57,7 @@ import store
 
 BASE = Path(__file__).resolve().parent
 PLAN_JSON = BASE / "plan" / "plan.json"
+ARC_JSON = BASE / "plan" / "arc.json"
 CONFIG_JSON = BASE / "config.json"
 OUT_JSON = BASE / "web" / "data.json"
 
@@ -1054,6 +1055,84 @@ def garmin_metrics(vo2_snapshots: dict, prediction_snapshots: dict) -> dict:
 
 
 # --------------------------------------------------------------------------
+# the arc: where this block sits in a multi-year progression
+# --------------------------------------------------------------------------
+
+def arc_state(arc: dict, plan: dict, as_of: date, ironman_date=None) -> dict:
+    """Which phase of the long arc today falls in, and what comes next.
+
+    This exists for a specific failure the project already had: the previous
+    block ended, nothing replaced it, and the dashboard sat on an expired plan
+    for two weeks while still looking authoritative. A plan always runs out. An
+    arc doesn't, so when the current block ends the dashboard has somewhere to
+    fall back to rather than going stale.
+
+    It also does real work rather than decorating: each phase carries a calorie
+    direction, so the nutrition targets follow the arc instead of assuming a
+    deficit forever.
+
+    Only the current block has firm dates. Everything beyond it is a direction of
+    travel, flagged ``approximate`` so the page shows it as roughly-when rather
+    than stating it as fact.
+    """
+    phases = list(arc.get("phases") or [])
+    if not phases:
+        return {"available": False, "phases": [], "current": None, "next": None}
+
+    # The Ironman phase ends at the real race once it's known.
+    if ironman_date:
+        for phase in phases:
+            if phase.get("id") == "ironman-build-2027":
+                phase = dict(phase)
+                phase["end"] = ironman_date
+                phase["approximate"] = False
+                phases[phases.index(next(p for p in phases
+                                         if p.get("id") == "ironman-build-2027"))] = phase
+
+    today = as_of.isoformat()
+    rows, current, following = [], None, None
+    for phase in phases:
+        start, end = phase.get("start"), phase.get("end")
+        if start and end and start <= today <= end:
+            status = "current"
+        elif end and end < today:
+            status = "done"
+        else:
+            status = "upcoming"
+
+        days_until = None
+        if start and start > today:
+            days_until = (datetime.fromisoformat(start).date() - as_of).days
+        days_left = None
+        if status == "current" and end:
+            days_left = (datetime.fromisoformat(end).date() - as_of).days
+
+        row = {**phase, "status": status, "days_until": days_until, "days_left": days_left}
+        rows.append(row)
+        if status == "current" and current is None:
+            current = row
+
+    for row in rows:
+        if row["status"] == "upcoming":
+            following = row
+            break
+
+    # Has the dated training block run out?
+    block_end = (plan.get("block") or {}).get("end")
+    block_over = bool(block_end and block_end < today)
+
+    return {
+        "available": True,
+        "phases": rows,
+        "current": current,
+        "next": following,
+        "block_over": block_over,
+        "note": "Only the current block has firm dates. Later phases are a direction of "
+                "travel, shown as approximate and edited in plan/arc.json.",
+    }
+
+
+# --------------------------------------------------------------------------
 # triathlon: the reference race, and what it implies at full distance
 # --------------------------------------------------------------------------
 
@@ -1312,6 +1391,7 @@ def adherence(plan: dict, activities: list, as_of: date) -> dict:
             "week": week["week"],
             "phase": week["phase"],
             "headline": week["headline"],
+            "long_run": week.get("long_run"),
             "start": week["start"],
             "end": week["end"],
             "status": "done" if end < as_of else ("current" if start <= as_of <= end else "upcoming"),
@@ -1430,6 +1510,10 @@ def nutrition(plan_entry: dict, energy: dict, config: dict) -> dict:
     protein_per_lb = config.get("protein_per_lb", 1.0)
     maintenance = energy.get("maintenance")
 
+    # With no session planned -- which is every day once the block ends -- there
+    # is no training to periodise around, so the easy-day band is assumed and
+    # said to be assumed rather than presented as derived from a session.
+    assumed = plan_entry is None
     kind = (plan_entry or {}).get("kind") or "easy"
     miles = (plan_entry or {}).get("miles") or 0
     band = NUTRITION_BANDS.get(kind, "easy")
@@ -1443,10 +1527,20 @@ def nutrition(plan_entry: dict, energy: dict, config: dict) -> dict:
     adjustment = deficits.get(band, -300)
     fat_per_lb = fat_floors.get(band, 0.45)
 
+    # The arc phase shifts the whole baseline, so a bulk is a surplus on every
+    # day and a cut is a deficit on every day, while the day-to-day pattern
+    # (carbs with the training) still rides on top of it.
+    phase = config.get("_arc_phase") or {}
+    phase_nutrition = phase.get("nutrition") or {}
+    phase_offset = phase_nutrition.get("phase_kcal_offset", 0) or 0
+    adjustment += phase_offset
+    if phase_nutrition.get("protein_per_lb"):
+        protein_per_lb = phase_nutrition["protein_per_lb"]
+
     if not weight_lb or not maintenance:
         return {
-            "band": band, "session_kind": kind, "planned_miles": miles,
-            "intent": BAND_INTENT.get(band),
+            "band": band, "band_assumed": assumed, "session_kind": kind,
+            "planned_miles": miles, "intent": BAND_INTENT.get(band),
             "maintenance_kcal": maintenance, "target_kcal": None,
             "protein_g": round(weight_lb * protein_per_lb) if weight_lb else None,
             "carbs_g": None, "fat_g": None, "weight_lb": weight_lb,
@@ -1467,9 +1561,13 @@ def nutrition(plan_entry: dict, energy: dict, config: dict) -> dict:
     weight_kg = weight_lb / 2.20462
     return {
         "band": band,
+        "band_assumed": assumed,
         "session_kind": kind,
         "planned_miles": miles,
         "intent": BAND_INTENT.get(band),
+        "phase": {"name": phase.get("name"), "direction": phase_nutrition.get("direction"),
+                  "offset": phase_offset, "note": phase_nutrition.get("note")}
+                 if phase else None,
         "maintenance_kcal": maintenance,
         "adjustment_kcal": adjustment,
         "target_kcal": target_kcal,
@@ -1490,7 +1588,8 @@ def nutrition(plan_entry: dict, energy: dict, config: dict) -> dict:
         "weight_source": config.get("_weight_source"),
         "protein_per_lb": protein_per_lb,
         "energy": energy,
-        "note": "Protein held flat at "
+        "note": ("No session is planned today, so an easy day is assumed. " if assumed else "")
+                + "Protein held flat at "
                 f"{protein_per_lb:g}g per lb. Fat floored by day type so it never drops too "
                 "low; carbohydrate takes the remaining calories, which is what makes hard "
                 "days high-carb and easy days higher-fat. Intake is not tracked — Garmin "
@@ -1611,12 +1710,19 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
     today_entry = plan.get("days", {}).get(as_of_iso)
     current_week = next((w for w in adherence_info["weeks"] if w["status"] == "current"), None)
     energy_info = energy_baseline(history, days)
+
+    # Loaded before the nutrition config, which takes its calorie direction from
+    # whichever phase today falls in.
+    arc_info = arc_state(load_json(ARC_JSON, {"phases": []}), plan, as_of,
+                         (config.get("ironman_2027") or {}).get("date"))
     perceived_info = perceived_load(history, activities, loads, as_of)
 
     # A logged bodyweight beats the config default, since it is the more recent
     # measurement of a number every macro target scales off.
     logged_weight = latest_logged_weight(history)
     nutrition_config = dict(config)
+    if arc_info.get("current"):
+        nutrition_config["_arc_phase"] = arc_info["current"]
     if logged_weight:
         nutrition_config["weight_lb"] = logged_weight["weight_lb"]
         nutrition_config["_weight_source"] = logged_weight
@@ -1691,6 +1797,7 @@ def build(as_of: date = None, days=None, activities=None, plan=None, config=None
         "completed_days": sorted(
             {d.isoformat() for d in (store.activity_date(a) for a in activities) if d}
         ),
+        "arc": arc_info,
         "triathlon": {
             "reference_race": {**reference_config, **reference},
             "ironman": {**ironman, "name": ironman_config.get("name"),
@@ -1824,6 +1931,7 @@ REQUIRED_TOP_LEVEL = [
     "meta", "race", "paces", "block", "today", "readiness", "recovery", "load",
     "form", "garmin", "fitness", "projection", "adherence", "nutrition",
     "nutrition_week", "triathlon", "plan_days", "completed_days", "perceived_load",
+    "arc",
 ]
 REQUIRED_NESTED = {
     "meta": ["generated_at", "as_of", "data_through", "store_coverage", "hr_max",
@@ -1894,6 +2002,13 @@ def main() -> None:
         print(f"  VO2 max        {g_.get('vo2_max')} (trend {g_.get('vo2_trend')})")
         if g_.get("race_prediction"):
             print(f"  Garmin says    {g_['race_prediction'].get('marathon')} marathon")
+        arc_ = signals.get("arc", {})
+        if arc_.get("current"):
+            c = arc_["current"]
+            print(f"  arc phase      {c['name']} ({c.get('days_left')} days left) "
+                  f"· {(c.get('nutrition') or {}).get('direction')}")
+        if arc_.get("block_over"):
+            print("  NOTE: the dated training block has ended — post-race mode")
         tri = signals.get("triathlon", {})
         ref, im = tri.get("reference_race", {}), tri.get("ironman", {})
         if ref.get("moving_time"):

@@ -1,0 +1,91 @@
+{
+  "_comment": "The multi-year arc. Phases are deliberately rough: only the marathon block has firm dates (they come from marathon_plan.json). Everything after it is a direction of travel, and 'approximate: true' makes the dashboard show the dates as approximate rather than stating them as fact. Edit this file freely — nothing generates it.",
+
+  "phases": [
+    {
+      "id": "marathon-2026",
+      "name": "Marathon",
+      "start": "2026-09-21",
+      "end": "2026-11-15",
+      "approximate": false,
+      "goal": "Sub-3:45 marathon",
+      "focus": ["run volume", "marathon pace", "aerobic durability"],
+      "nutrition": {
+        "direction": "slight deficit",
+        "phase_kcal_offset": 0,
+        "protein_per_lb": 1.0,
+        "note": "Fuel the work. Day-to-day carbs follow the session; the deficit comes from easy and rest days only."
+      },
+      "watch": ["workload ratio", "nocturnal drop", "weekly volume vs target"],
+      "notes": "Firm dates — this block is defined by plan/marathon_plan.json."
+    },
+    {
+      "id": "winter-bulk",
+      "name": "Winter bulk",
+      "start": "2026-11-16",
+      "end": "2027-02-28",
+      "approximate": true,
+      "goal": "Add muscle and strength while holding a usable aerobic base",
+      "focus": ["hypertrophy", "progressive overload", "maintain ~20mi/wk running"],
+      "nutrition": {
+        "direction": "surplus",
+        "phase_kcal_offset": 500,
+        "protein_per_lb": 1.0,
+        "note": "A surplus, not a free-for-all. Running drops but doesn't stop, so maintenance stays higher than a pure lifting block would."
+      },
+      "watch": ["bodyweight trend", "lifting progression", "resting HR (a bulk shouldn't raise it much)"],
+      "notes": "Starts the day after the marathon. The first 1-2 weeks are genuine recovery, not training."
+    },
+    {
+      "id": "ironman-build-2027",
+      "name": "Spring cut + Ironman build",
+      "start": "2027-03-01",
+      "end": "2027-09-12",
+      "approximate": true,
+      "goal": "Ironman 140.6",
+      "focus": ["swim volume", "long rides", "run off the bike", "gradual leaning out"],
+      "nutrition": {
+        "direction": "slow deficit",
+        "phase_kcal_offset": -250,
+        "protein_per_lb": 1.0,
+        "note": "A slow cut alongside rising training load. Aggressive deficits and Ironman volume don't coexist — the cut has to end well before race day."
+      },
+      "watch": ["swim and bike volume", "fitness vs fatigue", "bodyweight rate of change"],
+      "notes": "End date is a placeholder until the race is entered. Set ironman_2027.date in config.json and this phase will track it."
+    },
+    {
+      "id": "athleticism-2027",
+      "name": "Speed and athleticism",
+      "start": "2027-09-20",
+      "end": "2027-12-31",
+      "approximate": true,
+      "goal": "Sprint speed, change of direction, general athleticism",
+      "focus": ["sprinting", "plyometrics", "agility and multi-directional work", "explosive lifting"],
+      "nutrition": {
+        "direction": "maintenance",
+        "phase_kcal_offset": 100,
+        "protein_per_lb": 1.0,
+        "note": "Around maintenance. Power work responds badly to a deficit, and this phase is also the ramp into the next bulk."
+      },
+      "watch": ["session RPE vs measured load", "soreness", "bodyweight stability"],
+      "notes": "A deliberate change of stimulus after nine months of endurance work. Lowest injury tolerance of any phase here — tendons that have only done steady-state don't like sprinting."
+    },
+    {
+      "id": "show-prep-2028",
+      "name": "Hypertrophy and show prep",
+      "start": "2028-01-01",
+      "end": "2028-05-31",
+      "approximate": true,
+      "goal": "Bodybuilding show, spring 2028 (for fun)",
+      "focus": ["hypertrophy", "contest prep cut", "conditioning retained, not chased"],
+      "nutrition": {
+        "direction": "cut",
+        "phase_kcal_offset": -600,
+        "protein_per_lb": 1.2,
+        "note": "The one phase where the deficit is the point rather than a side effect. Protein goes up to protect muscle; cardio becomes a tool for the deficit rather than training for anything."
+      },
+      "watch": ["bodyweight rate of change", "weekly weigh-in trend", "energy and soreness"],
+      "notes": "Tight runway: a spring show wants the bulk finished and the cut starting around January, which the athleticism phase runs into. Either that phase ends early or the show moves later — worth deciding before autumn 2027."
+    }
+  ]
+}

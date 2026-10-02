@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-09-28T17:02:25",
+    "generated_at": "2026-10-02T10:25:27",
     "as_of": "2026-10-21",
     "data_through": "2026-10-21",
     "store_coverage": {
@@ -116,7 +116,10 @@
     "Sacrifice order when tired: drop Lower B -> trim Lower A -> skip Friday optional",
     "Plyometrics in Weeks 1-4 only; removed from Lower B at Week 5 (peak)",
     "Lower body volume drops ~30% at Weeks 5-6, maintenance-only Weeks 7-8",
-    "Upper body stays full through Week 6; maintenance in taper"
+    "Upper body stays full through Week 6; maintenance in taper",
+    "Long run peaks at 18mi, not 20 \u2014 longest run ever is 13.1mi, and time on feet (~2h50) matters more than the round number",
+    "5K race Sun Oct 18 is a tune-up, not a target race \u2014 it anchors the marathon projection and adds the threshold work this block is light on",
+    "Friday is a firm easy 4mi in the peak weeks (5-6) only \u2014 adding it earlier pushed the week-3 ramp over 25%"
   ],
   "athlete": {
     "vo2max": 54,
@@ -138,17 +141,18 @@
       "discipline": "run",
       "phase": "Week 5 \u2014 Peak Build",
       "week": 5,
-      "week_miles_target": 41.5
+      "week_miles_target": 43.5
     },
     "week": {
       "week": 5,
       "phase": "Week 5 \u2014 Peak Build",
-      "headline": "Peak \u00b7 long run 18 mi (middle 6 @ MP)",
+      "headline": "Peak \u00b7 long run 16 mi (middle 5 @ MP)",
+      "long_run": "16 mi (middle 5 @ MP)",
       "start": "2026-10-19",
       "end": "2026-10-25",
       "status": "current",
-      "miles_target": 41.5,
-      "miles_actual": 20.4,
+      "miles_target": 43.5,
+      "miles_actual": 21.3,
       "key_sessions_due": 2,
       "key_sessions_done": 1,
       "key_sessions_missed": 0
@@ -3129,13 +3133,13 @@
     }
   },
   "load": {
-    "acute_7day": 726.1,
-    "chronic_28day_weekly": 672.2,
-    "ratio": 1.08,
+    "acute_7day": 726.3,
+    "chronic_28day_weekly": 668.0,
+    "ratio": 1.09,
     "zone": "optimal",
     "label": "Load is in the productive range against your 4-week baseline.",
-    "monotony": 1.33,
-    "strain": 963.0,
+    "monotony": 1.38,
+    "strain": 1000.0,
     "days_of_history": 28,
     "daily": {
       "2026-08-13": 70.8,
@@ -3198,16 +3202,16 @@
       "2026-10-09": 42.6,
       "2026-10-10": 234.6,
       "2026-10-11": 42.6,
-      "2026-10-12": 77.1,
-      "2026-10-13": 94.4,
-      "2026-10-14": 143.9,
-      "2026-10-15": 79.0,
+      "2026-10-12": 73.9,
+      "2026-10-13": 88.1,
+      "2026-10-14": 136.3,
+      "2026-10-15": 75.8,
       "2026-10-16": 38.2,
-      "2026-10-17": 258.1,
+      "2026-10-17": 244.4,
       "2026-10-18": 0.0,
-      "2026-10-19": 80.8,
-      "2026-10-20": 114.5,
-      "2026-10-21": 155.5
+      "2026-10-19": 85.3,
+      "2026-10-20": 119.7,
+      "2026-10-21": 162.9
     },
     "method": "Banister TRIMP from average HR where available, per-sport rate otherwise.",
     "measured_sport_rates": {
@@ -3226,10 +3230,10 @@
     }
   },
   "form": {
-    "fitness": 100.7,
-    "fatigue": 106.5,
-    "form": -5.8,
-    "form_pct": -5.8,
+    "fitness": 100.4,
+    "fatigue": 106.7,
+    "form": -6.3,
+    "form_pct": -6.3,
     "zone": "building",
     "label": "Productive training: carrying fatigue but absorbing it.",
     "seeded_from": 107.1,
@@ -3535,54 +3539,54 @@
         "form": 0.5
       },
       "2026-10-12": {
-        "fitness": 99.1,
-        "fatigue": 95.9,
-        "form": 3.1
+        "fitness": 99.0,
+        "fatigue": 95.5,
+        "form": 3.5
       },
       "2026-10-13": {
-        "fitness": 99.0,
-        "fatigue": 95.7,
-        "form": 3.3
+        "fitness": 98.7,
+        "fatigue": 94.4,
+        "form": 4.3
       },
       "2026-10-14": {
-        "fitness": 100.0,
-        "fatigue": 102.6,
-        "form": -2.6
+        "fitness": 99.6,
+        "fatigue": 100.4,
+        "form": -0.8
       },
       "2026-10-15": {
-        "fitness": 99.5,
-        "fatigue": 99.2,
-        "form": 0.3
+        "fitness": 99.1,
+        "fatigue": 96.9,
+        "form": 2.2
       },
       "2026-10-16": {
-        "fitness": 98.1,
-        "fatigue": 90.5,
-        "form": 7.6
+        "fitness": 97.6,
+        "fatigue": 88.5,
+        "form": 9.1
       },
       "2026-10-17": {
-        "fitness": 101.9,
-        "fatigue": 114.5,
-        "form": -12.6
+        "fitness": 101.1,
+        "fatigue": 110.8,
+        "form": -9.7
       },
       "2026-10-18": {
-        "fitness": 99.5,
-        "fatigue": 98.1,
-        "form": 1.4
+        "fitness": 98.7,
+        "fatigue": 95.0,
+        "form": 3.8
       },
       "2026-10-19": {
-        "fitness": 99.0,
-        "fatigue": 95.6,
-        "form": 3.4
+        "fitness": 98.4,
+        "fatigue": 93.6,
+        "form": 4.8
       },
       "2026-10-20": {
-        "fitness": 99.4,
-        "fatigue": 98.3,
-        "form": 1.1
+        "fitness": 98.9,
+        "fatigue": 97.3,
+        "form": 1.6
       },
       "2026-10-21": {
-        "fitness": 100.7,
-        "fatigue": 106.5,
-        "form": -5.8
+        "fitness": 100.4,
+        "fatigue": 106.7,
+        "form": -6.3
       }
     },
     "method": "EWMA, 42-day fitness / 7-day fatigue, seeded from the first 6 weeks of available load. Form is judged as a share of fitness so the bands don't depend on the load unit."
@@ -3615,11 +3619,11 @@
   },
   "fitness": {
     "runs_28day": 20,
-    "miles_28day": 142.9,
+    "miles_28day": 141.7,
     "longest_run_28day": 14.2,
-    "avg_pace_28day": "9:07",
-    "efficiency_index_latest": 44.4,
-    "efficiency_trend_pct": 0.1,
+    "avg_pace_28day": "9:08",
+    "efficiency_index_latest": 44.0,
+    "efficiency_trend_pct": -0.2,
     "recent_runs": [
       {
         "date": "2026-10-08",
@@ -3648,97 +3652,97 @@
       {
         "date": "2026-10-12",
         "name": "Morning Run",
-        "miles": 5.3,
-        "duration_seconds": 2940,
-        "pace_seconds_per_mile": 555.0,
-        "pace": "9:15",
+        "miles": 5.0,
+        "duration_seconds": 2820,
+        "pace_seconds_per_mile": 564.0,
+        "pace": "9:24",
         "avg_hr": 142,
         "max_hr": 156,
-        "efficiency_index": 45.7,
+        "efficiency_index": 45.0,
         "source": "api"
       },
       {
         "date": "2026-10-13",
         "name": "Morning Run",
-        "miles": 6.4,
-        "duration_seconds": 3600,
-        "pace_seconds_per_mile": 562.0,
-        "pace": "9:22",
+        "miles": 6.0,
+        "duration_seconds": 3360,
+        "pace_seconds_per_mile": 560.0,
+        "pace": "9:20",
         "avg_hr": 142,
         "max_hr": 156,
-        "efficiency_index": 45.1,
+        "efficiency_index": 45.3,
         "source": "api"
       },
       {
         "date": "2026-10-14",
         "name": "Morning Run",
-        "miles": 6.8,
-        "duration_seconds": 3420,
-        "pace_seconds_per_mile": 503.0,
-        "pace": "8:23",
+        "miles": 6.4,
+        "duration_seconds": 3240,
+        "pace_seconds_per_mile": 506.0,
+        "pace": "8:26",
         "avg_hr": 162,
         "max_hr": 179,
-        "efficiency_index": 44.2,
+        "efficiency_index": 43.9,
         "source": "api"
       },
       {
         "date": "2026-10-15",
         "name": "Morning Run",
-        "miles": 5.3,
-        "duration_seconds": 2940,
-        "pace_seconds_per_mile": 555.0,
-        "pace": "9:15",
+        "miles": 5.0,
+        "duration_seconds": 2820,
+        "pace_seconds_per_mile": 564.0,
+        "pace": "9:24",
         "avg_hr": 143,
         "max_hr": 164,
-        "efficiency_index": 45.4,
+        "efficiency_index": 44.6,
         "source": "api"
       },
       {
         "date": "2026-10-17",
         "name": "Morning Run",
-        "miles": 14.2,
-        "duration_seconds": 7920,
-        "pace_seconds_per_mile": 558.0,
-        "pace": "9:18",
+        "miles": 13.5,
+        "duration_seconds": 7500,
+        "pace_seconds_per_mile": 556.0,
+        "pace": "9:16",
         "avg_hr": 151,
         "max_hr": 167,
-        "efficiency_index": 42.7,
+        "efficiency_index": 42.9,
         "source": "api"
       },
       {
         "date": "2026-10-19",
         "name": "Morning Run",
-        "miles": 5.8,
-        "duration_seconds": 3240,
-        "pace_seconds_per_mile": 559.0,
-        "pace": "9:19",
+        "miles": 6.1,
+        "duration_seconds": 3420,
+        "pace_seconds_per_mile": 561.0,
+        "pace": "9:21",
         "avg_hr": 140,
         "max_hr": 153,
-        "efficiency_index": 46.0,
+        "efficiency_index": 45.9,
         "source": "api"
       },
       {
         "date": "2026-10-20",
         "name": "Morning Run",
-        "miles": 7.1,
-        "duration_seconds": 3960,
-        "pace_seconds_per_mile": 558.0,
-        "pace": "9:18",
+        "miles": 7.4,
+        "duration_seconds": 4140,
+        "pace_seconds_per_mile": 559.0,
+        "pace": "9:19",
         "avg_hr": 146,
         "max_hr": 167,
-        "efficiency_index": 44.2,
+        "efficiency_index": 44.1,
         "source": "api"
       },
       {
         "date": "2026-10-21",
         "name": "Morning Run",
-        "miles": 7.5,
-        "duration_seconds": 3780,
-        "pace_seconds_per_mile": 504.0,
-        "pace": "8:24",
+        "miles": 7.8,
+        "duration_seconds": 3960,
+        "pace_seconds_per_mile": 508.0,
+        "pace": "8:28",
         "avg_hr": 161,
         "max_hr": 178,
-        "efficiency_index": 44.4,
+        "efficiency_index": 44.0,
         "source": "api"
       }
     ],
@@ -4003,63 +4007,63 @@
       },
       {
         "date": "2026-10-12",
-        "miles": 5.3,
-        "pace": "9:15",
+        "miles": 5.0,
+        "pace": "9:24",
         "avg_hr": 142
       },
       {
         "date": "2026-10-13",
-        "miles": 6.4,
-        "pace": "9:22",
+        "miles": 6.0,
+        "pace": "9:20",
         "avg_hr": 142
       },
       {
         "date": "2026-10-14",
-        "miles": 6.8,
-        "pace": "8:23",
+        "miles": 6.4,
+        "pace": "8:26",
         "avg_hr": 162
       },
       {
         "date": "2026-10-15",
-        "miles": 5.3,
-        "pace": "9:15",
+        "miles": 5.0,
+        "pace": "9:24",
         "avg_hr": 143
       },
       {
         "date": "2026-10-17",
-        "miles": 14.2,
-        "pace": "9:18",
+        "miles": 13.5,
+        "pace": "9:16",
         "avg_hr": 151
       },
       {
         "date": "2026-10-19",
-        "miles": 5.8,
-        "pace": "9:19",
+        "miles": 6.1,
+        "pace": "9:21",
         "avg_hr": 140
       },
       {
         "date": "2026-10-20",
-        "miles": 7.1,
-        "pace": "9:18",
+        "miles": 7.4,
+        "pace": "9:19",
         "avg_hr": 146
       },
       {
         "date": "2026-10-21",
-        "miles": 7.5,
-        "pace": "8:24",
+        "miles": 7.8,
+        "pace": "8:28",
         "avg_hr": 161
       }
     ],
     "projection": {
-      "predicted_seconds": 14245,
-      "predicted": "3:57:25",
-      "predicted_pace": "9:03",
+      "predicted_seconds": 14299,
+      "predicted": "3:58:19",
+      "predicted_pace": "9:05",
       "basis": {
-        "date": "2026-10-21",
+        "date": "2026-10-07",
         "name": "Morning Run",
-        "miles": 7.5,
-        "pace": "8:24",
-        "avg_hr": 161
+        "miles": 6.8,
+        "pace": "8:23",
+        "avg_hr": 165
       },
       "from_longest": {
         "seconds": 15172,
@@ -4074,35 +4078,35 @@
         }
       },
       "conservative": {
-        "seconds": 16050,
-        "time": "4:27:30",
-        "pace": "10:12",
+        "seconds": 16333,
+        "time": "4:32:13",
+        "pace": "10:23",
         "basis": {
-          "date": "2026-10-06",
+          "date": "2026-10-12",
           "name": "Morning Run",
-          "miles": 6.4,
-          "pace": "9:22",
-          "avg_hr": 148
+          "miles": 5.0,
+          "pace": "9:24",
+          "avg_hr": 142
         }
       },
       "spread": [
-        "3:57:25",
-        "4:27:30"
+        "3:58:19",
+        "4:32:13"
       ],
       "candidates_considered": 21,
       "note": "Riegel extrapolation (exponent 1.06) from training runs of 5+ miles in the last 6 weeks. Riegel assumes a maximal effort, so a projection off training runs reads pessimistic \u2014 treat it as a floor, not a forecast."
     }
   },
   "projection": {
-    "predicted_seconds": 14245,
-    "predicted": "3:57:25",
-    "predicted_pace": "9:03",
+    "predicted_seconds": 14299,
+    "predicted": "3:58:19",
+    "predicted_pace": "9:05",
     "basis": {
-      "date": "2026-10-21",
+      "date": "2026-10-07",
       "name": "Morning Run",
-      "miles": 7.5,
-      "pace": "8:24",
-      "avg_hr": 161
+      "miles": 6.8,
+      "pace": "8:23",
+      "avg_hr": 165
     },
     "from_longest": {
       "seconds": 15172,
@@ -4117,20 +4121,20 @@
       }
     },
     "conservative": {
-      "seconds": 16050,
-      "time": "4:27:30",
-      "pace": "10:12",
+      "seconds": 16333,
+      "time": "4:32:13",
+      "pace": "10:23",
       "basis": {
-        "date": "2026-10-06",
+        "date": "2026-10-12",
         "name": "Morning Run",
-        "miles": 6.4,
-        "pace": "9:22",
-        "avg_hr": 148
+        "miles": 5.0,
+        "pace": "9:24",
+        "avg_hr": 142
       }
     },
     "spread": [
-      "3:57:25",
-      "4:27:30"
+      "3:58:19",
+      "4:32:13"
     ],
     "candidates_considered": 21,
     "note": "Riegel extrapolation (exponent 1.06) from training runs of 5+ miles in the last 6 weeks. Riegel assumes a maximal effort, so a projection off training runs reads pessimistic \u2014 treat it as a floor, not a forecast.",
@@ -4152,9 +4156,9 @@
     "on_track": false,
     "bracket": [
       "3:47:00",
-      "3:57:25"
+      "3:58:19"
     ],
-    "bracket_note": "Garmin's model says 3:47:00; extrapolating your training runs says 3:57:25. Garmin models every run and reads optimistic; Riegel assumes a maximal effort it never got and reads pessimistic. The real number is somewhere in between."
+    "bracket_note": "Garmin's model says 3:47:00; extrapolating your training runs says 3:58:19. Garmin models every run and reads optimistic; Riegel assumes a maximal effort it never got and reads pessimistic. The real number is somewhere in between."
   },
   "adherence": {
     "weeks": [
@@ -4162,6 +4166,7 @@
         "week": 1,
         "phase": "Week 1 \u2014 70.3 Recovery",
         "headline": "Recovery \u00b7 long run 8 mi easy",
+        "long_run": "8 mi easy",
         "start": "2026-09-21",
         "end": "2026-09-27",
         "status": "done",
@@ -4175,6 +4180,7 @@
         "week": 2,
         "phase": "Week 2 \u2014 Rebuild",
         "headline": "Build \u00b7 long run 12 mi easy",
+        "long_run": "12 mi easy",
         "start": "2026-09-28",
         "end": "2026-10-04",
         "status": "done",
@@ -4188,6 +4194,7 @@
         "week": 3,
         "phase": "Week 3 \u2014 Build",
         "headline": "Build \u00b7 long run 14 mi (last 3 @ MP)",
+        "long_run": "14 mi (last 3 @ MP)",
         "start": "2026-10-05",
         "end": "2026-10-11",
         "status": "done",
@@ -4199,38 +4206,41 @@
       },
       {
         "week": 4,
-        "phase": "Week 4 \u2014 Build",
-        "headline": "Build \u00b7 long run 16 mi (last 4 @ MP)",
+        "phase": "Week 4 \u2014 Build + 5K race",
+        "headline": "Build \u00b7 long run 11 mi Thu (last 3 @ MP) \u00b7 5K race Sun",
+        "long_run": "11 mi Thu (last 3 @ MP) \u00b7 5K race Sun",
         "start": "2026-10-12",
         "end": "2026-10-18",
         "status": "done",
-        "miles_target": 37.5,
-        "miles_actual": 38.0,
-        "key_sessions_due": 2,
-        "key_sessions_done": 2,
-        "key_sessions_missed": 0
+        "miles_target": 35.5,
+        "miles_actual": 35.9,
+        "key_sessions_due": 3,
+        "key_sessions_done": 1,
+        "key_sessions_missed": 1
       },
       {
         "week": 5,
         "phase": "Week 5 \u2014 Peak Build",
-        "headline": "Peak \u00b7 long run 18 mi (middle 6 @ MP)",
+        "headline": "Peak \u00b7 long run 16 mi (middle 5 @ MP)",
+        "long_run": "16 mi (middle 5 @ MP)",
         "start": "2026-10-19",
         "end": "2026-10-25",
         "status": "current",
-        "miles_target": 41.5,
-        "miles_actual": 20.4,
+        "miles_target": 43.5,
+        "miles_actual": 21.3,
         "key_sessions_due": 2,
         "key_sessions_done": 1,
         "key_sessions_missed": 0
       },
       {
         "week": 6,
-        "phase": "Week 6 \u2014 Peak \u2014 20mi",
-        "headline": "Peak \u00b7 long run 20 mi (last 5 @ MP)",
+        "phase": "Week 6 \u2014 Peak \u2014 18mi",
+        "headline": "Peak \u00b7 long run 18 mi (last 5 @ MP)",
+        "long_run": "18 mi (last 5 @ MP)",
         "start": "2026-10-26",
         "end": "2026-11-01",
         "status": "upcoming",
-        "miles_target": 43.5,
+        "miles_target": 45.5,
         "miles_actual": 0,
         "key_sessions_due": 2,
         "key_sessions_done": 0,
@@ -4240,6 +4250,7 @@
         "week": 7,
         "phase": "Week 7 \u2014 Taper Begins",
         "headline": "Taper \u00b7 long run 13-14 mi cutback (4 @ MP)",
+        "long_run": "13-14 mi cutback (4 @ MP)",
         "start": "2026-11-02",
         "end": "2026-11-08",
         "status": "upcoming",
@@ -4253,6 +4264,7 @@
         "week": 8,
         "phase": "Week 8 \u2014 Race Week",
         "headline": "Taper \u00b7 long run MARATHON Sun Nov 15",
+        "long_run": "MARATHON Sun Nov 15",
         "start": "2026-11-09",
         "end": "2026-11-15",
         "status": "upcoming",
@@ -4263,9 +4275,9 @@
         "key_sessions_missed": 0
       }
     ],
-    "key_sessions_due_to_date": 9,
-    "key_sessions_done_to_date": 8,
-    "completion_pct": 89
+    "key_sessions_due_to_date": 10,
+    "key_sessions_done_to_date": 7,
+    "completion_pct": 70
   },
   "completed_days": [
     "2026-08-13",
@@ -4332,6 +4344,211 @@
     "2026-10-20",
     "2026-10-21"
   ],
+  "arc": {
+    "available": true,
+    "phases": [
+      {
+        "id": "marathon-2026",
+        "name": "Marathon",
+        "start": "2026-09-21",
+        "end": "2026-11-15",
+        "approximate": false,
+        "goal": "Sub-3:45 marathon",
+        "focus": [
+          "run volume",
+          "marathon pace",
+          "aerobic durability"
+        ],
+        "nutrition": {
+          "direction": "slight deficit",
+          "phase_kcal_offset": 0,
+          "protein_per_lb": 1.0,
+          "note": "Fuel the work. Day-to-day carbs follow the session; the deficit comes from easy and rest days only."
+        },
+        "watch": [
+          "workload ratio",
+          "nocturnal drop",
+          "weekly volume vs target"
+        ],
+        "notes": "Firm dates \u2014 this block is defined by plan/marathon_plan.json.",
+        "status": "current",
+        "days_until": null,
+        "days_left": 25
+      },
+      {
+        "id": "winter-bulk",
+        "name": "Winter bulk",
+        "start": "2026-11-16",
+        "end": "2027-02-28",
+        "approximate": true,
+        "goal": "Add muscle and strength while holding a usable aerobic base",
+        "focus": [
+          "hypertrophy",
+          "progressive overload",
+          "maintain ~20mi/wk running"
+        ],
+        "nutrition": {
+          "direction": "surplus",
+          "phase_kcal_offset": 500,
+          "protein_per_lb": 1.0,
+          "note": "A surplus, not a free-for-all. Running drops but doesn't stop, so maintenance stays higher than a pure lifting block would."
+        },
+        "watch": [
+          "bodyweight trend",
+          "lifting progression",
+          "resting HR (a bulk shouldn't raise it much)"
+        ],
+        "notes": "Starts the day after the marathon. The first 1-2 weeks are genuine recovery, not training.",
+        "status": "upcoming",
+        "days_until": 26,
+        "days_left": null
+      },
+      {
+        "id": "ironman-build-2027",
+        "name": "Spring cut + Ironman build",
+        "start": "2027-03-01",
+        "end": "2027-09-12",
+        "approximate": false,
+        "goal": "Ironman 140.6",
+        "focus": [
+          "swim volume",
+          "long rides",
+          "run off the bike",
+          "gradual leaning out"
+        ],
+        "nutrition": {
+          "direction": "slow deficit",
+          "phase_kcal_offset": -250,
+          "protein_per_lb": 1.0,
+          "note": "A slow cut alongside rising training load. Aggressive deficits and Ironman volume don't coexist \u2014 the cut has to end well before race day."
+        },
+        "watch": [
+          "swim and bike volume",
+          "fitness vs fatigue",
+          "bodyweight rate of change"
+        ],
+        "notes": "End date is a placeholder until the race is entered. Set ironman_2027.date in config.json and this phase will track it.",
+        "status": "upcoming",
+        "days_until": 131,
+        "days_left": null
+      },
+      {
+        "id": "athleticism-2027",
+        "name": "Speed and athleticism",
+        "start": "2027-09-20",
+        "end": "2027-12-31",
+        "approximate": true,
+        "goal": "Sprint speed, change of direction, general athleticism",
+        "focus": [
+          "sprinting",
+          "plyometrics",
+          "agility and multi-directional work",
+          "explosive lifting"
+        ],
+        "nutrition": {
+          "direction": "maintenance",
+          "phase_kcal_offset": 100,
+          "protein_per_lb": 1.0,
+          "note": "Around maintenance. Power work responds badly to a deficit, and this phase is also the ramp into the next bulk."
+        },
+        "watch": [
+          "session RPE vs measured load",
+          "soreness",
+          "bodyweight stability"
+        ],
+        "notes": "A deliberate change of stimulus after nine months of endurance work. Lowest injury tolerance of any phase here \u2014 tendons that have only done steady-state don't like sprinting.",
+        "status": "upcoming",
+        "days_until": 334,
+        "days_left": null
+      },
+      {
+        "id": "show-prep-2028",
+        "name": "Hypertrophy and show prep",
+        "start": "2028-01-01",
+        "end": "2028-05-31",
+        "approximate": true,
+        "goal": "Bodybuilding show, spring 2028 (for fun)",
+        "focus": [
+          "hypertrophy",
+          "contest prep cut",
+          "conditioning retained, not chased"
+        ],
+        "nutrition": {
+          "direction": "cut",
+          "phase_kcal_offset": -600,
+          "protein_per_lb": 1.2,
+          "note": "The one phase where the deficit is the point rather than a side effect. Protein goes up to protect muscle; cardio becomes a tool for the deficit rather than training for anything."
+        },
+        "watch": [
+          "bodyweight rate of change",
+          "weekly weigh-in trend",
+          "energy and soreness"
+        ],
+        "notes": "Tight runway: a spring show wants the bulk finished and the cut starting around January, which the athleticism phase runs into. Either that phase ends early or the show moves later \u2014 worth deciding before autumn 2027.",
+        "status": "upcoming",
+        "days_until": 437,
+        "days_left": null
+      }
+    ],
+    "current": {
+      "id": "marathon-2026",
+      "name": "Marathon",
+      "start": "2026-09-21",
+      "end": "2026-11-15",
+      "approximate": false,
+      "goal": "Sub-3:45 marathon",
+      "focus": [
+        "run volume",
+        "marathon pace",
+        "aerobic durability"
+      ],
+      "nutrition": {
+        "direction": "slight deficit",
+        "phase_kcal_offset": 0,
+        "protein_per_lb": 1.0,
+        "note": "Fuel the work. Day-to-day carbs follow the session; the deficit comes from easy and rest days only."
+      },
+      "watch": [
+        "workload ratio",
+        "nocturnal drop",
+        "weekly volume vs target"
+      ],
+      "notes": "Firm dates \u2014 this block is defined by plan/marathon_plan.json.",
+      "status": "current",
+      "days_until": null,
+      "days_left": 25
+    },
+    "next": {
+      "id": "winter-bulk",
+      "name": "Winter bulk",
+      "start": "2026-11-16",
+      "end": "2027-02-28",
+      "approximate": true,
+      "goal": "Add muscle and strength while holding a usable aerobic base",
+      "focus": [
+        "hypertrophy",
+        "progressive overload",
+        "maintain ~20mi/wk running"
+      ],
+      "nutrition": {
+        "direction": "surplus",
+        "phase_kcal_offset": 500,
+        "protein_per_lb": 1.0,
+        "note": "A surplus, not a free-for-all. Running drops but doesn't stop, so maintenance stays higher than a pure lifting block would."
+      },
+      "watch": [
+        "bodyweight trend",
+        "lifting progression",
+        "resting HR (a bulk shouldn't raise it much)"
+      ],
+      "notes": "Starts the day after the marathon. The first 1-2 weeks are genuine recovery, not training.",
+      "status": "upcoming",
+      "days_until": 26,
+      "days_left": null
+    },
+    "block_over": false,
+    "note": "Only the current block has firm dates. Later phases are a direction of travel, shown as approximate and edited in plan/arc.json."
+  },
   "triathlon": {
     "reference_race": {
       "name": "70.3 (demo)",
@@ -4441,14 +4658,21 @@
   },
   "nutrition": {
     "band": "quality",
+    "band_assumed": false,
     "session_kind": "quality",
     "planned_miles": 9.0,
     "intent": "High carb, moderate fat, a small deficit. Enough carbohydrate to hit the paces without giving up the deficit entirely.",
-    "maintenance_kcal": 2691,
+    "phase": {
+      "name": "Marathon",
+      "direction": "slight deficit",
+      "offset": 0,
+      "note": "Fuel the work. Day-to-day carbs follow the session; the deficit comes from easy and rest days only."
+    },
+    "maintenance_kcal": 2687,
     "adjustment_kcal": -200,
-    "target_kcal": 2491,
+    "target_kcal": 2487,
     "protein_g": 168,
-    "carbs_g": 304,
+    "carbs_g": 303,
     "fat_g": 67,
     "split_pct": {
       "protein": 27,
@@ -4467,9 +4691,9 @@
     },
     "protein_per_lb": 1.0,
     "energy": {
-      "maintenance": 2691,
+      "maintenance": 2687,
       "bmr": 1980,
-      "avg_active": 695,
+      "avg_active": 690,
       "days_used": 14,
       "range": [
         2253,
@@ -4533,65 +4757,65 @@
       {
         "date": "2026-10-12",
         "rpe": 3,
-        "minutes": 49,
-        "srpe": 147,
-        "trimp": 77.1,
+        "minutes": 47,
+        "srpe": 141,
+        "trimp": 73.9,
         "ratio": 1.91
       },
       {
         "date": "2026-10-13",
         "rpe": 3,
-        "minutes": 60,
-        "srpe": 180,
-        "trimp": 94.4,
+        "minutes": 56,
+        "srpe": 168,
+        "trimp": 88.1,
         "ratio": 1.91
       },
       {
         "date": "2026-10-14",
         "rpe": 8,
-        "minutes": 57,
-        "srpe": 456,
-        "trimp": 143.9,
+        "minutes": 54,
+        "srpe": 432,
+        "trimp": 136.3,
         "ratio": 3.17
       },
       {
         "date": "2026-10-15",
         "rpe": 3,
-        "minutes": 49,
-        "srpe": 147,
-        "trimp": 79.0,
+        "minutes": 47,
+        "srpe": 141,
+        "trimp": 75.8,
         "ratio": 1.86
       },
       {
         "date": "2026-10-17",
         "rpe": 8,
-        "minutes": 132,
-        "srpe": 1056,
-        "trimp": 258.1,
+        "minutes": 125,
+        "srpe": 1000,
+        "trimp": 244.4,
         "ratio": 4.09
       },
       {
         "date": "2026-10-19",
         "rpe": 3,
-        "minutes": 54,
-        "srpe": 162,
-        "trimp": 80.8,
+        "minutes": 57,
+        "srpe": 171,
+        "trimp": 85.3,
         "ratio": 2.0
       },
       {
         "date": "2026-10-20",
         "rpe": 4,
-        "minutes": 66,
-        "srpe": 264,
-        "trimp": 114.5,
+        "minutes": 69,
+        "srpe": 276,
+        "trimp": 119.7,
         "ratio": 2.31
       },
       {
         "date": "2026-10-21",
         "rpe": 7,
-        "minutes": 63,
-        "srpe": 441,
-        "trimp": 155.5,
+        "minutes": 66,
+        "srpe": 462,
+        "trimp": 162.9,
         "ratio": 2.84
       }
     ],
@@ -4609,8 +4833,8 @@
       "band": "easy",
       "kind": "easy",
       "miles": 4.5,
-      "kcal": 2291,
-      "carbs_g": 216,
+      "kcal": 2287,
+      "carbs_g": 215,
       "protein_g": 168,
       "fat_g": 84
     },
@@ -4619,8 +4843,8 @@
       "band": "easy",
       "kind": "easy",
       "miles": 5.5,
-      "kcal": 2291,
-      "carbs_g": 216,
+      "kcal": 2287,
+      "carbs_g": 215,
       "protein_g": 168,
       "fat_g": 84
     },
@@ -4629,8 +4853,8 @@
       "band": "quality",
       "kind": "quality",
       "miles": 9.0,
-      "kcal": 2491,
-      "carbs_g": 304,
+      "kcal": 2487,
+      "carbs_g": 303,
       "protein_g": 168,
       "fat_g": 67
     },
@@ -4639,28 +4863,28 @@
       "band": "easy",
       "kind": "easy",
       "miles": 4.5,
-      "kcal": 2291,
-      "carbs_g": 216,
+      "kcal": 2287,
+      "carbs_g": 215,
       "protein_g": 168,
       "fat_g": 84
     },
     {
       "date": "2026-10-23",
-      "band": "recovery",
-      "kind": "rest",
-      "miles": 0.0,
-      "kcal": 2241,
-      "carbs_g": 185,
+      "band": "easy",
+      "kind": "easy",
+      "miles": 4.0,
+      "kcal": 2287,
+      "carbs_g": 215,
       "protein_g": 168,
-      "fat_g": 92
+      "fat_g": 84
     },
     {
       "date": "2026-10-24",
       "band": "big",
       "kind": "long",
-      "miles": 18.0,
-      "kcal": 2691,
-      "carbs_g": 372,
+      "miles": 16.0,
+      "kcal": 2687,
+      "carbs_g": 371,
       "protein_g": 168,
       "fat_g": 59
     },
@@ -4669,8 +4893,8 @@
       "band": "recovery",
       "kind": "cross",
       "miles": 0.0,
-      "kcal": 2241,
-      "carbs_g": 185,
+      "kcal": 2237,
+      "carbs_g": 184,
       "protein_g": 168,
       "fat_g": 92
     }
@@ -4894,7 +5118,7 @@
     },
     "2026-10-09": {
       "session": "Optional easy 3-4mi / cross-train",
-      "target": "",
+      "target": "Pressure-valve day",
       "kind": "rest",
       "miles": 0.0,
       "key": false,
@@ -4930,87 +5154,87 @@
     },
     "2026-10-12": {
       "session": "Upper A (Push) + Easy Run 4-5mi",
-      "target": "",
+      "target": "Easy @ 9:00-9:45",
       "kind": "easy",
       "miles": 4.5,
       "key": false,
       "lift": "upper_push",
       "discipline": "lift",
-      "phase": "Week 4 \u2014 Build",
+      "phase": "Week 4 \u2014 Build + 5K race",
       "week": 4,
-      "week_miles_target": 37.5
+      "week_miles_target": 35.5
     },
     "2026-10-13": {
-      "session": "Easy Run 5-6mi + Lower A",
-      "target": "Hypertrophy legs",
+      "session": "Easy Run 5-6mi + Lower A (2 sets)",
+      "target": "Legs trimmed \u2014 racing Sunday",
       "kind": "easy",
       "miles": 5.5,
       "key": false,
       "lift": "lower_a",
       "discipline": "lift",
-      "phase": "Week 4 \u2014 Build",
+      "phase": "Week 4 \u2014 Build + 5K race",
       "week": 4,
-      "week_miles_target": 37.5
+      "week_miles_target": 35.5
     },
     "2026-10-14": {
-      "session": "Tempo 4mi @ 8:10",
-      "target": "Threshold",
+      "session": "5K sharpener: 5x600m @ 5K effort",
+      "target": "2WU/1CD, 90s jog. First real work faster than tempo \u2014 keep it controlled",
       "kind": "quality",
-      "miles": 7.0,
+      "miles": 4.9,
       "key": true,
       "lift": null,
       "discipline": "run",
-      "phase": "Week 4 \u2014 Build",
+      "phase": "Week 4 \u2014 Build + 5K race",
       "week": 4,
-      "week_miles_target": 37.5
+      "week_miles_target": 35.5
     },
     "2026-10-15": {
-      "session": "Upper B (Pull) + Easy Run 4-5mi",
-      "target": "",
-      "kind": "easy",
-      "miles": 4.5,
-      "key": false,
-      "lift": "upper_pull",
-      "discipline": "lift",
-      "phase": "Week 4 \u2014 Build",
+      "session": "Medium-long 11mi, last 3 @ MP",
+      "target": "The week's long run, moved early to clear the race",
+      "kind": "medium_long",
+      "miles": 11.0,
+      "key": true,
+      "lift": null,
+      "discipline": "run",
+      "phase": "Week 4 \u2014 Build + 5K race",
       "week": 4,
-      "week_miles_target": 37.5
+      "week_miles_target": 35.5
     },
     "2026-10-16": {
-      "session": "Optional easy 3-4mi / cross-train",
-      "target": "",
+      "session": "Rest or easy 3mi",
+      "target": "Pressure valve before the race",
       "kind": "rest",
       "miles": 0.0,
       "key": false,
       "lift": null,
       "discipline": "rest",
-      "phase": "Week 4 \u2014 Build",
+      "phase": "Week 4 \u2014 Build + 5K race",
       "week": 4,
-      "week_miles_target": 37.5
+      "week_miles_target": 35.5
     },
     "2026-10-17": {
-      "session": "Long Run 16mi + Lower B",
-      "target": "last 4mi @ MP; fuel rehearsal",
-      "kind": "long",
-      "miles": 16.0,
-      "key": true,
-      "lift": "lower_b",
-      "discipline": "run",
-      "phase": "Week 4 \u2014 Build",
-      "week": 4,
-      "week_miles_target": 37.5
-    },
-    "2026-10-18": {
-      "session": "Easy cross-train",
-      "target": "Z2 recovery",
-      "kind": "cross",
-      "miles": 0.0,
+      "session": "Easy 3mi + 4x20s strides",
+      "target": "Shakeout only \u2014 legs sharp, not tired",
+      "kind": "easy",
+      "miles": 3.0,
       "key": false,
       "lift": null,
-      "discipline": "swim",
-      "phase": "Week 4 \u2014 Build",
+      "discipline": "run",
+      "phase": "Week 4 \u2014 Build + 5K race",
       "week": 4,
-      "week_miles_target": 37.5
+      "week_miles_target": 35.5
+    },
+    "2026-10-18": {
+      "session": "5K RACE \u2014 all out",
+      "target": "2mi WU + race + 1.5mi CD. Garmin projects ~20:20; go off feel for the first mile",
+      "kind": "race",
+      "miles": 6.6,
+      "key": true,
+      "lift": null,
+      "discipline": "run",
+      "phase": "Week 4 \u2014 Build + 5K race",
+      "week": 4,
+      "week_miles_target": 35.5
     },
     "2026-10-19": {
       "session": "Upper A (Push) + Easy Run 4-5mi",
@@ -5022,7 +5246,7 @@
       "discipline": "lift",
       "phase": "Week 5 \u2014 Peak Build",
       "week": 5,
-      "week_miles_target": 41.5
+      "week_miles_target": 43.5
     },
     "2026-10-20": {
       "session": "Easy Run 5-6mi + Lower A (-30%)",
@@ -5034,7 +5258,7 @@
       "discipline": "lift",
       "phase": "Week 5 \u2014 Peak Build",
       "week": 5,
-      "week_miles_target": 41.5
+      "week_miles_target": 43.5
     },
     "2026-10-21": {
       "session": "MP 2x3mi @ 8:34",
@@ -5046,7 +5270,7 @@
       "discipline": "run",
       "phase": "Week 5 \u2014 Peak Build",
       "week": 5,
-      "week_miles_target": 41.5
+      "week_miles_target": 43.5
     },
     "2026-10-22": {
       "session": "Upper B (Pull) + Easy Run 4-5mi",
@@ -5058,31 +5282,31 @@
       "discipline": "lift",
       "phase": "Week 5 \u2014 Peak Build",
       "week": 5,
-      "week_miles_target": 41.5
+      "week_miles_target": 43.5
     },
     "2026-10-23": {
-      "session": "Optional easy 3-4mi / cross-train",
-      "target": "Protect legs before 18mi",
-      "kind": "rest",
-      "miles": 0.0,
+      "session": "Easy 4mi",
+      "target": "Firm now, not optional \u2014 keeps the long run from carrying the week",
+      "kind": "easy",
+      "miles": 4.0,
       "key": false,
       "lift": null,
-      "discipline": "rest",
+      "discipline": "run",
       "phase": "Week 5 \u2014 Peak Build",
       "week": 5,
-      "week_miles_target": 41.5
+      "week_miles_target": 43.5
     },
     "2026-10-24": {
-      "session": "Long Run 18mi + Lower B",
-      "target": "middle 6 @ MP; PLYOS OUT now, iso only",
+      "session": "Long Run 16mi + Lower B",
+      "target": "middle 5 @ MP; PLYOS OUT now, iso only",
       "kind": "long",
-      "miles": 18.0,
+      "miles": 16.0,
       "key": true,
       "lift": "lower_b",
       "discipline": "run",
       "phase": "Week 5 \u2014 Peak Build",
       "week": 5,
-      "week_miles_target": 41.5
+      "week_miles_target": 43.5
     },
     "2026-10-25": {
       "session": "Easy cross-train",
@@ -5094,7 +5318,7 @@
       "discipline": "swim",
       "phase": "Week 5 \u2014 Peak Build",
       "week": 5,
-      "week_miles_target": 41.5
+      "week_miles_target": 43.5
     },
     "2026-10-26": {
       "session": "Upper A (Push) + Easy Run 4-5mi",
@@ -5104,9 +5328,9 @@
       "key": false,
       "lift": "upper_push",
       "discipline": "lift",
-      "phase": "Week 6 \u2014 Peak \u2014 20mi",
+      "phase": "Week 6 \u2014 Peak \u2014 18mi",
       "week": 6,
-      "week_miles_target": 43.5
+      "week_miles_target": 45.5
     },
     "2026-10-27": {
       "session": "Easy Run 5-6mi + Lower A (-30%)",
@@ -5116,9 +5340,9 @@
       "key": false,
       "lift": "lower_a",
       "discipline": "lift",
-      "phase": "Week 6 \u2014 Peak \u2014 20mi",
+      "phase": "Week 6 \u2014 Peak \u2014 18mi",
       "week": 6,
-      "week_miles_target": 43.5
+      "week_miles_target": 45.5
     },
     "2026-10-28": {
       "session": "Cruise 3x2mi @ 8:15",
@@ -5128,9 +5352,9 @@
       "key": true,
       "lift": null,
       "discipline": "run",
-      "phase": "Week 6 \u2014 Peak \u2014 20mi",
+      "phase": "Week 6 \u2014 Peak \u2014 18mi",
       "week": 6,
-      "week_miles_target": 43.5
+      "week_miles_target": 45.5
     },
     "2026-10-29": {
       "session": "Upper B (Pull) + Easy Run 4-5mi",
@@ -5140,33 +5364,33 @@
       "key": false,
       "lift": "upper_pull",
       "discipline": "lift",
-      "phase": "Week 6 \u2014 Peak \u2014 20mi",
+      "phase": "Week 6 \u2014 Peak \u2014 18mi",
       "week": 6,
-      "week_miles_target": 43.5
+      "week_miles_target": 45.5
     },
     "2026-10-30": {
-      "session": "Optional \u2014 lean rest",
-      "target": "20-miler tomorrow",
-      "kind": "rest",
-      "miles": 0.0,
+      "session": "Easy 4mi",
+      "target": "Firm now, not optional \u2014 keeps the long run from carrying the week",
+      "kind": "easy",
+      "miles": 4.0,
       "key": false,
       "lift": null,
-      "discipline": "rest",
-      "phase": "Week 6 \u2014 Peak \u2014 20mi",
+      "discipline": "run",
+      "phase": "Week 6 \u2014 Peak \u2014 18mi",
       "week": 6,
-      "week_miles_target": 43.5
+      "week_miles_target": 45.5
     },
     "2026-10-31": {
-      "session": "LONG RUN 20mi + Lower B",
-      "target": "last 5 @ MP; full race-day rehearsal; peak long run",
+      "session": "LONG RUN 18mi + Lower B",
+      "target": "last 5 @ MP; full race-day rehearsal; peak long run. ~2h50 on feet, which is the number that matters more than 20mi",
       "kind": "long",
-      "miles": 20.0,
+      "miles": 18.0,
       "key": true,
       "lift": "lower_b",
       "discipline": "run",
-      "phase": "Week 6 \u2014 Peak \u2014 20mi",
+      "phase": "Week 6 \u2014 Peak \u2014 18mi",
       "week": 6,
-      "week_miles_target": 43.5
+      "week_miles_target": 45.5
     },
     "2026-11-01": {
       "session": "Easy cross-train",
@@ -5176,9 +5400,9 @@
       "key": false,
       "lift": null,
       "discipline": "swim",
-      "phase": "Week 6 \u2014 Peak \u2014 20mi",
+      "phase": "Week 6 \u2014 Peak \u2014 18mi",
       "week": 6,
-      "week_miles_target": 43.5
+      "week_miles_target": 45.5
     },
     "2026-11-02": {
       "session": "Upper A (maintenance) + Easy 4mi",
@@ -5466,27 +5690,27 @@
     },
     "2026-10-12": {
       "status": "done",
-      "actual_miles": 5.3,
+      "actual_miles": 5.0,
       "planned_miles": 4.5,
-      "pct": 118
+      "pct": 111
     },
     "2026-10-13": {
       "status": "done",
-      "actual_miles": 6.4,
+      "actual_miles": 6.0,
       "planned_miles": 5.5,
-      "pct": 116
+      "pct": 109
     },
     "2026-10-14": {
       "status": "done",
-      "actual_miles": 6.8,
-      "planned_miles": 7.0,
-      "pct": 97
+      "actual_miles": 6.4,
+      "planned_miles": 4.9,
+      "pct": 131
     },
     "2026-10-15": {
-      "status": "done",
-      "actual_miles": 5.3,
-      "planned_miles": 4.5,
-      "pct": 118
+      "status": "short",
+      "actual_miles": 5.0,
+      "planned_miles": 11.0,
+      "pct": 45
     },
     "2026-10-16": {
       "status": "rest",
@@ -5494,31 +5718,33 @@
     },
     "2026-10-17": {
       "status": "done",
-      "actual_miles": 14.2,
-      "planned_miles": 16.0,
-      "pct": 89
+      "actual_miles": 13.5,
+      "planned_miles": 3.0,
+      "pct": 450
     },
     "2026-10-18": {
-      "status": "rest",
-      "actual_miles": 0
+      "status": "missed",
+      "actual_miles": 0.0,
+      "planned_miles": 6.6,
+      "pct": 0
     },
     "2026-10-19": {
       "status": "done",
-      "actual_miles": 5.8,
+      "actual_miles": 6.1,
       "planned_miles": 4.5,
-      "pct": 129
+      "pct": 136
     },
     "2026-10-20": {
       "status": "done",
-      "actual_miles": 7.1,
+      "actual_miles": 7.4,
       "planned_miles": 5.5,
-      "pct": 129
+      "pct": 135
     },
     "2026-10-21": {
       "status": "done",
-      "actual_miles": 7.5,
+      "actual_miles": 7.8,
       "planned_miles": 9.0,
-      "pct": 83
+      "pct": 87
     },
     "2026-10-22": {
       "status": "upcoming",
@@ -5644,7 +5870,7 @@
           "discipline": "run",
           "phase": "Week 5 \u2014 Peak Build",
           "week": 5,
-          "week_miles_target": 41.5
+          "week_miles_target": 43.5
         },
         "suggested": null,
         "changed": false,
@@ -5662,7 +5888,7 @@
           "discipline": "lift",
           "phase": "Week 5 \u2014 Peak Build",
           "week": 5,
-          "week_miles_target": 41.5
+          "week_miles_target": 43.5
         },
         "suggested": null,
         "changed": false,
@@ -5671,11 +5897,11 @@
     },
     "last_week": {
       "week_start": "2026-10-12",
-      "planned_miles": 37.5,
-      "actual_miles": 38.0,
-      "key_planned": 2,
-      "key_done": 2,
-      "key_missed": 0,
+      "planned_miles": 35.5,
+      "actual_miles": 35.9,
+      "key_planned": 3,
+      "key_done": 1,
+      "key_missed": 1,
       "key_pending": 0
     },
     "hold_volume": false,
@@ -5688,9 +5914,9 @@
     "headline": "Mostly on track, with one or two things to keep an eye on.",
     "notes": [
       "Sleep is averaging 7.68h against a 7.5h target \u2014 nothing to fix.",
-      "Workload ratio is 1.08, squarely in the productive range.",
-      "8 of 9 key sessions completed. The long runs are the ones that matter; protect those before the midweek quality.",
-      "Garmin's model says 3:47:00 and extrapolating your training runs says 3:57:25. The nearer of the two is 2 minutes off Sub-3:45 (8:34/mi) \u2014 25 days out, the marathon-pace work should be closing this now. Garmin models every run and reads optimistic; Riegel assumes a maximal effort it never got and reads pessimistic, so the truth sits between them.",
+      "Workload ratio is 1.09, squarely in the productive range.",
+      "7 of 10 key sessions completed. The long runs are the ones that matter; protect those before the midweek quality.",
+      "Garmin's model says 3:47:00 and extrapolating your training runs says 3:58:19. The nearer of the two is 2 minutes off Sub-3:45 (8:34/mi) \u2014 25 days out, the marathon-pace work should be closing this now. Garmin models every run and reads optimistic; Riegel assumes a maximal effort it never got and reads pessimistic, so the truth sits between them.",
       "Today's plan is: MP 2x3mi @ 8:34. Green light."
     ],
     "source": "rules"

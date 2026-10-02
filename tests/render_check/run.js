@@ -26,12 +26,18 @@ DOC.querySelector = () => page;
 
 const script = html.match(/<script>([\s\S]*)<\/script>/)[1];
 
+// Mounts that are legitimately empty in some states, so existence is all that
+// can be asserted.
+// "Coming up next" has nothing to show once the block ends, and the week
+// calendar is deliberately emptied in post-race mode in favour of a notice.
+const CONDITIONAL = new Set(["cu-list", "wk-cal"]);
+
 const MOUNTS = [
   "jump", "range-group", "wk-cal", "cu-list", "tiles", "r-components",
   "chart-readiness", "chart-form", "chart-load", "chart-rhr", "chart-nocturnal",
   "chart-sleep", "chart-mileage", "block-weeks", "nut-macros", "nut-energy",
   "table-nutrition", "coach-body", "prov-yes", "p-reads", "table-ironman", "im-insights",
-  "lift-templates", "plan-rules", "athlete-ref", "perceived-band", "perceived-note",
+  "lift-templates", "plan-rules", "athlete-ref", "perceived-band", "perceived-note", "arc-phases", "arc-note", "nut-phase",
 ];
 
 const failures = [];
@@ -44,6 +50,7 @@ try {
 for (const id of MOUNTS) {
   const e = DOC.getElementById(id);
   if (!e) { failures.push(`${id}: element missing`); continue; }
+  if (CONDITIONAL.has(id)) continue;
   const filled = e.children.length || (e.innerHTML ? 1 : 0) || (e.textContent ? 1 : 0);
   if (!filled) failures.push(`${id}: rendered empty`);
 }

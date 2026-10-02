@@ -68,14 +68,29 @@ def check_build_age(data: dict) -> dict:
                       "the scheduled jobs may not be running."}
 
 
-def check_recent_failures(window_hours=48) -> dict:
-    """Failures from recent runs only.
+# Lines that mean a whole pipeline stage gave up, as opposed to a single API
+# call retrying and then succeeding. The library logs "API call attempt 1/4
+# failed" for every transient blip, and Garmin produces a lot of those: DNS
+# failures while the laptop is asleep, 504s, dropped connections. Counting those
+# as failures put the health banner permanently in WARN over problems that
+# resolved themselves within a second.
+STAGE_FAILURE_MARKERS = (
+    "returned non-zero exit status",
+    "failed (exit",
+)
+# This one means the sync gave up but the rest of the pipeline carried on from
+# the store, which is the designed degradation rather than a breakage.
+DEGRADED_MARKER = "continuing with the data already in the store"
+# Written to stderr by run_daily at the start of each run.
+RUN_MARKER = "=== PIPELINE RUN START ==="
 
-    The error log is append-only and holds months of history, so counting every
-    failure line in it means this check warns forever about problems that were
-    fixed weeks ago. A banner that is always on is a banner nobody reads, so the
-    file's modification time gates it: if nothing has been written to the error
-    log recently, there are no recent failures to report.
+
+def check_recent_failures(window_hours=48) -> dict:
+    """Pipeline stages that gave up recently — not individual API retries.
+
+    The error log is append-only and holds months of history, so the file's
+    modification time gates the check: if nothing has been written recently,
+    there are no recent failures to report.
     """
     if not ERR_LOG.exists():
         return {"name": "Recent runs", "status": "ok", "detail": "No error log."}
@@ -85,13 +100,45 @@ def check_recent_failures(window_hours=48) -> dict:
         return {"name": "Recent runs", "status": "ok",
                 "detail": f"No errors logged in the last {int(age_hours / 24)} day(s)."}
 
-    lines = [l for l in ERR_LOG.read_text(errors="replace").splitlines()
-             if "failed" in l.lower()]
-    if not lines:
-        return {"name": "Recent runs", "status": "ok", "detail": "No failures logged."}
+    lines = ERR_LOG.read_text(errors="replace").splitlines()
+
+    # Scope to the most recent run. Without this the check reads months of
+    # append-only history and keeps reporting failures from code that has since
+    # been replaced -- which is how it ended up warning about 17 failures from a
+    # sync invocation that no longer exists.
+    scoped = False
+    for index in range(len(lines) - 1, -1, -1):
+        if RUN_MARKER in lines[index]:
+            lines = lines[index + 1:]
+            scoped = True
+            break
+
+    if not scoped:
+        # No marker means this log predates per-run scoping, so its failures
+        # can't be attributed to any particular run. Reporting them would be
+        # warning about the past with no way to act on it.
+        return {"name": "Recent runs", "status": "ok",
+                "detail": "No run marker in the log yet — nothing attributable "
+                          "to a recent run."}
+
+    hard, degraded = 0, 0
+    for line in lines:
+        if not any(marker in line for marker in STAGE_FAILURE_MARKERS):
+            continue
+        if DEGRADED_MARKER in line:
+            degraded += 1
+        else:
+            hard += 1
+
+    if not hard and not degraded:
+        return {"name": "Recent runs", "status": "ok",
+                "detail": "Last run clean — transient API retries only."}
+    if not hard:
+        return {"name": "Recent runs", "status": "ok",
+                "detail": f"{degraded} sync(s) fell back to stored data, as designed. "
+                          "Usually the laptop being offline at a scheduled time."}
     return {"name": "Recent runs", "status": "warn",
-            "detail": f"The error log was written within the last {window_hours}h "
-                      f"and contains {len(lines)} failure line(s). "
+            "detail": f"{hard} stage failure(s) in the last run. "
                       "Check logs/daily_sync.err.log."}
 
 

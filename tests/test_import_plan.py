@@ -55,6 +55,32 @@ def test_an_explicit_warm_up_spec_is_used_verbatim():
     assert import_plan.parse_miles("Tempo 3mi @ 8:10 2WU/3/1CD") == 6
 
 
+def test_a_medium_long_run_states_its_total_not_its_work():
+    """"Medium-long 11mi, last 3 @ MP" is eleven miles, with the marathon-pace
+    portion inside it — not eleven plus a warm-up. Treating the marathon-pace
+    mention as "this is interval work" inflated every medium-long run by 3mi."""
+    assert import_plan.parse_miles("Medium-long 11mi, last 3 @ MP") == 11
+    assert import_plan.parse_miles("Medium-long 10mi, middle 5 @ MP") == 10
+
+
+def test_a_long_run_with_marathon_pace_states_its_total():
+    assert import_plan.parse_miles("LONG RUN 18mi + Lower B") == 18
+
+
+def test_a_tempo_states_its_work_so_a_warm_up_is_added():
+    assert import_plan.parse_miles("Tempo 4mi @ 8:10") == 7
+
+
+def test_a_5k_race_counts_its_warm_up_and_cool_down():
+    miles = import_plan.parse_miles("5K RACE — all out")
+    assert 6 < miles < 7
+
+
+def test_metric_reps_are_converted():
+    # 5 x 600m = 1.86mi of work, plus ~3mi warm-up and cool-down.
+    assert import_plan.parse_miles("5K sharpener: 5x600m @ 5K effort") == pytest.approx(4.9, abs=0.1)
+
+
 def test_race_day_is_the_full_distance():
     assert import_plan.parse_miles("MARATHON — RACE DAY") == pytest.approx(26.2188)
 

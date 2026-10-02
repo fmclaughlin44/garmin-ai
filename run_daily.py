@@ -32,6 +32,7 @@ BASE = Path(__file__).resolve().parent
 PY = str(BASE / ".venv" / "bin" / "python")
 LOG_DIR = BASE / "logs"
 MAX_LOG_BYTES = 512 * 1024
+RUN_MARKER = "=== PIPELINE RUN START ==="
 
 
 def rotate_logs() -> None:
@@ -75,8 +76,12 @@ def main() -> None:
 
     with runlock.exclusive("run_daily"):
         rotate_logs()
-        print(f"\n{'=' * 62}\nDaily run — {datetime.now().strftime('%A %d %B %Y, %H:%M')}\n{'=' * 62}",
-              flush=True)
+        header = f"Daily run — {datetime.now().strftime('%A %d %B %Y, %H:%M')}"
+        print(f"\n{'=' * 62}\n{header}\n{'=' * 62}", flush=True)
+        # The same marker on stderr, so healthcheck.py can count failures from
+        # this run alone. The error log is append-only and holds months of
+        # history, including failures from code that no longer exists.
+        print(f"{RUN_MARKER} {header}", file=sys.stderr, flush=True)
 
         if not args.skip_sync:
             step("Sync Garmin", ["sync_garmin.py", "--days", str(args.days)], required=False)

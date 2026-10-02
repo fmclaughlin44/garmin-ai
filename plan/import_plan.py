@@ -67,11 +67,24 @@ def parse_miles(text: str) -> float:
     if "marathon" in lowered and "race day" in lowered:
         return MARATHON_MILES
 
+    # A tune-up race: the distance plus its warm-up and cool-down.
+    race_5k = re.search(r"5k\s*race", lowered)
+    if race_5k:
+        wu_cd = re.search(r"([\d.]+)\s*mi(?!n)\s*wu.*?([\d.]+)\s*mi(?!n)\s*cd", lowered)
+        extra = (float(wu_cd.group(1)) + float(wu_cd.group(2))) if wu_cd else 3.5
+        return round(3.1 + extra, 1)
+
     # Interval work: reps x distance, plus a conventional warm-up and cool-down.
     reps = re.search(r"(\d+)\s*x\s*([\d.]+)\s*mi(?!n)", lowered)
     if reps:
         work = int(reps.group(1)) * float(reps.group(2))
         return round(work + 3, 1)          # ~2mi warm-up, ~1mi cool-down
+
+    # Reps given in metres, e.g. "5x600m" or "5x1000m".
+    metric = re.search(r"(\d+)\s*x\s*(\d+)\s*m\b", lowered)
+    if metric:
+        work = int(metric.group(1)) * int(metric.group(2)) / 1609.344
+        return round(work + 3, 1)
 
     # An explicit warm-up/cool-down spec, e.g. "2WU/3/1CD".
     spec = re.search(r"(\d+)\s*wu\s*/\s*([\d.]+)\s*/\s*(\d+)\s*cd", lowered)
@@ -101,7 +114,16 @@ def parse_miles(text: str) -> float:
 
 
 def _is_quality(text: str) -> bool:
-    return bool(re.search(r"tempo|cruise|\bmp\b|short sharp|tune-up", text))
+    """Whether the stated distance is the WORK, needing a warm-up added on top.
+
+    A long or medium-long run states its total: "Medium-long 11mi, last 3 @ MP"
+    is eleven miles, with the marathon-pace portion inside it. A tempo states its
+    work: "Tempo 4mi" is four miles of tempo plus a warm-up and cool-down. Mixing
+    those up inflated every medium-long run in the plan by three miles.
+    """
+    if re.search(r"long run|medium-long", text):
+        return False
+    return bool(re.search(r"tempo|cruise|\bmp\b|short sharp|tune-up|sharpener|5k race", text))
 
 
 def classify(day: dict) -> str:
@@ -113,6 +135,10 @@ def classify(day: dict) -> str:
         return "race"
     if "long run" in title:
         return "long"
+    if "5k race" in title:
+        return "race"
+    if "medium-long" in title:
+        return "medium_long"
     if _is_quality(title):
         return "quality"
     if disc == "swim" or re.search(r"cross-?train|bike|swim", title):
@@ -153,7 +179,7 @@ def build() -> dict:
             lift = find_lift(day)
             # The plan's own rule: "Never cut the long run or Wednesday quality
             # to save a lift." Those, and race day, are the key sessions.
-            key = kind in ("long", "quality", "race")
+            key = kind in ("long", "medium_long", "quality", "race")
             week_miles += miles
 
             days[iso] = {

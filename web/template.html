@@ -455,6 +455,51 @@
 
   section[id] { scroll-margin-top: 64px; }
 
+  .arc-phase {
+    display: grid; grid-template-columns: 16px 150px 1fr auto;
+    gap: 14px; padding: 14px 0; border-top: 1px solid var(--border); align-items: start;
+  }
+  .arc-phase:first-child { border-top: none; padding-top: 2px; }
+  @media (max-width: 760px) {
+    .arc-phase { grid-template-columns: 16px 1fr; }
+    .arc-phase .arc-when, .arc-phase .arc-meta { grid-column: 2; }
+  }
+  .arc-rail { position: relative; height: 100%; min-height: 28px; }
+  .arc-rail::before {
+    content: ""; position: absolute; left: 6px; top: 14px; bottom: -14px;
+    width: 2px; background: var(--border);
+  }
+  .arc-phase:last-child .arc-rail::before { display: none; }
+  .arc-node {
+    position: absolute; left: 1px; top: 4px; width: 12px; height: 12px;
+    border-radius: 50%; background: var(--surface-1);
+    border: 2px solid var(--border-strong);
+  }
+  .arc-phase[data-status="current"] .arc-node {
+    background: var(--series-1); border-color: var(--series-1);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--series-1) 20%, transparent);
+  }
+  .arc-phase[data-status="done"] .arc-node { background: var(--border-strong); border-color: var(--border-strong); }
+  .arc-when { font-family: var(--mono); font-size: 11.5px; color: var(--muted); padding-top: 2px; }
+  .arc-when .approx { color: var(--muted); }
+  .arc-name { font-size: 15px; font-weight: 600; }
+  .arc-phase[data-status="current"] .arc-name { color: var(--series-1); }
+  .arc-goal { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+  .arc-focus { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+  .arc-focus span {
+    font-size: 10.5px; padding: 2px 7px; border-radius: 4px;
+    background: var(--surface-2); color: var(--text-secondary);
+  }
+  .arc-notes { font-size: 12px; color: var(--muted); margin-top: 7px; line-height: 1.5; max-width: 68ch; }
+  .arc-meta { text-align: right; font-family: var(--mono); font-size: 11.5px; color: var(--text-secondary); }
+  .arc-meta .dir { display: block; font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+
+  .block-over {
+    background: color-mix(in srgb, var(--series-1) 8%, var(--surface-1));
+    border: 1px solid var(--series-1); border-radius: 10px; padding: 14px 16px;
+    font-size: 13.5px; line-height: 1.55;
+  }
+
   .health-banner {
     border-radius: 10px; padding: 12px 15px; font-size: 13.5px;
     display: flex; flex-direction: column; gap: 9px;
@@ -858,6 +903,18 @@
     </div>
   </section>
 
+  <!-- ============ 6b. THE ARC ============ -->
+  <section class="section" id="arc">
+    <div class="section-head">
+      <h2>The arc</h2>
+      <span class="hint" id="arc-hint"></span>
+    </div>
+    <div class="card">
+      <div id="arc-phases"></div>
+      <p class="note" id="arc-note" style="margin:14px 0 0"></p>
+    </div>
+  </section>
+
   <!-- ============ 7. PACES & NUTRITION ============ -->
   <section class="section" id="nutrition">
     <div class="section-head">
@@ -874,6 +931,7 @@
         <div id="nut-band"></div>
         <div class="macros" id="nut-macros"></div>
         <div class="verdict" id="nut-intent" style="margin-top:12px"></div>
+        <div id="nut-phase"></div>
         <p class="note" id="nut-note" style="margin:12px 0 0"></p>
       </div>
       <div class="section" style="gap:14px">
@@ -1272,7 +1330,8 @@ function renderSync(d) {
 const SECTIONS = [
   ["week", "This week"], ["readiness", "Readiness"], ["load", "Load & form"],
   ["recovery", "Recovery"], ["marathon", "Marathon"], ["ironman", "Ironman 2027"],
-  ["block", "The block"], ["nutrition", "Nutrition"], ["coach", "Coach"], ["data", "Data"],
+  ["block", "The block"], ["arc", "The arc"], ["nutrition", "Nutrition"],
+  ["coach", "Coach"], ["data", "Data"],
 ];
 function initJumpNav() {
   const bar = $("jump");
@@ -1425,6 +1484,39 @@ function renderWeek(d) {
 
   if (!weeks.length) {
     $("wk-title").textContent = "No plan loaded";
+    return;
+  }
+
+  // Once the dated block ends there is no current week. Saying so, and pointing
+  // at the arc, is the whole reason post-race mode exists: the last block
+  // expired and the dashboard sat on it for two weeks still looking authoritative.
+  if ((d.arc || {}).block_over) {
+    const phase = (d.arc || {}).current;
+    const notice = el("div", { class: "block-over" });
+    notice.appendChild(el("strong", {}, "The marathon block has finished."));
+    notice.appendChild(el("div", { style: "margin-top:5px" },
+      phase
+        ? `You're in ${phase.name}${has(phase.days_left) ? `, ${phase.days_left} days of it left` : ""}. `
+          + `${phase.goal || ""} Nutrition has switched to ${(phase.nutrition || {}).direction || "its phase setting"}.`
+        : "No arc phase covers today — add one to plan/arc.json."));
+    notice.appendChild(el("div", { class: "note", style: "margin-top:7px" },
+      "Day-to-day plan tracking is off because there is no plan to track. "
+      + "Load, recovery and the arc still work. Drop a new plan file in "
+      + "plan/ and run plan/import_plan.py to start the next block."));
+    const cal = $("wk-cal");
+    cal.replaceChildren();
+    cal.style.display = "none";
+    $("wk-title").textContent = "Between blocks";
+    $("wk-sub").textContent = "";
+    $("wk-range").textContent = "";
+    $("wk-progress").replaceChildren();
+    $("wk-swap").replaceChildren();
+    $("wk-swap").appendChild(notice);
+    $("wk-prev").disabled = true;
+    $("wk-next").disabled = true;
+    $("wk-today").hidden = true;
+    $("week-hint").textContent = "block complete";
+    renderComingUp(d);
     return;
   }
 
@@ -1905,6 +1997,73 @@ function renderPlanReference(d) {
   }
 }
 
+function renderArc(d) {
+  const arc = d.arc || {};
+  const mount = $("arc-phases");
+  mount.replaceChildren();
+
+  if (!arc.available || !(arc.phases || []).length) {
+    mount.appendChild(el("div", { class: "note" }, "No arc defined in plan/arc.json."));
+    $("arc-hint").textContent = "";
+    return;
+  }
+
+  const current = arc.current;
+  $("arc-hint").textContent = current
+    ? `${current.name}${has(current.days_left) ? ` · ${current.days_left} days left` : ""}`
+    : "between phases";
+
+  const month = (iso) => utcDate(iso).toLocaleDateString(undefined,
+    { month: "short", year: "numeric", timeZone: "UTC" });
+
+  arc.phases.forEach((phase) => {
+    const row = el("div", { class: "arc-phase", "data-status": phase.status });
+
+    const rail = el("div", { class: "arc-rail" });
+    rail.appendChild(el("div", { class: "arc-node" }));
+    row.appendChild(rail);
+
+    const when = el("div", { class: "arc-when" });
+    // Approximate dates are shown as roughly-when, never stated as fact.
+    const prefix = phase.approximate ? "~" : "";
+    when.appendChild(el("div", {}, `${prefix}${month(phase.start)} – ${prefix}${month(phase.end)}`));
+    if (phase.status === "current" && has(phase.days_left)) {
+      when.appendChild(el("div", { class: "approx" }, `${phase.days_left} days left`));
+    } else if (phase.status === "upcoming" && has(phase.days_until)) {
+      when.appendChild(el("div", { class: "approx" }, `in ${phase.days_until} days`));
+    } else if (phase.status === "done") {
+      when.appendChild(el("div", { class: "approx" }, "done"));
+    }
+    row.appendChild(when);
+
+    const body = el("div");
+    const name = el("div", { class: "arc-name" }, phase.name);
+    if (phase.approximate) name.appendChild(el("span", { class: "chip" }, "approximate"));
+    body.appendChild(name);
+    if (phase.goal) body.appendChild(el("div", { class: "arc-goal" }, phase.goal));
+    if ((phase.focus || []).length) {
+      const focus = el("div", { class: "arc-focus" });
+      phase.focus.forEach((f) => focus.appendChild(el("span", {}, f)));
+      body.appendChild(focus);
+    }
+    if (phase.notes) body.appendChild(el("div", { class: "arc-notes" }, phase.notes));
+    row.appendChild(body);
+
+    const meta = el("div", { class: "arc-meta" });
+    const nutrition = phase.nutrition || {};
+    if (has(nutrition.phase_kcal_offset)) {
+      meta.appendChild(el("div", {},
+        (nutrition.phase_kcal_offset > 0 ? "+" : "") + nutrition.phase_kcal_offset + " kcal"));
+    }
+    if (nutrition.direction) meta.appendChild(el("span", { class: "dir" }, nutrition.direction));
+    row.appendChild(meta);
+
+    mount.appendChild(row);
+  });
+
+  $("arc-note").textContent = arc.note || "";
+}
+
 function renderBlock(d) {
   const weeks = (d.adherence || {}).weeks || [];
   const mount = $("block-weeks"); mount.replaceChildren();
@@ -1981,6 +2140,24 @@ function renderNutrition(d) {
   });
 
   $("nut-intent").textContent = nn(n.intent, "");
+  // Rendered into its own container rather than inserted as a sibling, so a
+  // re-render replaces it instead of appending another copy.
+  const phaseMount = $("nut-phase");
+  phaseMount.replaceChildren();
+  if (n.phase && n.phase.name) {
+    const line = el("div", { class: "note", style: "margin-top:8px" });
+    line.appendChild(el("b", {}, `${n.phase.name}: `));
+    line.appendChild(el("span", {},
+      `${n.phase.direction || ""}`
+      + (has(n.phase.offset) && n.phase.offset
+          ? ` (${n.phase.offset > 0 ? "+" : ""}${n.phase.offset} kcal on every day of this phase)` : "")
+      + (n.phase.note ? ` ${n.phase.note}` : "")));
+    phaseMount.appendChild(line);
+  }
+  if (n.band_assumed) {
+    phaseMount.appendChild(el("div", { class: "note", style: "margin-top:6px" },
+      "No session planned today, so an easy day is assumed."));
+  }
   $("nut-note").textContent = nn(n.note, "");
 
   kv($("nut-energy"), [
@@ -2234,6 +2411,7 @@ function render(d) {
   guarded("Marathon", "marathon", () => renderMarathon(d));
   guarded("Ironman 2027", "ironman", () => renderIronman(d));
   guarded("The block", "block", () => renderBlock(d));
+  guarded("The arc", "arc", () => renderArc(d));
   guarded("Plan reference", "block", () => renderPlanReference(d));
   guarded("Nutrition", "nutrition", () => renderNutrition(d));
   guarded("Coach", "coach", () => renderCoach(d));

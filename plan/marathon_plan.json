@@ -4,7 +4,12 @@
     "block": "Post-70.3 Marathon Build",
     "raceDate": "2026-11-15",
     "raceDay": "Sunday",
-    "goal": { "primary": "sub-3:45", "primaryPace": "8:34", "floor": "sub-4:00", "floorPace": "9:09" },
+    "goal": {
+      "primary": "sub-3:45",
+      "primaryPace": "8:34",
+      "floor": "sub-4:00",
+      "floorPace": "9:09"
+    },
     "weeks": 8,
     "start": "2026-09-21",
     "structure": "6 firm sessions/week + 1 optional; 4 lifts (2 upper, 2 lower); Wed quality; Sat long run",
@@ -24,92 +29,465 @@
       "longestRunEver": "half marathon (13.1mi)"
     },
     "rules": [
-      "Hard days hard, easy days easy — keep easy runs 9:00+/mi, HR <155",
+      "Hard days hard, easy days easy \u2014 keep easy runs 9:00+/mi, HR <155",
       "Never cut the long run or Wednesday quality to save a lift",
       "Sacrifice order when tired: drop Lower B -> trim Lower A -> skip Friday optional",
       "Plyometrics in Weeks 1-4 only; removed from Lower B at Week 5 (peak)",
       "Lower body volume drops ~30% at Weeks 5-6, maintenance-only Weeks 7-8",
-      "Upper body stays full through Week 6; maintenance in taper"
-    ]
+      "Upper body stays full through Week 6; maintenance in taper",
+      "Long run peaks at 18mi, not 20 \u2014 longest run ever is 13.1mi, and time on feet (~2h50) matters more than the round number",
+      "5K race Sun Oct 18 is a tune-up, not a target race \u2014 it anchors the marathon projection and adds the threshold work this block is light on",
+      "Friday is a firm easy 4mi in the peak weeks (5-6) only \u2014 adding it earlier pushed the week-3 ramp over 25%"
+    ],
+    "tuneUpRace": {
+      "date": "2026-10-18",
+      "distance": "5K",
+      "intent": "All-out. Gives a max-effort data point the marathon projection currently lacks."
+    }
   },
   "lifting": {
-    "upperA_push": ["Barbell/DB Bench 4x8-10", "Overhead Press 3x8-10", "Incline DB Press 3x10-12", "Lateral Raises 4x12-15", "Overhead Triceps Ext 3x10-12", "Rope Pushdown 3x12-15"],
-    "upperB_pull": ["Weighted Pull-ups or Lat Pulldown 4x8-10", "Chest-Supported Row 4x10-12", "Seated Cable Row 3x12", "Rear-Delt Fly 3x15", "Incline DB Curl 3x10-12", "Hammer Curl 3x12-15"],
-    "lowerA_hypertrophy": ["Leg Press or Hack Squat 4x8-12", "Romanian Deadlift 3x8-10", "Bulgarian Split Squat 3x10/leg", "Leg Curl 3x12", "Standing Calf Raise 4x12-15", "Seated Calf Raise 3x15"],
-    "lowerB_prevention": ["Box Jumps or Pogo Hops 3x8 (Wks 1-4 only)", "Spanish Squat/Wall Sit Iso 3x30-45s", "Single-Leg Calf Raise 3x12/leg", "Tibialis Raises 3x15", "Copenhagen Plank 3x20-30s/side", "Single-Leg RDL 3x10/leg", "Dead Bugs + Bird Dogs"]
+    "upperA_push": [
+      "Barbell/DB Bench 4x8-10",
+      "Overhead Press 3x8-10",
+      "Incline DB Press 3x10-12",
+      "Lateral Raises 4x12-15",
+      "Overhead Triceps Ext 3x10-12",
+      "Rope Pushdown 3x12-15"
+    ],
+    "upperB_pull": [
+      "Weighted Pull-ups or Lat Pulldown 4x8-10",
+      "Chest-Supported Row 4x10-12",
+      "Seated Cable Row 3x12",
+      "Rear-Delt Fly 3x15",
+      "Incline DB Curl 3x10-12",
+      "Hammer Curl 3x12-15"
+    ],
+    "lowerA_hypertrophy": [
+      "Leg Press or Hack Squat 4x8-12",
+      "Romanian Deadlift 3x8-10",
+      "Bulgarian Split Squat 3x10/leg",
+      "Leg Curl 3x12",
+      "Standing Calf Raise 4x12-15",
+      "Seated Calf Raise 3x15"
+    ],
+    "lowerB_prevention": [
+      "Box Jumps or Pogo Hops 3x8 (Wks 1-4 only)",
+      "Spanish Squat/Wall Sit Iso 3x30-45s",
+      "Single-Leg Calf Raise 3x12/leg",
+      "Tibialis Raises 3x15",
+      "Copenhagen Plank 3x20-30s/side",
+      "Single-Leg RDL 3x10/leg",
+      "Dead Bugs + Bird Dogs"
+    ]
   },
   "plan": [
-    { "wk": 1, "phase": "recovery", "label": "70.3 Recovery", "dates": "Sep 21-27", "longRun": "8 mi easy", "days": [
-      { "d": "MON", "disc": "lift", "title": "Upper A (Push) + Easy Run 4-5mi", "detail": "Ease back; run @ 9:00-9:45" },
-      { "d": "TUE", "disc": "lift", "title": "Easy Run 5-6mi + Lower A", "detail": "Hypertrophy legs (moderate this week)" },
-      { "d": "WED", "disc": "run", "title": "Easy 30-40min + strides", "detail": "Recovery — no hard quality" },
-      { "d": "THU", "disc": "lift", "title": "Upper B (Pull) + Easy Run 4-5mi", "detail": "Run @ 9:00-9:45" },
-      { "d": "FRI", "disc": "rest", "title": "Optional easy 3-4mi / cross-train", "detail": "Pressure-valve day" },
-      { "d": "SAT", "disc": "run", "title": "Long Run 8mi + Lower B", "detail": "Iso/plyo/prevention after run" },
-      { "d": "SUN", "disc": "swim", "title": "Easy cross-train 30-40min", "detail": "Bike/swim Z2 recovery" }
-    ]},
-    { "wk": 2, "phase": "build", "label": "Rebuild", "dates": "Sep 28-Oct 4", "longRun": "12 mi easy", "days": [
-      { "d": "MON", "disc": "lift", "title": "Upper A (Push) + Easy Run 4-5mi", "detail": "Full volume begins" },
-      { "d": "TUE", "disc": "lift", "title": "Easy Run 5-6mi + Lower A", "detail": "Hypertrophy legs, near failure" },
-      { "d": "WED", "disc": "run", "title": "Tempo 3mi @ 8:10", "detail": "First quality back; 2WU/3/1CD" },
-      { "d": "THU", "disc": "lift", "title": "Upper B (Pull) + Easy Run 4-5mi", "detail": "Run @ 9:00-9:45" },
-      { "d": "FRI", "disc": "rest", "title": "Optional easy 3-4mi / cross-train", "detail": "Skip if legs need it" },
-      { "d": "SAT", "disc": "run", "title": "Long Run 12mi + Lower B", "detail": "Easy aerobic" },
-      { "d": "SUN", "disc": "swim", "title": "Easy cross-train 30-40min", "detail": "Z2 recovery" }
-    ]},
-    { "wk": 3, "phase": "build", "label": "Build", "dates": "Oct 5-11", "longRun": "14 mi (last 3 @ MP)", "days": [
-      { "d": "MON", "disc": "lift", "title": "Upper A (Push) + Easy Run 4-5mi", "detail": "" },
-      { "d": "TUE", "disc": "lift", "title": "Easy Run 5-6mi + Lower A", "detail": "Hypertrophy legs" },
-      { "d": "WED", "disc": "run", "title": "MP 4x1.5mi @ 8:34", "detail": "First marathon-pace intervals; 2min jog recovery" },
-      { "d": "THU", "disc": "lift", "title": "Upper B (Pull) + Easy Run 4-5mi", "detail": "" },
-      { "d": "FRI", "disc": "rest", "title": "Optional easy 3-4mi / cross-train", "detail": "" },
-      { "d": "SAT", "disc": "run", "title": "Long Run 14mi + Lower B", "detail": "last 3mi @ 8:34 MP" },
-      { "d": "SUN", "disc": "swim", "title": "Easy cross-train", "detail": "Z2 recovery" }
-    ]},
-    { "wk": 4, "phase": "build", "label": "Build", "dates": "Oct 12-18", "longRun": "16 mi (last 4 @ MP)", "days": [
-      { "d": "MON", "disc": "lift", "title": "Upper A (Push) + Easy Run 4-5mi", "detail": "" },
-      { "d": "TUE", "disc": "lift", "title": "Easy Run 5-6mi + Lower A", "detail": "Hypertrophy legs" },
-      { "d": "WED", "disc": "run", "title": "Tempo 4mi @ 8:10", "detail": "Threshold" },
-      { "d": "THU", "disc": "lift", "title": "Upper B (Pull) + Easy Run 4-5mi", "detail": "" },
-      { "d": "FRI", "disc": "rest", "title": "Optional easy 3-4mi / cross-train", "detail": "" },
-      { "d": "SAT", "disc": "run", "title": "Long Run 16mi + Lower B", "detail": "last 4mi @ MP; fuel rehearsal" },
-      { "d": "SUN", "disc": "swim", "title": "Easy cross-train", "detail": "Z2 recovery" }
-    ]},
-    { "wk": 5, "phase": "peak", "label": "Peak Build", "dates": "Oct 19-25", "longRun": "18 mi (middle 6 @ MP)", "days": [
-      { "d": "MON", "disc": "lift", "title": "Upper A (Push) + Easy Run 4-5mi", "detail": "Upper still full" },
-      { "d": "TUE", "disc": "lift", "title": "Easy Run 5-6mi + Lower A (-30%)", "detail": "Leg volume drops to protect long runs" },
-      { "d": "WED", "disc": "run", "title": "MP 2x3mi @ 8:34", "detail": "Biggest MP session; 0.5mi jog recovery" },
-      { "d": "THU", "disc": "lift", "title": "Upper B (Pull) + Easy Run 4-5mi", "detail": "" },
-      { "d": "FRI", "disc": "rest", "title": "Optional easy 3-4mi / cross-train", "detail": "Protect legs before 18mi" },
-      { "d": "SAT", "disc": "run", "title": "Long Run 18mi + Lower B", "detail": "middle 6 @ MP; PLYOS OUT now, iso only" },
-      { "d": "SUN", "disc": "swim", "title": "Easy cross-train", "detail": "Recovery after 18mi" }
-    ]},
-    { "wk": 6, "phase": "peak", "label": "Peak — 20mi", "dates": "Oct 26-Nov 1", "longRun": "20 mi (last 5 @ MP)", "days": [
-      { "d": "MON", "disc": "lift", "title": "Upper A (Push) + Easy Run 4-5mi", "detail": "" },
-      { "d": "TUE", "disc": "lift", "title": "Easy Run 5-6mi + Lower A (-30%)", "detail": "Keep legs fresh for 20mi" },
-      { "d": "WED", "disc": "run", "title": "Cruise 3x2mi @ 8:15", "detail": "Controlled ahead of 20-miler; 2min jog" },
-      { "d": "THU", "disc": "lift", "title": "Upper B (Pull) + Easy Run 4-5mi", "detail": "" },
-      { "d": "FRI", "disc": "rest", "title": "Optional — lean rest", "detail": "20-miler tomorrow" },
-      { "d": "SAT", "disc": "run", "title": "LONG RUN 20mi + Lower B", "detail": "last 5 @ MP; full race-day rehearsal; peak long run" },
-      { "d": "SUN", "disc": "swim", "title": "Easy cross-train", "detail": "Gentle recovery" }
-    ]},
-    { "wk": 7, "phase": "taper", "label": "Taper Begins", "dates": "Nov 2-8", "longRun": "13-14 mi cutback (4 @ MP)", "days": [
-      { "d": "MON", "disc": "lift", "title": "Upper A (maintenance) + Easy 4mi", "detail": "Volume -30%" },
-      { "d": "TUE", "disc": "lift", "title": "Easy 5mi + Lower A (maintenance)", "detail": "2 sets, submaximal" },
-      { "d": "WED", "disc": "run", "title": "MP tune-up 4mi @ 8:34", "detail": "Dial in goal feel" },
-      { "d": "THU", "disc": "lift", "title": "Upper B (maintenance) + Easy 4mi", "detail": "" },
-      { "d": "FRI", "disc": "rest", "title": "Optional easy 3mi / rest", "detail": "" },
-      { "d": "SAT", "disc": "run", "title": "Long Run 13-14mi + light Lower B", "detail": "4mi @ MP; iso/mobility only" },
-      { "d": "SUN", "disc": "swim", "title": "Easy cross-train 30min / rest", "detail": "6 days out" }
-    ]},
-    { "wk": 8, "phase": "taper", "label": "Race Week", "dates": "Nov 9-15", "longRun": "MARATHON Sun Nov 15", "days": [
-      { "d": "MON", "disc": "lift", "title": "Light Upper (full body) + Easy 4mi", "detail": "Last lift; nothing heavy" },
-      { "d": "TUE", "disc": "run", "title": "Short sharp: 2mi @ MP + strides", "detail": "Last quality touch" },
-      { "d": "WED", "disc": "run", "title": "Easy shakeout 3mi", "detail": "Loose & relaxed" },
-      { "d": "THU", "disc": "rest", "title": "Rest or 20min easy jog", "detail": "Dial in sleep + hydration" },
-      { "d": "FRI", "disc": "run", "title": "15-20min shakeout + strides", "detail": "Carb-load begins" },
-      { "d": "SAT", "disc": "rest", "title": "Full rest / 10-15min shakeout", "detail": "Lay out gear; carb-load; early night" },
-      { "d": "SUN", "disc": "run", "title": "MARATHON — RACE DAY", "detail": "Goal sub-3:45 (8:34); floor sub-4 (9:09)" }
-    ]}
+    {
+      "wk": 1,
+      "phase": "recovery",
+      "label": "70.3 Recovery",
+      "dates": "Sep 21-27",
+      "longRun": "8 mi easy",
+      "days": [
+        {
+          "d": "MON",
+          "disc": "lift",
+          "title": "Upper A (Push) + Easy Run 4-5mi",
+          "detail": "Ease back; run @ 9:00-9:45"
+        },
+        {
+          "d": "TUE",
+          "disc": "lift",
+          "title": "Easy Run 5-6mi + Lower A",
+          "detail": "Hypertrophy legs (moderate this week)"
+        },
+        {
+          "d": "WED",
+          "disc": "run",
+          "title": "Easy 30-40min + strides",
+          "detail": "Recovery \u2014 no hard quality"
+        },
+        {
+          "d": "THU",
+          "disc": "lift",
+          "title": "Upper B (Pull) + Easy Run 4-5mi",
+          "detail": "Run @ 9:00-9:45"
+        },
+        {
+          "d": "FRI",
+          "disc": "rest",
+          "title": "Optional easy 3-4mi / cross-train",
+          "detail": "Pressure-valve day"
+        },
+        {
+          "d": "SAT",
+          "disc": "run",
+          "title": "Long Run 8mi + Lower B",
+          "detail": "Iso/plyo/prevention after run"
+        },
+        {
+          "d": "SUN",
+          "disc": "swim",
+          "title": "Easy cross-train 30-40min",
+          "detail": "Bike/swim Z2 recovery"
+        }
+      ]
+    },
+    {
+      "wk": 2,
+      "phase": "build",
+      "label": "Rebuild",
+      "dates": "Sep 28-Oct 4",
+      "longRun": "12 mi easy",
+      "days": [
+        {
+          "d": "MON",
+          "disc": "lift",
+          "title": "Upper A (Push) + Easy Run 4-5mi",
+          "detail": "Full volume begins"
+        },
+        {
+          "d": "TUE",
+          "disc": "lift",
+          "title": "Easy Run 5-6mi + Lower A",
+          "detail": "Hypertrophy legs, near failure"
+        },
+        {
+          "d": "WED",
+          "disc": "run",
+          "title": "Tempo 3mi @ 8:10",
+          "detail": "First quality back; 2WU/3/1CD"
+        },
+        {
+          "d": "THU",
+          "disc": "lift",
+          "title": "Upper B (Pull) + Easy Run 4-5mi",
+          "detail": "Run @ 9:00-9:45"
+        },
+        {
+          "d": "FRI",
+          "disc": "rest",
+          "title": "Optional easy 3-4mi / cross-train",
+          "detail": "Skip if legs need it"
+        },
+        {
+          "d": "SAT",
+          "disc": "run",
+          "title": "Long Run 12mi + Lower B",
+          "detail": "Easy aerobic"
+        },
+        {
+          "d": "SUN",
+          "disc": "swim",
+          "title": "Easy cross-train 30-40min",
+          "detail": "Z2 recovery"
+        }
+      ]
+    },
+    {
+      "wk": 3,
+      "phase": "build",
+      "label": "Build",
+      "dates": "Oct 5-11",
+      "longRun": "14 mi (last 3 @ MP)",
+      "days": [
+        {
+          "d": "MON",
+          "disc": "lift",
+          "title": "Upper A (Push) + Easy Run 4-5mi",
+          "detail": ""
+        },
+        {
+          "d": "TUE",
+          "disc": "lift",
+          "title": "Easy Run 5-6mi + Lower A",
+          "detail": "Hypertrophy legs"
+        },
+        {
+          "d": "WED",
+          "disc": "run",
+          "title": "MP 4x1.5mi @ 8:34",
+          "detail": "First marathon-pace intervals; 2min jog recovery"
+        },
+        {
+          "d": "THU",
+          "disc": "lift",
+          "title": "Upper B (Pull) + Easy Run 4-5mi",
+          "detail": ""
+        },
+        {
+          "d": "FRI",
+          "disc": "rest",
+          "title": "Optional easy 3-4mi / cross-train",
+          "detail": "Pressure-valve day"
+        },
+        {
+          "d": "SAT",
+          "disc": "run",
+          "title": "Long Run 14mi + Lower B",
+          "detail": "last 3mi @ 8:34 MP"
+        },
+        {
+          "d": "SUN",
+          "disc": "swim",
+          "title": "Easy cross-train",
+          "detail": "Z2 recovery"
+        }
+      ]
+    },
+    {
+      "wk": 4,
+      "phase": "build",
+      "label": "Build + 5K race",
+      "dates": "Oct 12-18",
+      "longRun": "11 mi Thu (last 3 @ MP) \u00b7 5K race Sun",
+      "days": [
+        {
+          "d": "MON",
+          "disc": "lift",
+          "title": "Upper A (Push) + Easy Run 4-5mi",
+          "detail": "Easy @ 9:00-9:45"
+        },
+        {
+          "d": "TUE",
+          "disc": "lift",
+          "title": "Easy Run 5-6mi + Lower A (2 sets)",
+          "detail": "Legs trimmed \u2014 racing Sunday"
+        },
+        {
+          "d": "WED",
+          "disc": "run",
+          "title": "5K sharpener: 5x600m @ 5K effort",
+          "detail": "2WU/1CD, 90s jog. First real work faster than tempo \u2014 keep it controlled"
+        },
+        {
+          "d": "THU",
+          "disc": "run",
+          "title": "Medium-long 11mi, last 3 @ MP",
+          "detail": "The week's long run, moved early to clear the race"
+        },
+        {
+          "d": "FRI",
+          "disc": "rest",
+          "title": "Rest or easy 3mi",
+          "detail": "Pressure valve before the race"
+        },
+        {
+          "d": "SAT",
+          "disc": "run",
+          "title": "Easy 3mi + 4x20s strides",
+          "detail": "Shakeout only \u2014 legs sharp, not tired"
+        },
+        {
+          "d": "SUN",
+          "disc": "run",
+          "title": "5K RACE \u2014 all out",
+          "detail": "2mi WU + race + 1.5mi CD. Garmin projects ~20:20; go off feel for the first mile"
+        }
+      ]
+    },
+    {
+      "wk": 5,
+      "phase": "peak",
+      "label": "Peak Build",
+      "dates": "Oct 19-25",
+      "longRun": "16 mi (middle 5 @ MP)",
+      "days": [
+        {
+          "d": "MON",
+          "disc": "lift",
+          "title": "Upper A (Push) + Easy Run 4-5mi",
+          "detail": "Upper still full"
+        },
+        {
+          "d": "TUE",
+          "disc": "lift",
+          "title": "Easy Run 5-6mi + Lower A (-30%)",
+          "detail": "Leg volume drops to protect long runs"
+        },
+        {
+          "d": "WED",
+          "disc": "run",
+          "title": "MP 2x3mi @ 8:34",
+          "detail": "Biggest MP session; 0.5mi jog recovery"
+        },
+        {
+          "d": "THU",
+          "disc": "lift",
+          "title": "Upper B (Pull) + Easy Run 4-5mi",
+          "detail": ""
+        },
+        {
+          "d": "FRI",
+          "disc": "run",
+          "title": "Easy 4mi",
+          "detail": "Firm now, not optional \u2014 keeps the long run from carrying the week"
+        },
+        {
+          "d": "SAT",
+          "disc": "run",
+          "title": "Long Run 16mi + Lower B",
+          "detail": "middle 5 @ MP; PLYOS OUT now, iso only"
+        },
+        {
+          "d": "SUN",
+          "disc": "swim",
+          "title": "Easy cross-train",
+          "detail": "Recovery after 18mi"
+        }
+      ]
+    },
+    {
+      "wk": 6,
+      "phase": "peak",
+      "label": "Peak \u2014 18mi",
+      "dates": "Oct 26-Nov 1",
+      "longRun": "18 mi (last 5 @ MP)",
+      "days": [
+        {
+          "d": "MON",
+          "disc": "lift",
+          "title": "Upper A (Push) + Easy Run 4-5mi",
+          "detail": ""
+        },
+        {
+          "d": "TUE",
+          "disc": "lift",
+          "title": "Easy Run 5-6mi + Lower A (-30%)",
+          "detail": "Keep legs fresh for 20mi"
+        },
+        {
+          "d": "WED",
+          "disc": "run",
+          "title": "Cruise 3x2mi @ 8:15",
+          "detail": "Controlled ahead of 20-miler; 2min jog"
+        },
+        {
+          "d": "THU",
+          "disc": "lift",
+          "title": "Upper B (Pull) + Easy Run 4-5mi",
+          "detail": ""
+        },
+        {
+          "d": "FRI",
+          "disc": "run",
+          "title": "Easy 4mi",
+          "detail": "Firm now, not optional \u2014 keeps the long run from carrying the week"
+        },
+        {
+          "d": "SAT",
+          "disc": "run",
+          "title": "LONG RUN 18mi + Lower B",
+          "detail": "last 5 @ MP; full race-day rehearsal; peak long run. ~2h50 on feet, which is the number that matters more than 20mi"
+        },
+        {
+          "d": "SUN",
+          "disc": "swim",
+          "title": "Easy cross-train",
+          "detail": "Gentle recovery"
+        }
+      ]
+    },
+    {
+      "wk": 7,
+      "phase": "taper",
+      "label": "Taper Begins",
+      "dates": "Nov 2-8",
+      "longRun": "13-14 mi cutback (4 @ MP)",
+      "days": [
+        {
+          "d": "MON",
+          "disc": "lift",
+          "title": "Upper A (maintenance) + Easy 4mi",
+          "detail": "Volume -30%"
+        },
+        {
+          "d": "TUE",
+          "disc": "lift",
+          "title": "Easy 5mi + Lower A (maintenance)",
+          "detail": "2 sets, submaximal"
+        },
+        {
+          "d": "WED",
+          "disc": "run",
+          "title": "MP tune-up 4mi @ 8:34",
+          "detail": "Dial in goal feel"
+        },
+        {
+          "d": "THU",
+          "disc": "lift",
+          "title": "Upper B (maintenance) + Easy 4mi",
+          "detail": ""
+        },
+        {
+          "d": "FRI",
+          "disc": "rest",
+          "title": "Optional easy 3mi / rest",
+          "detail": ""
+        },
+        {
+          "d": "SAT",
+          "disc": "run",
+          "title": "Long Run 13-14mi + light Lower B",
+          "detail": "4mi @ MP; iso/mobility only"
+        },
+        {
+          "d": "SUN",
+          "disc": "swim",
+          "title": "Easy cross-train 30min / rest",
+          "detail": "6 days out"
+        }
+      ]
+    },
+    {
+      "wk": 8,
+      "phase": "taper",
+      "label": "Race Week",
+      "dates": "Nov 9-15",
+      "longRun": "MARATHON Sun Nov 15",
+      "days": [
+        {
+          "d": "MON",
+          "disc": "lift",
+          "title": "Light Upper (full body) + Easy 4mi",
+          "detail": "Last lift; nothing heavy"
+        },
+        {
+          "d": "TUE",
+          "disc": "run",
+          "title": "Short sharp: 2mi @ MP + strides",
+          "detail": "Last quality touch"
+        },
+        {
+          "d": "WED",
+          "disc": "run",
+          "title": "Easy shakeout 3mi",
+          "detail": "Loose & relaxed"
+        },
+        {
+          "d": "THU",
+          "disc": "rest",
+          "title": "Rest or 20min easy jog",
+          "detail": "Dial in sleep + hydration"
+        },
+        {
+          "d": "FRI",
+          "disc": "run",
+          "title": "15-20min shakeout + strides",
+          "detail": "Carb-load begins"
+        },
+        {
+          "d": "SAT",
+          "disc": "rest",
+          "title": "Full rest / 10-15min shakeout",
+          "detail": "Lay out gear; carb-load; early night"
+        },
+        {
+          "d": "SUN",
+          "disc": "run",
+          "title": "MARATHON \u2014 RACE DAY",
+          "detail": "Goal sub-3:45 (8:34); floor sub-4 (9:09)"
+        }
+      ]
+    }
   ]
 }

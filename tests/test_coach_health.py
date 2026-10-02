@@ -158,6 +158,29 @@ def test_sleep_coverage_warns_only_past_a_real_gap_rate():
     assert healthcheck.check_sleep_coverage(health_payload(missing_nights=8))["status"] == "warn"
 
 
+def test_only_the_most_recent_run_is_counted(tmp_path, monkeypatch):
+    """The error log is append-only. Without scoping to the last run it keeps
+    reporting failures from code that has since been replaced."""
+    log = tmp_path / "err.log"
+    log.write_text(
+        "Daily run failed: Command '[old]' returned non-zero exit status 1.\n"
+        "Daily run failed: Command '[old]' returned non-zero exit status 1.\n"
+        f"{healthcheck.RUN_MARKER} Daily run — Thursday 01 October 2026, 06:30\n"
+        "API call attempt 1/4 failed (path=/x status=504) — retrying\n")
+    monkeypatch.setattr(healthcheck, "ERR_LOG", log)
+    result = healthcheck.check_recent_failures()
+    assert result["status"] == "ok", result["detail"]
+
+
+def test_an_unscoped_log_does_not_warn(tmp_path, monkeypatch):
+    """A log with no run marker predates per-run scoping, so its failures can't
+    be attributed to a recent run — warning about them is unactionable."""
+    log = tmp_path / "err.log"
+    log.write_text("Daily run failed: Command '[old]' returned non-zero exit status 1.\n")
+    monkeypatch.setattr(healthcheck, "ERR_LOG", log)
+    assert healthcheck.check_recent_failures()["status"] == "ok"
+
+
 def test_old_failures_do_not_warn_forever(tmp_path, monkeypatch):
     """A banner that is always on is a banner nobody reads. Failures from weeks
     ago must not keep the health check in WARN."""
@@ -170,11 +193,38 @@ def test_old_failures_do_not_warn_forever(tmp_path, monkeypatch):
     assert healthcheck.check_recent_failures()["status"] == "ok"
 
 
-def test_fresh_failures_do_warn(tmp_path, monkeypatch):
+def test_a_real_stage_failure_warns(tmp_path, monkeypatch):
     log = tmp_path / "err.log"
-    log.write_text("Daily run failed: something\n")
+    log.write_text(f"{healthcheck.RUN_MARKER} Daily run\n"
+                   "Daily run failed: Command '[...]' returned non-zero exit status 1.\n")
     monkeypatch.setattr(healthcheck, "ERR_LOG", log)
     assert healthcheck.check_recent_failures()["status"] == "warn"
+
+
+def test_transient_api_retries_are_not_failures(tmp_path, monkeypatch):
+    """Garmin produces a lot of these — DNS blips while the laptop sleeps, 504s,
+    dropped connections — and they retry and succeed. Counting them put the
+    banner permanently in WARN over nothing."""
+    log = tmp_path / "err.log"
+    log.write_text(
+        f"{healthcheck.RUN_MARKER} Daily run\n"
+        "API call attempt 1/4 failed (path=/x status=504) — retrying in 0.8s\n"
+        "API call network error attempt 2/4 (path=/y) — retrying in 1.0s\n")
+    monkeypatch.setattr(healthcheck, "ERR_LOG", log)
+    assert healthcheck.check_recent_failures()["status"] == "ok"
+
+
+def test_a_sync_falling_back_to_stored_data_is_designed_behaviour(tmp_path, monkeypatch):
+    """run_daily treats sync as non-required on purpose: the store still holds
+    yesterday, so the dashboard rebuilds rather than going blank."""
+    log = tmp_path / "err.log"
+    log.write_text(f"{healthcheck.RUN_MARKER} Daily run\n"
+                   "Sync Garmin failed (exit 1) — continuing with the data "
+                   "already in the store.\n")
+    monkeypatch.setattr(healthcheck, "ERR_LOG", log)
+    result = healthcheck.check_recent_failures()
+    assert result["status"] == "ok"
+    assert "as designed" in result["detail"]
 
 
 def test_overall_status_takes_the_worst_check(monkeypatch):
